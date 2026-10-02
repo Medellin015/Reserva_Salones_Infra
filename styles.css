@@ -1,0 +1,88 @@
+/* ============================================================================
+   Salas Piso 9 CAM — estilos
+   Sin librerías por CDN: la página debe abrir igual en la red institucional.
+   Estructura del archivo:
+     1. Variables de tema (claro, oscuro y preferencia del sistema)
+     2. Base y encabezado
+     3. Tarjetas de salas
+     4. Pasos, reglas y contacto
+   ============================================================================ */
+
+/* ===== 1. Variables de tema ===== */
+:root{
+  --bg:#F2F5F6; --surface:#FFFFFF; --ink:#15212A; --muted:#55636E; --line:#D6DEE3;
+  --accent:#0C7566; --accent-ink:#FFFFFF; --accent-soft:#E0F0EC; --warn-soft:#FAEEDC;
+  --s1:#3466D6; --s2:#CC7418; --s3:#8052C8; --s4:#C4426B;
+  --f:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+  --m:ui-monospace,"Cascadia Mono",Consolas,monospace;
+  color-scheme:light;
+}
+:root[data-tema="oscuro"]{
+  --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
+  --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
+  --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-tema="claro"]){
+    --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
+    --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
+    --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+    color-scheme:dark;
+  }
+}
+/* ===== 2. Base ===== */
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:60rem;margin-inline:auto;padding:0 20px}
+
+/* Encabezado */
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}
+.marca{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
+.marca i{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-style:normal;font-weight:800}
+.tema{font:inherit;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tema:hover{color:var(--ink)}
+
+.hero{padding:22px 0 8px}
+.ey{font-family:var(--m);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;margin:0 0 10px;text-wrap:balance}
+.lede{max-width:40rem;margin:0 0 18px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:600;text-decoration:none;border-radius:10px;padding:11px 18px;border:1px solid transparent;cursor:pointer}
+.btn-p{background:var(--accent);color:var(--accent-ink)}
+.btn-p:hover{filter:brightness(1.06)}
+.btn-s{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn-s:hover{border-color:var(--accent);color:var(--accent)}
+.btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
+.btn svg{width:16px;height:16px;flex:none}
+
+/* ===== 3. Tarjetas de salas ===== */
+.salas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0 6px}
+@media (max-width:860px){.salas{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:460px){.salas{grid-template-columns:minmax(0,1fr)}}
+.sala{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;border-top:4px solid var(--c);min-width:0}
+.sala h3{margin:0;font-size:1.15rem;line-height:1.2}
+.sala .aforo{margin:0;font-size:13.5px;color:var(--muted)}
+.sala .pend{margin:0;font-size:13px;color:var(--muted);background:var(--warn-soft);border-radius:8px;padding:8px 10px}
+.sala .btn{margin-top:auto;justify-content:center}
+
+/* ===== 4. Pasos, reglas y contacto ===== */
+.sec{padding:26px 0 6px}
+.sec h2{font-size:1.1rem;margin:0 0 10px}
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:12px;margin:0;padding:0;list-style:none;counter-reset:p}
+.pasos li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 52px;position:relative;min-width:0}
+.pasos li::before{counter-increment:p;content:counter(p);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
+.pasos b{display:block;margin-bottom:2px}
+.pasos p{margin:0;font-size:14.5px;color:var(--muted)}
+.reglas{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.reglas li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
+.reglas li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:9px}
+
+.contacto{margin-top:22px;background:var(--accent-soft);border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px}
+.contacto code{font-family:var(--m);font-size:14px;background:var(--surface);padding:3px 8px;border-radius:6px;overflow-wrap:anywhere}
+.copiar{font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:transparent;border:1px solid var(--accent);border-radius:6px;padding:3px 10px;cursor:pointer}
+.copiar.ok{background:var(--accent);color:var(--accent-ink)}
+footer{padding:34px 0 40px;font-size:13px;color:var(--muted)}
+footer a{color:inherit}
