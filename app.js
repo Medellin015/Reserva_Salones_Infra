@@ -19,6 +19,7 @@ const escapar = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'
 // Plan B para copiar cuando navigator.clipboard no existe (páginas servidas por http
 // sin TLS) o rechaza la escritura: un textarea invisible y el comando copy clásico.
 const copiarConTextarea = (texto) => {
+  const activo = document.activeElement; // ta.select() se lleva el foco; se devuelve al salir
   const ta = document.createElement('textarea');
   ta.value = texto;
   ta.setAttribute('readonly', '');
@@ -30,6 +31,7 @@ const copiarConTextarea = (texto) => {
   let ok = false;
   try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
   document.body.removeChild(ta);
+  if (activo && activo.focus) activo.focus();
   return ok;
 };
 
@@ -63,16 +65,20 @@ const temaActual = () =>
   document.documentElement.getAttribute('data-tema')
   || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'oscuro' : 'claro');
 
-// El <script> en línea del <head> ya aplicó el tema guardado antes del primer pintado;
-// aquí solo se conecta el botón y se le pone la etiqueta del estado actual.
+// El <script> en línea del <head> ya aplicó el tema guardado antes del primer pintado.
+// Aquí se reaplica por si ese script no corrió (p. ej. una CSP que bloquee scripts en
+// línea), se conecta el botón y se le pone como etiqueta el tema actual.
 const pintarBotonTema = () => {
-  const btn = $('#btn-tema');
-  const oscuro = temaActual() === 'oscuro';
-  btn.textContent = oscuro ? 'Tema oscuro' : 'Tema claro';
-  btn.setAttribute('aria-pressed', String(oscuro));
+  $('#btn-tema').textContent = temaActual() === 'oscuro' ? 'Tema oscuro' : 'Tema claro';
 };
 const iniciarTema = () => {
+  try {
+    const guardado = localStorage.getItem(CLAVE_TEMA);
+    if (guardado === 'claro' || guardado === 'oscuro') aplicarTema(guardado);
+  } catch (e) { /* sin almacenamiento: se usa el del sistema */ }
   pintarBotonTema();
+  // Sin preferencia guardada, el tema sigue al sistema: la etiqueta debe seguirlo también.
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', pintarBotonTema);
   $('#btn-tema').addEventListener('click', () => {
     const nuevo = temaActual() === 'oscuro' ? 'claro' : 'oscuro';
     aplicarTema(nuevo);
