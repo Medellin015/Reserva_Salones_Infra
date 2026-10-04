@@ -67,7 +67,8 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .sala h3{margin:0;font-size:1.15rem;line-height:1.2}
 .sala .aforo{margin:0;font-size:13.5px;color:var(--muted)}
 .sala .pend{margin:0;font-size:13px;color:var(--muted);background:var(--warn-soft);border-radius:8px;padding:8px 10px}
-.sala .btn{margin-top:auto;justify-content:center}
+/* text-align: si "Ver disponibilidad" se parte en dos líneas en tarjetas angostas, ambas quedan centradas */
+.sala .btn{margin-top:auto;justify-content:center;text-align:center}
 
 /* ===== 4. Pasos, reglas y contacto ===== */
 .sec{padding:26px 0 6px}
