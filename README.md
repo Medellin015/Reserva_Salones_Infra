@@ -19,6 +19,9 @@ también en la red institucional.
 
 ## Cómo publicar el calendario de una sala
 
+Los cuatro calendarios ya están publicados y enlazados en `config.js`. Estos pasos
+sirven para cambiar o volver a publicar alguno.
+
 1. En Outlook web, entrando como sal9: ⚙ Configuración → Calendario → Calendarios
    compartidos → "Publicar un calendario".
 2. Elija la sala y el nivel "Puede ver cuando estoy ocupado" → Publicar.

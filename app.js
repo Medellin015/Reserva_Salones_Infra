@@ -43,7 +43,7 @@ const renderSalas = () => {
     const aforo = s.aforo ? `<p class="aforo">Hasta ${s.aforo} personas</p>` : '<p class="aforo">CAM La Alpujarra, piso 9</p>';
     const ok = esUrl(s.calendario);
     const boton = ok
-      ? `<a class="btn btn-s" href="${escapar(s.calendario.trim())}" target="_blank" rel="noopener">Ver disponibilidad</a>`
+      ? `<a class="btn btn-s" href="${escapar(s.calendario.trim())}" target="_blank" rel="noopener" aria-label="Ver disponibilidad de la ${escapar(s.nombre)}">Ver disponibilidad</a>`
       : `<p class="pend">Calendario pendiente de publicar. Por ahora, pida la sala por el formulario; el sistema avisa si está ocupada.</p>
          <span class="btn btn-s" aria-disabled="true">Ver disponibilidad</span>`;
     return `<article class="sala" style="--c:${s.color}">
