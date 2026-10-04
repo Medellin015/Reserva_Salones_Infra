@@ -27,8 +27,12 @@ const CONTACTO = { nombre: 'Victor Lezcano', correo: 'victor.lezcano@medellin.go
 //   calendar.html). El enlace ICS no sirve aquí.
 // Mientras el campo esté vacío, la tarjeta avisa que falta publicar el calendario.
 const SALAS = [
-  { nombre: 'Sala 1', aforo: null, color: 'var(--s1)', calendario: '' },
-  { nombre: 'Sala 2', aforo: null, color: 'var(--s2)', calendario: '' },
-  { nombre: 'Sala 3', aforo: null, color: 'var(--s3)', calendario: '' },
-  { nombre: 'Sala 4', aforo: null, color: 'var(--s4)', calendario: '' },
+  { nombre: 'Sala 1', aforo: null, color: 'var(--s1)',
+    calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/55937f16e55f435a93fb07014c46b8a912560906985531697418/calendar.html' },
+  { nombre: 'Sala 2', aforo: null, color: 'var(--s2)',
+    calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/878029d3bd3645838b56ba74b3681f747497618923992496313/calendar.html' },
+  { nombre: 'Sala 3', aforo: null, color: 'var(--s3)',
+    calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/0296599255094d68944d45b9640c9f8b1032414812168915243/calendar.html' },
+  { nombre: 'Sala 4', aforo: null, color: 'var(--s4)',
+    calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/8e4d1d7594bd463baaaebd8efaf0f7d514839775579376083701/calendar.html' },
 ];
