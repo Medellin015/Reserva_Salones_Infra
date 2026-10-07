@@ -416,6 +416,9 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
       intervalos.push([i.inicio, i.fin]);
     }
   }
+  // citasArchivo: todas las citas y series del archivo, dentro o fuera de la ventana; sirve en el
+  // registro para distinguir un calendario vacío de un archivo que no trae citas.
+  intervalos.citasArchivo = eventos.length;
   return intervalos;
 };
 
@@ -526,7 +529,7 @@ const principal = async () => {
       ocupado[sala.nombre] = ocupacionPorDia(intervalos, dias);
       leidas += 1;
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
-      console.log(`${sala.nombre}: ${intervalos.length} citas en la ventana, ${total} franjas ocupadas`);
+      console.log(`${sala.nombre}: ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles, ${total} franjas ocupadas`);
     } catch (e) {
       errores[sala.nombre] = e.message;
       console.error(`${sala.nombre}: ${e.message}`);
