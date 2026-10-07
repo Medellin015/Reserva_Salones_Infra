@@ -132,10 +132,13 @@ const plantillaPrefill = () => {
   const faltan = [['sala', ej.sala, campos.sala], ['fecha', ej.fecha, campos.fecha], ['horaInicio', ej.horaInicio, campos.hora]]
     .filter(([, valor, clave]) => valor && !clave).map(([nombre, valor]) => `${nombre} = "${valor}"`);
   if (faltan.length) {
-    console.warn(`FORM_PREFILL: en el enlace no aparece ${enumerar(faltan)}; revise FORM_PREFILL.ejemplo en config.js. El calendario no ofrece pedir desde una hora.`);
+    console.warn(`FORM_PREFILL: en el enlace no ${faltan.length > 1 ? 'aparecen' : 'aparece'} ${enumerar(faltan)}; revise FORM_PREFILL.ejemplo en config.js. El calendario no ofrece pedir desde una hora.`);
     return null;
   }
   if (!campos.sala && !campos.hora && !campos.fecha) return null;
+  // Cualquier otra respuesta rellenada en el enlace de ejemplo viajará fija en todos los enlaces.
+  const extras = pares.filter((p) => !['id', 'lang'].includes(p.clave) && !Object.values(campos).includes(p.clave) && p.decodificado !== '');
+  if (extras.length) console.info(`FORM_PREFILL: el enlace trae además ${enumerar(extras.map((p) => `${p.clave} = "${p.decodificado}"`))}; ese valor irá fijo en todas las solicitudes.`);
   const enlace = (sala, fechaIso, hora) => {
     const nuevos = { [campos.sala]: sala, [campos.fecha]: formato ? formato.f(fechaIso) : null, [campos.hora]: hora };
     const consulta = pares.map((p) => (p.clave in nuevos && nuevos[p.clave] !== null ? `${p.clave}=${encodeURIComponent(nuevos[p.clave])}` : `${p.clave}=${p.valor}`)).join('&');
@@ -147,6 +150,16 @@ const plantillaPrefill = () => {
 let diaElegido = null;
 let prefill = null;
 let claveRender = null;
+
+// Resume lo que puede cambiar el dibujo: el día, el bloque de media hora (ceil: las horas que
+// se pueden pedir son las que empiezan en o después de ahora, así que el conjunto cambia al
+// pasar cada :00 y :30), el aviso de datos viejos y el día elegido; o el plan B sin datos.
+const claveDe = (hoy, datos) => {
+  const dias = datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : [];
+  if (!dias.length || !datos.ocupado) return `${hoy.fecha}|plan-b`;
+  const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
+  return `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${diaElegido}`;
+};
 
 // Pinta el calendario completo. Guarda y devuelve el foco y el desplazamiento de la tira
 // de días, porque reemplazar el HTML los perdería.
@@ -161,18 +174,30 @@ const renderDisponibilidad = () => {
   const tira = cont.querySelector('.dias');
   const desplazamiento = tira ? tira.scrollLeft : 0;
 
+  // Devuelve el desplazamiento de la tira y el foco a donde estaban (o al chip del día si el
+  // elemento enfocado ya no existe).
+  const restaurar = () => {
+    const tiraNueva = cont.querySelector('.dias');
+    if (tiraNueva) tiraNueva.scrollLeft = desplazamiento;
+    if (!recordado) return;
+    const mismo = recordado.dia
+      ? cont.querySelector(`button[data-dia="${recordado.dia}"]`)
+      : recordado.href && cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
+    const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
+    if (destino) destino.focus({ preventScroll: true });
+  };
+
   // Plan B: sin datos vigentes (la tarea no ha corrido, lleva días sin correr o el archivo
   // no cargó), se ofrecen los calendarios de Outlook.
   if (!dias.length || !datos.ocupado) {
     cont.innerHTML = `<p class="disp-nota aviso">La disponibilidad no está disponible en este momento. Puede revisarla en Outlook: ${enlacesOutlook()}.</p>`;
-    claveRender = `${hoy.fecha}|plan-b`;
+    claveRender = claveDe(hoy, datos);
+    restaurar();
     return;
   }
   if (!dias.includes(diaElegido)) diaElegido = dias[0];
+  claveRender = claveDe(hoy, datos);
   const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
-  // ceil: las horas que se pueden pedir son las que empiezan en o después de ahora, así que el
-  // conjunto cambia al pasar cada :00 y :30 (y no vuelve a cambiar hasta el siguiente).
-  claveRender = `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${diaElegido}`;
 
   const chips = dias.map((d) => {
     const etiqueta = etiquetaDia(d, hoy.fecha);
@@ -252,26 +277,14 @@ const renderDisponibilidad = () => {
     ${notas.join('')}
     <p class="disp-outlook">Calendarios en Outlook: ${enlacesOutlook()}</p>`;
 
-  // Devolver el desplazamiento de la tira y el foco a donde estaban.
-  const tiraNueva = cont.querySelector('.dias');
-  if (tiraNueva) tiraNueva.scrollLeft = desplazamiento;
-  if (recordado) {
-    const mismo = recordado.dia
-      ? cont.querySelector(`button[data-dia="${recordado.dia}"]`)
-      : recordado.href && [...cont.querySelectorAll('a.ag-pedir')].find((a) => a.getAttribute('href') === recordado.href);
-    const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
-    if (destino) destino.focus({ preventScroll: true });
-  }
+  restaurar();
 };
 
 // Cada minuto solo se mueve la línea de "ahora"; el calendario completo se repinta cuando
 // cambia algo visible (el día, el bloque de media hora o el aviso), para no perder el foco.
 const refrescar = () => {
   const hoy = ahoraBogota();
-  const datos = window.DISPONIBILIDAD;
-  const sinLeerHoy = !!datos && datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
-  const clave = `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${diaElegido}`;
-  if (clave !== claveRender) { renderDisponibilidad(); return; }
+  if (claveDe(hoy, window.DISPONIBILIDAD) !== claveRender) { renderDisponibilidad(); return; }
   const linea = $('#disponibilidad .ag-ahora');
   if (linea && diaElegido === hoy.fecha) linea.style.top = `${pct(hoy.minutos)}%`;
 };

@@ -39,8 +39,8 @@ pinta ella misma las horas ocupadas.
    causa reservas dobles: el flujo revisa cruces al recibir la solicitud y otra vez
    al aprobarla.
 
-Si un calendario falla de forma pasajera, se reintenta tres veces y, si aun así no
-responde, se conservan los datos de la lectura anterior del día y la página lo avisa.
+Si un calendario falla de forma pasajera, se intenta hasta tres veces y, si aun así
+no responde, se conservan los datos de la lectura anterior del día y la página lo avisa.
 Si una sala no tiene datos, su columna dice "Sin datos" con el enlace a Outlook. Si en
 todo el día no se pudo leer ningún calendario, la página avisa que los datos pueden
 estar desactualizados y la ejecución de las 09:00 queda en rojo en la pestaña Actions

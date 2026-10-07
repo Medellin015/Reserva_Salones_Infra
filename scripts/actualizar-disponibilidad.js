@@ -34,10 +34,9 @@ const OFFSET_BOGOTA = -300;
 // Reintentos de descarga ante un fallo pasajero de Outlook o de la red.
 const REINTENTOS = 3;
 const ESPERA_REINTENTO_MS = Number(process.env.ESPERA_REINTENTO_MS || 5000);
-// Si a esta hora de Bogotá aún no se ha podido leer ningún calendario en el día, la
-// ejecución queda en rojo una sola vez (GitHub avisa por correo), no cada 15 minutos.
+// Si a partir de esta hora de Bogotá aún no se ha podido leer ningún calendario en el día,
+// la ejecución queda en rojo una sola vez (GitHub avisa por correo), no cada 15 minutos.
 const MINUTO_AVISO_DESDE = 9 * 60;
-const MINUTO_AVISO_HASTA = 9 * 60 + 15;
 // Outlook solo entrega el ICS a lo que parece un navegador; sin este encabezado
 // responde con una página de error (visto en Microsoft Q&A, septiembre de 2025).
 const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0';
@@ -129,6 +128,7 @@ const leerOffset = (texto) => {
 // Hora local "ingenua" (como UTC) + TZID -> instante real.
 const epochDesdeLocal = (naive, tzid, zonas) => {
   if (!tzid) return naive - OFFSET_BOGOTA * MS_MIN;
+  if (tzid === 'UTC') return naive;
   const z = zonas[tzid];
   if (z && z.fija) return naive - z.estandar * MS_MIN;
   const iana = ZONAS_WINDOWS[tzid] || (tzid.includes('/') && zonaIntlValida(tzid) ? tzid : null);
@@ -218,15 +218,18 @@ const leerZonas = (raiz) => {
 const leerFechaHora = (p, zonas) => {
   if (!p) return null;
   const v = p.valor.trim();
+  // naive: la hora local tal como está escrita, interpretada como UTC; tzid: su zona (null = Bogotá).
   if ((p.params.VALUE || '').toUpperCase() === 'DATE' || /^\d{8}$/.test(v)) {
     const m = /^(\d{4})(\d{2})(\d{2})$/.exec(v);
-    return m ? { epoch: epochBogota(Number(m[1]), Number(m[2]), Number(m[3])), soloFecha: true } : null;
+    if (!m) return null;
+    const naive = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    return { epoch: epochBogota(Number(m[1]), Number(m[2]), Number(m[3])), soloFecha: true, naive, tzid: null };
   }
   const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})?(Z)?$/.exec(v);
   if (!m) return null;
   const naive = Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4]), Number(m[5]), Number(m[6] || 0));
-  if (m[7] === 'Z') return { epoch: naive, soloFecha: false };
-  return { epoch: epochDesdeLocal(naive, p.params.TZID, zonas), soloFecha: false };
+  if (m[7] === 'Z') return { epoch: naive, soloFecha: false, naive, tzid: 'UTC' };
+  return { epoch: epochDesdeLocal(naive, p.params.TZID, zonas), soloFecha: false, naive, tzid: p.params.TZID || null };
 };
 
 // "PT1H30M", "P1D", "-PT15M" -> milisegundos.
@@ -267,6 +270,9 @@ const leerEvento = (comp, zonas) => {
     uid: ((prop(comp, 'UID') || {}).valor || '').trim(),
     inicio: inicio.epoch,
     fin: Math.max(fin.epoch, inicio.epoch),
+    naive: inicio.naive,
+    tzid: inicio.tzid,
+    soloFecha: inicio.soloFecha,
     rrule: textoRrule ? rrule : null,
     exdates,
     exdatesFecha,
@@ -307,7 +313,9 @@ const diasDelMes = (a, m, r, diaInicio) => {
 // Instancias de una serie dentro de la ventana. Soporta DAILY, WEEKLY (con BYDAY),
 // MONTHLY y YEARLY (por día del mes, BYMONTHDAY, BYDAY con ordinal o BYSETPOS, BYMONTH),
 // con INTERVAL, COUNT, UNTIL, EXDATE y las excepciones (RECURRENCE-ID) de la serie.
-const expandir = (ev, excluidas, inicioVentana, finVentana) => {
+// Las instancias se generan en la hora local de la serie y se convierten con su zona, para
+// que una serie de otra zona conserve su hora al cambiar el horario de verano.
+const expandir = (ev, excluidas, inicioVentana, finVentana, zonas) => {
   if (!ev.rrule) return [ev];
   const r = ev.rrule;
   const freq = (r.FREQ || '').toUpperCase();
@@ -328,32 +336,36 @@ const expandir = (ev, excluidas, inicioVentana, finVentana) => {
   const salida = [];
   let n = 0;
   let detener = false;
-  const agregar = (inicio) => {
+  const convertir = (naive) => (ev.soloFecha ? epochDesdeLocal(naive, null, zonas) : epochDesdeLocal(naive, ev.tzid, zonas));
+  const agregar = (naive) => {
+    const inicio = convertir(naive);
     if (inicio >= hasta || n >= cuenta || inicio > finVentana) { detener = true; return; }
     n += 1; // los EXDATE también cuentan para COUNT
     if (ev.exdates.has(inicio) || excluidas.has(inicio) || ev.exdatesFecha.has(isoDe(camposBogota(inicio)))) return;
     if (inicio + duracion > inicioVentana) salida.push({ ...ev, inicio, fin: inicio + duracion, rrule: null });
   };
-  // Sin COUNT no hace falta recorrer desde el principio de una serie muy antigua.
-  const saltoInicial = (paso) => (cuenta === Infinity ? Math.max(0, Math.floor((inicioVentana - ev.inicio) / paso) - 1) : 0);
-  const c = camposBogota(ev.inicio);
+  // Sin COUNT no hace falta recorrer desde el principio de una serie muy antigua. El salto
+  // se queda corto a propósito (resta la duración y deja margen) para no perder ninguna.
+  const saltoInicial = (paso) => (cuenta === Infinity ? Math.max(0, Math.floor((inicioVentana - ev.inicio - duracion) / paso) - 2) : 0);
+  const n0 = new Date(ev.naive); // campos de la hora local de la serie
+  const c = { a: n0.getUTCFullYear(), m: n0.getUTCMonth() + 1, d: n0.getUTCDate(), semana: n0.getUTCDay(), horaMs: ev.naive - Date.UTC(n0.getUTCFullYear(), n0.getUTCMonth(), n0.getUTCDate()) };
 
   if (freq === 'DAILY') {
     const paso = intervalo * MS_DIA;
-    for (let k = saltoInicial(paso); !detener && k < 1e6; k++) agregar(ev.inicio + k * paso);
+    for (let k = saltoInicial(paso); !detener && k < 1e6; k++) agregar(ev.naive + k * paso);
   } else if (freq === 'WEEKLY') {
     const reglas = r.BYDAY ? leerByDay(r.BYDAY).map((x) => x.dia) : [c.semana];
     const desdeLunes = (d) => (d + 6) % 7;
     const ordenados = [...new Set(reglas)].sort((x, y) => desdeLunes(x) - desdeLunes(y));
     // DTSTART siempre es la primera instancia, aunque su día no esté en BYDAY (RFC 5545).
-    if (!ordenados.includes(c.semana)) agregar(ev.inicio);
-    const lunesInicial = ev.inicio - desdeLunes(c.semana) * MS_DIA;
+    if (!ordenados.includes(c.semana)) agregar(ev.naive);
+    const lunesInicial = ev.naive - desdeLunes(c.semana) * MS_DIA;
     const paso = intervalo * 7 * MS_DIA;
     for (let semana = saltoInicial(paso) * intervalo; !detener && semana < 1e6; semana += intervalo) {
       for (const d of ordenados) {
-        const inicio = lunesInicial + (semana * 7 + desdeLunes(d)) * MS_DIA;
-        if (inicio < ev.inicio) continue;
-        agregar(inicio);
+        const naive = lunesInicial + (semana * 7 + desdeLunes(d)) * MS_DIA;
+        if (naive < ev.naive) continue;
+        agregar(naive);
         if (detener) break;
       }
     }
@@ -361,19 +373,22 @@ const expandir = (ev, excluidas, inicioVentana, finVentana) => {
     // MONTHLY y YEARLY: se recorren los periodos y, en cada mes, los días que cumplen la regla.
     const meses = freq === 'YEARLY' ? (r.BYMONTH ? listaNumeros(r.BYMONTH).filter((x) => x >= 1 && x <= 12).sort((x, y) => x - y) : [c.m]) : null;
     const mesesPorPeriodo = freq === 'MONTHLY' ? intervalo : 12 * intervalo;
-    const periodosSaltados = cuenta === Infinity ? Math.max(0, Math.floor((inicioVentana - ev.inicio) / (mesesPorPeriodo * 28 * MS_DIA)) - 2) : 0;
+    // Periodos completos transcurridos hasta el inicio de la ventana (menos la duración), con margen.
+    const v = camposBogota(inicioVentana - duracion);
+    const mesesTranscurridos = (v.a - c.a) * 12 + (v.m - c.m);
+    const periodosSaltados = cuenta === Infinity ? Math.max(0, Math.floor(mesesTranscurridos / mesesPorPeriodo) - 2) : 0;
     for (let k = periodosSaltados; !detener && k < 20000; k++) {
       const candidatos = [];
       if (freq === 'MONTHLY') {
         const d = new Date(Date.UTC(c.a, c.m - 1 + k * intervalo, 1));
-        for (const dia of diasDelMes(d.getUTCFullYear(), d.getUTCMonth() + 1, r, c.d)) candidatos.push(epochBogota(d.getUTCFullYear(), d.getUTCMonth() + 1, dia, c.minutos) + c.segundos * 1000);
+        for (const dia of diasDelMes(d.getUTCFullYear(), d.getUTCMonth() + 1, r, c.d)) candidatos.push(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), dia) + c.horaMs);
       } else {
         const a = c.a + k * intervalo;
-        for (const mes of meses) for (const dia of diasDelMes(a, mes, r, c.d)) candidatos.push(epochBogota(a, mes, dia, c.minutos) + c.segundos * 1000);
+        for (const mes of meses) for (const dia of diasDelMes(a, mes, r, c.d)) candidatos.push(Date.UTC(a, mes - 1, dia) + c.horaMs);
       }
-      for (const inicio of candidatos) {
-        if (inicio < ev.inicio) continue;
-        agregar(inicio);
+      for (const naive of candidatos) {
+        if (naive < ev.naive) continue;
+        agregar(naive);
         if (detener) break;
       }
     }
@@ -395,7 +410,7 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
   }
   const intervalos = [];
   for (const ev of eventos) {
-    const instancias = ev.recurrenceId === null ? expandir(ev, excepciones.get(ev.uid) || new Set(), inicioVentana, finVentana) : [ev];
+    const instancias = ev.recurrenceId === null ? expandir(ev, excepciones.get(ev.uid) || new Set(), inicioVentana, finVentana, zonas) : [ev];
     for (const i of instancias) {
       if (i.omitir || i.fin <= inicioVentana || i.inicio >= finVentana || i.fin <= i.inicio) continue;
       intervalos.push([i.inicio, i.fin]);
@@ -480,6 +495,7 @@ const escribir = (datos) => {
    publicados de las salas. Lo reescribe la tarea programada de GitHub; no editarlo a mano.
    verificado: último día (Bogotá) en que se pudo leer al menos un calendario.
    actualizado: última vez que cambió algo de este archivo.
+   avisado: día en que la tarea quedó en rojo por no poder leer ningún calendario.
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = ${JSON.stringify(datos, null, 1)};
@@ -489,7 +505,8 @@ window.DISPONIBILIDAD = ${JSON.stringify(datos, null, 1)};
 
 const principal = async () => {
   const { SALAS } = cargarConfig();
-  const ahora = Date.now();
+  // AHORA_FIJO (epoch en ms) solo sirve para probar el script con una hora concreta.
+  const ahora = Number(process.env.AHORA_FIJO) || Date.now();
   const hoy = camposBogota(ahora);
   const dias = diasHabiles(ahora, DIAS_HABILES);
   const inicioVentana = epochBogota(hoy.a, hoy.m, hoy.d);
@@ -519,9 +536,15 @@ const principal = async () => {
   }
   if (avisos.length) console.warn('Avisos: ' + avisos.join('; '));
 
+  const todasFallaron = leidas === 0;
+  const verificado = leidas > 0 ? isoDe(hoy) : anterior.verificado || null;
+  // La ejecución queda en rojo (una vez al día, y se anota en el archivo para no repetirlo
+  // aunque el cron de GitHub llegue tarde) si pasadas las 09:00 no se ha leído nada hoy.
+  const avisarFallo = todasFallaron && verificado !== isoDe(hoy) && hoy.minutos >= MINUTO_AVISO_DESDE && anterior.avisado !== isoDe(hoy);
   const nuevo = {
-    verificado: leidas > 0 ? isoDe(hoy) : anterior.verificado || null,
+    verificado,
     actualizado: anterior.actualizado || null,
+    avisado: avisarFallo ? isoDe(hoy) : anterior.avisado || null,
     dias,
     ocupado,
     errores,
@@ -534,8 +557,6 @@ const principal = async () => {
     escribir(nuevo);
     console.log('disponibilidad.js actualizado');
   }
-  const todasFallaron = leidas === 0;
-  const avisarFallo = todasFallaron && nuevo.verificado !== isoDe(hoy) && hoy.minutos >= MINUTO_AVISO_DESDE && hoy.minutos < MINUTO_AVISO_HASTA;
   if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `todas_fallaron=${todasFallaron}\navisar_fallo=${avisarFallo}\n`);
   if (todasFallaron) console.error('No se pudo leer ningún calendario.');
 };
