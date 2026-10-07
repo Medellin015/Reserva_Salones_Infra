@@ -1,5 +1,5 @@
 # Lee los calendarios publicados de las cuatro salas y actualiza disponibilidad.js,
-# que es lo que pinta el calendario de la página. Corre cada 15 minutos en horario
+# que es lo que pinta el calendario de la página. Corre cada 5 minutos en horario
 # hábil de Bogotá y solo hace commit cuando algo cambió.
 # GitHub desactiva las tareas programadas de un repositorio público tras 60 días sin
 # actividad; si pasa, se reactivan desde la pestaña Actions con un clic.
@@ -7,8 +7,11 @@ name: Actualizar disponibilidad
 
 on:
   schedule:
-    # 06:00 a 18:45 de Bogotá (UTC-5) = 11:00 a 23:45 UTC, de lunes a viernes.
-    - cron: '*/15 11-23 * * 1-5'
+    # Cada 5 minutos de 06:02 a 18:57 de Bogotá (UTC-5) = 11:02 a 23:57 UTC, de lunes a viernes.
+    # Los minutos 2, 7, 12... esquivan el :00, :15, :30 y :45, que es cuando GitHub tiene más
+    # carga y retrasa o descarta las tareas programadas (así lo advierte su documentación).
+    # Aun así GitHub no garantiza la hora exacta; por eso son tan seguidas.
+    - cron: '2-59/5 11-23 * * 1-5'
   workflow_dispatch:
 
 permissions:

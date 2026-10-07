@@ -2,7 +2,7 @@
 /* ============================================================================
    Salas Piso 9 CAM — actualizar disponibilidad.js desde los calendarios publicados
    Lo ejecuta la tarea programada de GitHub (.github/workflows/disponibilidad.yml)
-   cada 15 minutos en horario hábil. También se puede correr a mano:
+   cada 5 minutos en horario hábil. También se puede correr a mano:
      node scripts/actualizar-disponibilidad.js
    Lee el enlace ICS de cada sala (el mismo enlace publicado de config.js, con
    calendar.ics en vez de calendar.html), calcula las horas ocupadas de los
