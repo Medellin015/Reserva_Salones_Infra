@@ -28,9 +28,12 @@ cuando estoy ocupado", así que solo exponen si la sala está ocupada o libre. C
 Outlook titula igual las cuatro páginas publicadas, la página no manda a Outlook:
 pinta ella misma las horas ocupadas.
 
-1. Cada 15 minutos, de lunes a viernes entre las 06:00 y las 18:45 de Bogotá, la
+1. Cada 5 minutos, de lunes a viernes entre las 06:00 y las 19:00 de Bogotá, la
    tarea programada lee el enlace ICS de cada sala (el mismo enlace de `config.js`
-   con `calendar.ics` al final).
+   con `calendar.ics` al final). GitHub no garantiza la hora exacta de las tareas
+   programadas y a veces las retrasa; para no esperar, en la pestaña Actions →
+   "Actualizar disponibilidad" → "Run workflow" se lanza a mano y en un minuto
+   queda publicada.
 2. Calcula las horas ocupadas de los próximos 10 días hábiles (sin fines de semana
    ni festivos de Colombia) y, solo si algo cambió, hace commit de
    `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un minuto.
