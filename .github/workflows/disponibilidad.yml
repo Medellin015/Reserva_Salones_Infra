@@ -45,8 +45,11 @@ jobs:
           git pull --rebase origin "${{ github.ref_name }}"
           git push origin "HEAD:${{ github.ref_name }}"
 
-      - name: Avisar si no se pudo leer ningún calendario
-        if: steps.leer.outputs.todas_fallaron == 'true'
+      # Queda en rojo una sola vez al día (en la ejecución de las 09:00 de Bogotá) si en
+      # todo el día no se ha podido leer ningún calendario; así GitHub avisa por correo
+      # sin mandar un correo por cada ejecución fallida.
+      - name: Avisar si hoy no se ha podido leer ningún calendario
+        if: steps.leer.outputs.avisar_fallo == 'true'
         run: |
-          echo "::error::Ningún calendario se pudo leer. La página muestra el aviso y los enlaces a Outlook."
+          echo "::error::Hoy no se ha podido leer ningún calendario. La página muestra el aviso y los enlaces a Outlook."
           exit 1

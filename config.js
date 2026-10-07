@@ -46,13 +46,15 @@ const SALAS = [
 // fecha y la hora de inicio ya escogidas. Para activarlo, con la cuenta dueña del
 // formulario:
 //   1. En Forms, menú ⋯ (arriba a la derecha) → "Obtener dirección URL rellenada
-//      previamente" y activa las respuestas rellenadas.
-//   2. Rellena Sala = "Sala 1", Fecha = 15/10/2026 y Hora de inicio = "07:00";
-//      copia el enlace que genera Forms y pégalo en `enlace`.
-//   3. Si usaste otros valores de ejemplo, escríbelos en `ejemplo` tal cual.
+//      previamente" y active las respuestas rellenadas.
+//   2. Rellene Sala = "Sala 1", Fecha = 15/10/2026 y Hora de inicio = "07:00";
+//      copie el enlace que genera Forms y péguelo en `enlace`.
+//   3. Si usó otros valores de ejemplo, escríbalos en `ejemplo` tal cual.
 // La página busca en ese enlace los valores de ejemplo para saber qué parámetro es
-// cada pregunta; lo que no encuentre, no lo rellena. Mientras `enlace` esté vacío,
-// el calendario no ofrece pedir desde una hora y queda solo el botón "Pedir una sala".
+// cada pregunta. Si alguno no aparece, no genera enlaces (avisa en la consola del
+// navegador) para no pedir una sala, fecha u hora equivocadas. Mientras `enlace`
+// esté vacío, el calendario no ofrece pedir desde una hora y queda solo el botón
+// "Pedir una sala".
 const FORM_PREFILL = {
   enlace: '',
   ejemplo: { sala: 'Sala 1', fecha: '2026-10-15', horaInicio: '07:00' },

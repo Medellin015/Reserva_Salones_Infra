@@ -31,17 +31,20 @@ pinta ella misma las horas ocupadas.
 1. Cada 15 minutos, de lunes a viernes entre las 06:00 y las 18:45 de Bogotá, la
    tarea programada lee el enlace ICS de cada sala (el mismo enlace de `config.js`
    con `calendar.ics` al final).
-2. Calcula las horas ocupadas de los próximos 10 días hábiles y, solo si algo
-   cambió, hace commit de `disponibilidad.js` en `main`. GitHub Pages publica el
-   cambio en un minuto.
+2. Calcula las horas ocupadas de los próximos 10 días hábiles (sin fines de semana
+   ni festivos de Colombia) y, solo si algo cambió, hace commit de
+   `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un minuto.
 3. La página muestra las franjas ocupadas por sala y por día, con la hora actual.
    Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer. Eso no
    causa reservas dobles: el flujo revisa cruces al recibir la solicitud y otra vez
    al aprobarla.
 
-Si un calendario no se puede leer, su columna dice "Sin datos" con el enlace a
-Outlook. Si ningún calendario se pudo leer en el día, la página avisa que los datos
-pueden estar desactualizados y la ejecución queda en rojo en la pestaña Actions.
+Si un calendario falla de forma pasajera, se reintenta tres veces y, si aun así no
+responde, se conservan los datos de la lectura anterior del día y la página lo avisa.
+Si una sala no tiene datos, su columna dice "Sin datos" con el enlace a Outlook. Si en
+todo el día no se pudo leer ningún calendario, la página avisa que los datos pueden
+estar desactualizados y la ejecución de las 09:00 queda en rojo en la pestaña Actions
+(una sola vez al día, para que GitHub avise por correo sin inundar).
 
 GitHub desactiva las tareas programadas de un repositorio público tras 60 días sin
 actividad. Si pasa, en Actions → "Actualizar disponibilidad" aparece un botón para
@@ -53,14 +56,16 @@ Al tocar una hora libre del calendario, el formulario se abre con la sala, la fe
 y la hora de inicio ya escogidas. Para activarlo, con la cuenta dueña del formulario:
 
 1. En Forms, menú ⋯ (arriba a la derecha) → "Obtener dirección URL rellenada
-   previamente" y activa las respuestas rellenadas.
-2. Rellena Sala = "Sala 1", Fecha = 15/10/2026 y Hora de inicio = "07:00"; copia el
+   previamente" y active las respuestas rellenadas.
+2. Rellene Sala = "Sala 1", Fecha = 15/10/2026 y Hora de inicio = "07:00"; copie el
    enlace que genera Forms.
-3. Pégalo en `FORM_PREFILL.enlace` de `config.js`. Si usaste otros valores de
-   ejemplo, escríbelos tal cual en `FORM_PREFILL.ejemplo`.
+3. Péguelo en `FORM_PREFILL.enlace` de `config.js`. Si usó otros valores de
+   ejemplo, escríbalos tal cual en `FORM_PREFILL.ejemplo`.
 
-Mientras ese enlace esté vacío, el calendario no ofrece pedir desde una hora y queda
-el botón "Pedir una sala".
+La página busca esos valores en el enlace para saber qué parámetro es cada pregunta.
+Si alguno no aparece, no genera enlaces y lo avisa en la consola del navegador, para
+no pedir una sala, fecha u hora equivocadas. Mientras el enlace esté vacío, el
+calendario no ofrece pedir desde una hora y queda el botón "Pedir una sala".
 
 ## Cómo publicar el calendario de una sala
 
