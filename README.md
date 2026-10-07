@@ -19,6 +19,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `app.js` | Pinta el calendario de disponibilidad, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
+| `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` si cambió. |
 | `.github/workflows/disponibilidad.yml` | Tarea programada de GitHub que corre ese script. |
 
 ## Cómo se actualiza la disponibilidad
@@ -28,12 +29,18 @@ cuando estoy ocupado", así que solo exponen si la sala está ocupada o libre. C
 Outlook titula igual las cuatro páginas publicadas, la página no manda a Outlook:
 pinta ella misma las horas ocupadas.
 
-1. Cada 5 minutos, de lunes a viernes entre las 06:00 y las 19:00 de Bogotá, la
-   tarea programada lee el enlace ICS de cada sala (el mismo enlace de `config.js`
-   con `calendar.ics` al final). GitHub no garantiza la hora exacta de las tareas
-   programadas y a veces las retrasa; para no esperar, en la pestaña Actions →
-   "Actualizar disponibilidad" → "Run workflow" se lanza a mano y en un minuto
-   queda publicada.
+1. La tarea lee el enlace ICS de cada sala (el mismo enlace de `config.js` con
+   `calendar.ics` al final). Se dispara de tres formas:
+   - **Desde el flujo de reservas.** Al aprobar una reserva, el flujo de Power
+     Automate usa la acción de GitHub "Create a repository dispatch event" (conector
+     estándar, sin licencia premium) con el tipo `actualizar-disponibilidad`. La
+     tarea espera medio minuto a que Outlook publique la reserva, lee, y vuelve a
+     leer dos minutos después por si aún no estaba. La reserva aparece en uno a tres
+     minutos.
+   - **Cada 5 minutos** de lunes a viernes entre las 06:00 y las 19:00 de Bogotá,
+     como respaldo para cambios hechos a mano en Outlook. GitHub no garantiza la
+     hora exacta de las tareas programadas y a veces las retrasa.
+   - **A mano**, en la pestaña Actions → "Actualizar disponibilidad" → "Run workflow".
 2. Calcula las horas ocupadas de los próximos 10 días hábiles (sin fines de semana
    ni festivos de Colombia) y, solo si algo cambió, hace commit de
    `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un minuto.
