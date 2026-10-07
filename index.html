@@ -29,12 +29,15 @@
     </a>
   </section>
 
-  <section class="salas" id="salas" aria-label="Salas"><noscript><p>Active JavaScript para ver las salas, el enlace al formulario y el correo de contacto.</p></noscript></section>
+  <section class="sec disp" aria-labelledby="disp-titulo">
+    <h2 id="disp-titulo">Disponibilidad</h2>
+    <div id="disponibilidad"><noscript><p>Active JavaScript para ver la disponibilidad, el enlace al formulario y el correo de contacto.</p></noscript></div>
+  </section>
 
   <section class="sec">
     <h2>Cómo funciona</h2>
     <ol class="pasos">
-      <li><b>Revise la disponibilidad</b><p>"Ver disponibilidad" abre el calendario de esa sala, sin iniciar sesión. Los bloques marcados como ocupados son horas ya reservadas. Outlook lo titula "Calendar (Salas Piso 9 CAM)" para las cuatro salas.</p></li>
+      <li><b>Revise la disponibilidad</b><p>El calendario de arriba muestra las horas ya reservadas en cada sala. Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer.</p></li>
       <li><b>Pida el horario</b><p>Llene el formulario con la sala, la fecha, la hora de inicio y la de fin.</p></li>
       <li><b>Espere el correo</b><p>Le llega desde sal9@medellin.gov.co: confirmada, no aprobada o sala ocupada. Solo con la confirmación la sala es suya.</p></li>
     </ol>
@@ -62,7 +65,9 @@
 
 <!-- 1) Configuración: formulario, contacto y calendarios (lo único que hay que editar) -->
 <script src="config.js"></script>
-<!-- 2) Aplicación: tarjetas de salas, tema claro/oscuro y botón de copiar -->
+<!-- 2) Horas ocupadas de cada sala; lo genera la tarea programada de GitHub -->
+<script src="disponibilidad.js"></script>
+<!-- 3) Aplicación: calendario de disponibilidad, tema claro/oscuro y botón de copiar -->
 <script src="app.js"></script>
 </body>
 </html>
