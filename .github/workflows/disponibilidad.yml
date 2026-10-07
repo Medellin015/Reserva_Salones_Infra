@@ -1,0 +1,55 @@
+# Lee los calendarios publicados de las cuatro salas y actualiza disponibilidad.js,
+# que es lo que pinta el calendario de la página. Corre cada 15 minutos en horario
+# hábil de Bogotá y solo hace commit cuando algo cambió.
+# GitHub desactiva las tareas programadas de un repositorio público tras 60 días sin
+# actividad; si pasa, se reactivan desde la pestaña Actions con un clic.
+name: Actualizar disponibilidad
+
+on:
+  schedule:
+    # 06:00 a 18:45 de Bogotá (UTC-5) = 11:00 a 23:45 UTC, de lunes a viernes.
+    - cron: '*/15 11-23 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: disponibilidad
+  cancel-in-progress: false
+
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Leer los calendarios publicados
+        id: leer
+        run: node scripts/actualizar-disponibilidad.js
+
+      - name: Publicar disponibilidad.js si cambió
+        run: |
+          if git diff --quiet -- disponibilidad.js; then
+            echo "Sin cambios: no hay nada que publicar."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add disponibilidad.js
+          git commit -m "Disponibilidad: $(TZ=America/Bogota date '+%d/%m/%Y %H:%M')"
+          git pull --rebase origin "${{ github.ref_name }}"
+          git push origin "HEAD:${{ github.ref_name }}"
+
+      # Queda en rojo una sola vez al día (en la ejecución de las 09:00 de Bogotá) si en
+      # todo el día no se ha podido leer ningún calendario; así GitHub avisa por correo
+      # sin mandar un correo por cada ejecución fallida.
+      - name: Avisar si hoy no se ha podido leer ningún calendario
+        if: steps.leer.outputs.avisar_fallo == 'true'
+        run: |
+          echo "::error::Hoy no se ha podido leer ningún calendario. La página muestra el aviso y los enlaces a Outlook."
+          exit 1

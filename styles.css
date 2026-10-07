@@ -4,7 +4,7 @@
    Estructura del archivo:
      1. Variables de tema (claro, oscuro y preferencia del sistema)
      2. Base y encabezado
-     3. Tarjetas de salas
+     3. Calendario de disponibilidad
      4. Pasos, reglas y contacto
    ============================================================================ */
 
@@ -58,17 +58,52 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
 .btn svg{width:16px;height:16px;flex:none}
 
-/* ===== 3. Tarjetas de salas ===== */
-.salas{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:22px 0 6px}
-@media (max-width:860px){.salas{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media (max-width:460px){.salas{grid-template-columns:minmax(0,1fr)}}
-.salas noscript{grid-column:1/-1}
-.sala{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 16px 14px;display:flex;flex-direction:column;gap:10px;border-top:4px solid var(--c);min-width:0}
-.sala h3{margin:0;font-size:1.15rem;line-height:1.2}
-.sala .aforo{margin:0;font-size:13.5px;color:var(--muted)}
-.sala .pend{margin:0;font-size:13px;color:var(--muted);background:var(--warn-soft);border-radius:8px;padding:8px 10px}
-/* text-align: si "Ver disponibilidad" se parte en dos líneas en tarjetas angostas, ambas quedan centradas */
-.sala .btn{margin-top:auto;justify-content:center;text-align:center}
+/* ===== 3. Calendario de disponibilidad ===== */
+.disp-ley{margin:0 0 12px;font-size:14.5px;color:var(--muted)}
+.dias{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:thin}
+.dia{flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.dia:hover{border-color:var(--accent)}
+.dia[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+/* --eje: ancho de la columna de horas; --hora: alto de cada hora; --n: salas; --horas: horas del día mostradas */
+.ag{--eje:46px;--hora:44px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ag-cab,.ag-cuerpo{display:grid;grid-template-columns:var(--eje) repeat(var(--n),minmax(0,1fr))}
+.ag-cab{border-bottom:1px solid var(--line)}
+.ag-cab span{padding:10px 8px 8px;font-weight:700;font-size:14.5px;text-align:center;border-left:1px solid var(--line);border-top:4px solid var(--c,transparent);min-width:0;overflow-wrap:anywhere}
+.ag-cab span:first-child{border-left:0;border-top-color:transparent}
+.ag-cuerpo{position:relative;height:calc(var(--horas) * var(--hora) + 16px);padding:8px 0}
+.ag-eje{position:relative}
+.ag-eje span{position:absolute;right:6px;transform:translateY(-50%);font-family:var(--m);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Las declaraciones repetidas son el respaldo para navegadores sin color-mix (Edge/Chrome < 111) */
+.ag-col{position:relative;border-left:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0;
+  background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px);background-size:100% calc(100% / var(--horas));
+  background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px),linear-gradient(to bottom,color-mix(in srgb,var(--line) 45%,transparent) 1px,transparent 1px);
+  background-size:100% calc(100% / var(--horas)),100% calc(100% / (var(--horas) * 2))}
+.ag-oc{position:absolute;left:3px;right:3px;min-height:18px;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);border-radius:6px;padding:2px 6px;font-size:11.5px;line-height:1.3;overflow:hidden;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ag-libre,.ag-sin{position:absolute;top:8px;left:4px;right:4px;text-align:center;font-size:12px;color:var(--muted)}
+.ag-sin a{color:var(--accent)}
+/* Hora libre que se puede pedir: invisible hasta pasar el ratón o llegar con el teclado */
+.ag-pedir{position:absolute;left:3px;right:3px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:11.5px;font-weight:600;color:transparent;text-decoration:none}
+.ag-pedir:hover,.ag-pedir:focus-visible{background:var(--accent-soft);color:var(--accent);outline-offset:-2px}
+/* Enlace para saltar el calendario con el teclado: solo se ve al recibir el foco */
+.saltar{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.saltar:focus-visible{position:static;width:auto;height:auto;clip-path:none;display:inline-block;margin:0 0 8px;padding:4px 10px;border-radius:6px;background:var(--surface);font-size:13.5px}
+.ag-capa{position:absolute;inset:8px 0 8px var(--eje);pointer-events:none}
+.ag-ahora{position:absolute;left:0;right:0;height:2px;background:#D64545;transform:translateY(-1px)}
+.ag-ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D64545}
+.disp-nota{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.disp-nota.aviso{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:8px 10px}
+.disp-nota.aviso a{color:var(--accent)}
+.disp-outlook{margin:4px 0 0;font-size:13px;color:var(--muted)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+@media (max-width:560px){
+  /* 48px por hora = 24px por media hora, el mínimo táctil recomendado para los enlaces "Pedir" */
+  .ag{--eje:42px;--hora:48px}
+  .ag-eje span{right:4px;font-size:10px}
+  .ag-cab span{font-size:13px;padding:8px 2px 6px}
+  .ag-oc{padding:2px 4px;font-size:11px}
+  .ag-oc span{display:block}
+  .ag-oc.corta span + span{display:none}
+}
 
 /* ===== 4. Pasos, reglas y contacto ===== */
 .sec{padding:26px 0 6px}
