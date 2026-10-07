@@ -111,13 +111,20 @@ const plantillaPrefill = () => {
   let url;
   try { url = new URL(cfg.enlace.trim()); } catch (e) { return null; }
   const ej = cfg.ejemplo || {};
+  // Forms escribe cada respuesta como texto JSON entre comillas ("Sala 1"); se comparan sin
+  // ellas y, al generar los enlaces, se vuelven a poner igual que en el enlace de ejemplo.
   const pares = url.search.replace(/^\?/, '').split('&').filter(Boolean).map((par) => {
     const k = par.indexOf('=');
     const clave = k < 0 ? par : par.slice(0, k);
     const valor = k < 0 ? '' : par.slice(k + 1);
     let decodificado = valor;
     try { decodificado = decodeURIComponent(valor.replace(/\+/g, ' ')); } catch (e) { /* se deja tal cual */ }
-    return { clave, valor, decodificado: decodificado.trim() };
+    decodificado = decodificado.trim();
+    let comillas = false;
+    if (/^".*"$/.test(decodificado)) {
+      try { const interno = JSON.parse(decodificado); if (typeof interno === 'string') { decodificado = interno.trim(); comillas = true; } } catch (e) { /* no era JSON */ }
+    }
+    return { clave, valor, decodificado, comillas };
   });
   const campos = { sala: null, hora: null, fecha: null };
   let formato = null;
@@ -141,7 +148,11 @@ const plantillaPrefill = () => {
   if (extras.length) console.info(`FORM_PREFILL: el enlace trae además ${enumerar(extras.map((p) => `${p.clave} = "${p.decodificado}"`))}; ese valor irá fijo en todas las solicitudes.`);
   const enlace = (sala, fechaIso, hora) => {
     const nuevos = { [campos.sala]: sala, [campos.fecha]: formato ? formato.f(fechaIso) : null, [campos.hora]: hora };
-    const consulta = pares.map((p) => (p.clave in nuevos && nuevos[p.clave] !== null ? `${p.clave}=${encodeURIComponent(nuevos[p.clave])}` : `${p.clave}=${p.valor}`)).join('&');
+    const consulta = pares.map((p) => {
+      if (!(p.clave in nuevos) || nuevos[p.clave] === null) return `${p.clave}=${p.valor}`;
+      const texto = p.comillas ? JSON.stringify(nuevos[p.clave]) : nuevos[p.clave];
+      return `${p.clave}=${encodeURIComponent(texto)}`;
+    }).join('&');
     return `${url.origin}${url.pathname}?${consulta}${url.hash}`;
   };
   return { campos, enlace };
