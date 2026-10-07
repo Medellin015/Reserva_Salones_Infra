@@ -37,9 +37,13 @@ pinta ella misma las horas ocupadas.
      tarea espera medio minuto a que Outlook publique la reserva, lee, y vuelve a
      leer dos minutos después por si aún no estaba. La reserva aparece en uno a tres
      minutos.
-   - **Cada 5 minutos** de lunes a viernes entre las 06:00 y las 19:00 de Bogotá,
-     como respaldo para cambios hechos a mano en Outlook. GitHub no garantiza la
-     hora exacta de las tareas programadas y a veces las retrasa.
+   - **Cada 10 minutos desde Power Automate.** El flujo "Revisar disponibilidad
+     salas" (periodicidad de lunes a viernes, 06:00 a 18:50) envía el mismo aviso con
+     el tipo `revisar-disponibilidad`, para recoger reservas borradas o movidas a mano
+     en Outlook.
+   - **Cada 5 minutos desde GitHub**, como respaldo. GitHub no garantiza la hora
+     exacta de sus tareas programadas y a veces no las dispara; por eso el aviso
+     principal sale de Power Automate.
    - **A mano**, en la pestaña Actions → "Actualizar disponibilidad" → "Run workflow".
 2. Calcula las horas ocupadas de los próximos 10 días hábiles (sin fines de semana
    ni festivos de Colombia) y, solo si algo cambió, hace commit de
