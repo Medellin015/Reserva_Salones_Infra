@@ -56,6 +56,6 @@ const SALAS = [
 // esté vacío, el calendario no ofrece pedir desde una hora y queda solo el botón
 // "Pedir una sala".
 const FORM_PREFILL = {
-  enlace: '',
+  enlace: 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=iOBInEReDUuToO6yxhJ8PTm750YXtsNCt97tmedyDMZUMUY1NVRRNVVPMUVBTzFOSU9FM0NSRUM3Uy4u&rea51ae7d251e40658b21bfa7a606e71f=%22Sala%201%22&rc76460fd33de46e3ae24d0a4a4b4b45c=%222026-10-15%22&rad426ff4b2ee4107a398a77ca3c6eecb=%2207%3A00%22',
   ejemplo: { sala: 'Sala 1', fecha: '2026-10-15', horaInicio: '07:00' },
 };

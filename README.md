@@ -71,8 +71,8 @@ que el calendario de esa sala tenga publicado:
 
 | Nivel de publicación en Outlook | Qué se ve en el detalle |
 | --- | --- |
-| Puede ver cuando estoy ocupado (el actual) | Solo la hora. El cuadro dice que los detalles no están publicados. |
-| Puede ver títulos y ubicaciones | El asunto de la reserva. El flujo lo arma como "Motivo · Nombre del solicitante", y la página lo separa en motivo y solicitante. |
+| Puede ver cuando estoy ocupado | Solo la hora. El cuadro dice que los detalles no están publicados. |
+| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto de la reserva. El flujo lo arma como "Motivo · Nombre del solicitante", y la página lo separa en motivo y solicitante. |
 | Puede ver todos los detalles | Además, la descripción: correo del solicitante y número de asistentes. |
 
 El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
@@ -94,6 +94,9 @@ y la hora de inicio ya escogidas. Para activarlo, con la cuenta dueña del formu
    enlace que genera Forms.
 3. Péguelo en `FORM_PREFILL.enlace` de `config.js`. Si usó otros valores de
    ejemplo, escríbalos tal cual en `FORM_PREFILL.ejemplo`.
+
+Está activo desde el 07/10/2026. Forms escribe cada respuesta entre comillas en el
+enlace (`%22Sala%201%22`); la página las tiene en cuenta al comparar y al generar.
 
 La página busca esos valores en el enlace para saber qué parámetro es cada pregunta.
 Si alguno no aparece, no genera enlaces y lo avisa en la consola del navegador, para
