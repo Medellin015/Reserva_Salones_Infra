@@ -151,6 +151,52 @@ let diaElegido = null;
 let prefill = null;
 let claveRender = null;
 
+// --- Detalle de una reserva ---
+// El flujo pone en el asunto "Motivo · Nombre del solicitante"; si viene así, se separan.
+const resumenReserva = (info) => {
+  if (!info || !info.t) return { titulo: '', motivo: '', solicitante: '' };
+  const m = /^(.+?)\s+·\s+(.+)$/.exec(info.t);
+  return m ? { titulo: info.t, motivo: m[1].trim(), solicitante: m[2].trim() } : { titulo: info.t, motivo: '', solicitante: '' };
+};
+
+const abrirDetalle = (sala, k) => {
+  const datos = window.DISPONIBILIDAD;
+  const franja = datos && datos.ocupado && datos.ocupado[sala.nombre] && (datos.ocupado[sala.nombre][diaElegido] || [])[k];
+  const dialogo = $('#detalle');
+  if (!franja || !dialogo) return;
+  const [a, b, info] = franja;
+  const r = resumenReserva(info);
+  $('#det-sala').textContent = sala.nombre;
+  $('#det-titulo').textContent = r.motivo || r.titulo || 'Sala reservada';
+  $('#det-hora').textContent = `${fechaLarga(diaElegido)}, de ${a} a ${b}`;
+  const filas = [];
+  if (r.solicitante) filas.push(['Solicitó', r.solicitante]);
+  if (info && info.l) filas.push(['Lugar', info.l]);
+  if (info && info.d) {
+    // Cada línea "Etiqueta: valor" de la descripción va como fila; el resto, como texto.
+    const sueltas = [];
+    for (const linea of info.d.split('\n')) {
+      const m = /^([^:]{2,30}):\s*(.+)$/.exec(linea);
+      if (m && !(r.solicitante && /^solicitante$/i.test(m[1]))) filas.push([m[1], m[2]]);
+      else if (!m) sueltas.push(linea);
+      else if (!r.solicitante) filas.push([m[1], m[2]]);
+    }
+    if (sueltas.length) filas.push(['Nota', sueltas.join('\n')]);
+  }
+  $('#det-lista').innerHTML = filas.map(([k2, v]) => `<dt>${escapar(k2)}</dt><dd>${escapar(v)}</dd>`).join('');
+  $('#det-nota').textContent = info ? '' : 'Los detalles de esta reserva no están publicados en el calendario de la sala.';
+  if (typeof dialogo.showModal === 'function') dialogo.showModal();
+  else dialogo.setAttribute('open', '');
+};
+
+const iniciarDetalle = () => {
+  const dialogo = $('#detalle');
+  if (!dialogo) return;
+  $('#det-cerrar').addEventListener('click', () => dialogo.close());
+  // Clic fuera del cuadro (sobre el fondo oscuro) también lo cierra.
+  dialogo.addEventListener('click', (ev) => { if (ev.target === dialogo) dialogo.close(); });
+};
+
 // Resume lo que puede cambiar el dibujo: el día, el bloque de media hora (ceil: las horas que
 // se pueden pedir son las que empiezan en o después de ahora, así que el conjunto cambia al
 // pasar cada :00 y :30), el aviso de datos viejos y el día elegido; o el plan B sin datos.
@@ -170,7 +216,7 @@ const renderDisponibilidad = () => {
   const dias = datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : [];
   const errores = (datos && datos.errores) || {};
   const activo = document.activeElement && cont.contains(document.activeElement) ? document.activeElement : null;
-  const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href') } : null;
+  const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href'), sala: activo.dataset.sala, k: activo.dataset.k } : null;
   const tira = cont.querySelector('.dias');
   const desplazamiento = tira ? tira.scrollLeft : 0;
 
@@ -180,9 +226,10 @@ const renderDisponibilidad = () => {
     const tiraNueva = cont.querySelector('.dias');
     if (tiraNueva) tiraNueva.scrollLeft = desplazamiento;
     if (!recordado) return;
-    const mismo = recordado.dia
-      ? cont.querySelector(`button[data-dia="${recordado.dia}"]`)
-      : recordado.href && cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
+    let mismo = null;
+    if (recordado.dia) mismo = cont.querySelector(`button[data-dia="${recordado.dia}"]`);
+    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
+    else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-k="${recordado.k}"]`);
     const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
     if (destino) destino.focus({ preventScroll: true });
   };
@@ -214,13 +261,17 @@ const renderDisponibilidad = () => {
       const enlace = esUrl(s.calendario) ? ` ${enlaceOutlook(s, 'Ver en Outlook')}` : '';
       return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Sin datos.${enlace}</span></div>`;
     }
+    // Cada franja guarda su índice (data-k) para abrir el detalle de esa reserva.
     const franjas = (datos.ocupado[s.nombre][diaElegido] || [])
-      .map(([a, b]) => [aMinutos(a), aMinutos(b)])
-      .filter(([a, b]) => b > INICIO_DIA && a < FIN_DIA);
-    const bloques = franjas.map(([ini, fin]) => {
-      const desde = Math.max(ini, INICIO_DIA);
-      const hasta = Math.min(fin, FIN_DIA);
-      return `<span class="ag-oc${hasta - desde < 60 ? ' corta' : ''}" style="top:${pct(desde)}%;height:${pct(hasta) - pct(desde)}%" aria-hidden="true"><span>${hhmm(desde)}</span><span>–${hhmm(hasta)}</span></span>`;
+      .map(([a, b, info], k) => ({ ini: aMinutos(a), fin: aMinutos(b), info: info || null, k }))
+      .filter((f) => f.fin > INICIO_DIA && f.ini < FIN_DIA);
+    const bloques = franjas.map((f) => {
+      const desde = Math.max(f.ini, INICIO_DIA);
+      const hasta = Math.min(f.fin, FIN_DIA);
+      const r = resumenReserva(f.info);
+      const etiqueta = `${s.nombre}, ${hhmm(desde)} a ${hhmm(hasta)}${r.titulo ? `, ${r.titulo}` : ''}. Ver detalle.`;
+      const tituloVisible = r.titulo && hasta - desde >= 60 ? `<span class="ag-oc-t">${escapar(r.titulo)}</span>` : '';
+      return `<button type="button" class="ag-oc${hasta - desde < 60 ? ' corta' : ''}" style="top:${pct(desde)}%;height:${pct(hasta) - pct(desde)}%" data-sala="${escapar(s.nombre)}" data-k="${f.k}" aria-label="${escapar(etiqueta)}"><span aria-hidden="true">${hhmm(desde)}</span><span aria-hidden="true">–${hhmm(hasta)}</span>${tituloVisible}</button>`;
     }).join('');
     // Horas libres que se pueden pedir con el formulario ya rellenado (solo futuras).
     let pedir = '';
@@ -228,15 +279,13 @@ const renderDisponibilidad = () => {
       const libres = [];
       for (let m = INICIO_DIA; m < FIN_DIA; m += BLOQUE) {
         if (diaElegido === hoy.fecha && m < hoy.minutos) continue;
-        if (!franjas.some(([a, b]) => a < m + BLOQUE && b > m)) libres.push(m);
+        if (!franjas.some((f) => f.ini < m + BLOQUE && f.fin > m)) libres.push(m);
       }
       pedir = libres.map((m) => `<a class="ag-pedir" href="${escapar(prefill.enlace(s.nombre, diaElegido, hhmm(m)))}" target="_blank" rel="noopener" style="top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%" aria-label="${escapar(`Pedir la ${s.nombre} el ${fechaLarga(diaElegido)} a las ${hhmm(m)}`)}"><span aria-hidden="true">Pedir ${hhmm(m)}</span></a>`).join('');
     }
-    const resumen = franjas.length
-      ? `${s.nombre}: ocupada de ${listaFranjas(franjas.map(([a, b]) => [hhmm(Math.max(a, INICIO_DIA)), hhmm(Math.min(b, FIN_DIA))]))}.`
-      : `${s.nombre}: libre todo el día.`;
+    const resumen = franjas.length ? `<span class="sr">${escapar(`${s.nombre}: ${franjas.length} ${franjas.length === 1 ? 'reserva' : 'reservas'}.`)}</span>` : `<span class="sr">${escapar(`${s.nombre}: libre todo el día.`)}</span>`;
     const libreTexto = !franjas.length && !prefill ? '<span class="ag-libre" aria-hidden="true">Libre</span>' : '';
-    return `<div class="ag-col" style="--c:${s.color}"><span class="sr">${escapar(resumen)}</span>${bloques}${libreTexto}${pedir}</div>`;
+    return `<div class="ag-col" style="--c:${s.color}">${resumen}${bloques}${libreTexto}${pedir}</div>`;
   }).join('');
 
   const lineaAhora = diaElegido === hoy.fecha && hoy.minutos >= INICIO_DIA && hoy.minutos <= FIN_DIA
@@ -264,8 +313,8 @@ const renderDisponibilidad = () => {
   }
 
   const leyenda = prefill
-    ? 'Las franjas de color son horas ya reservadas. Toque una hora libre para pedirla con la sala, la fecha y la hora ya puestas.'
-    : 'Las franjas de color son horas ya reservadas. Lo que está en blanco está libre.';
+    ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la sala, la fecha y la hora ya puestas.'
+    : 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Lo que está en blanco está libre.';
 
   cont.innerHTML = `<p class="disp-ley">${leyenda}</p>
     <div class="dias" role="group" aria-label="Día">${chips}</div>
@@ -292,7 +341,14 @@ const refrescar = () => {
 const iniciarDisponibilidad = () => {
   prefill = plantillaPrefill();
   renderDisponibilidad();
+  iniciarDetalle();
   $('#disponibilidad').addEventListener('click', (ev) => {
+    const franja = ev.target.closest('button.ag-oc');
+    if (franja) {
+      const sala = SALAS.find((s) => s.nombre === franja.dataset.sala);
+      if (sala) abrirDetalle(sala, Number(franja.dataset.k));
+      return;
+    }
     const chip = ev.target.closest('button[data-dia]');
     if (!chip) return;
     diaElegido = chip.dataset.dia;

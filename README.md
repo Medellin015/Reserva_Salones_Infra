@@ -53,6 +53,25 @@ GitHub desactiva las tareas programadas de un repositorio público tras 60 días
 actividad. Si pasa, en Actions → "Actualizar disponibilidad" aparece un botón para
 reactivarla. Desde esa misma pestaña se puede lanzar a mano con "Run workflow".
 
+## Qué muestra el detalle de una reserva
+
+Al tocar una franja ocupada se abre un cuadro con la sala, el día y la hora, y con lo
+que el calendario de esa sala tenga publicado:
+
+| Nivel de publicación en Outlook | Qué se ve en el detalle |
+| --- | --- |
+| Puede ver cuando estoy ocupado (el actual) | Solo la hora. El cuadro dice que los detalles no están publicados. |
+| Puede ver títulos y ubicaciones | El asunto de la reserva. El flujo lo arma como "Motivo · Nombre del solicitante", y la página lo separa en motivo y solicitante. |
+| Puede ver todos los detalles | Además, la descripción: correo del solicitante y número de asistentes. |
+
+El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
+Calendarios compartidos → "Publicar un calendario" → elegir la sala y el nivel →
+Publicar. Los enlaces no cambian. El cambio se ve en la página en la siguiente lectura.
+
+La página es pública: lo que se publique lo verá cualquiera que tenga el enlace. Con
+"títulos y ubicaciones" quedan a la vista los nombres de quienes reservan y los motivos
+de las reuniones. "Todos los detalles" expone además los correos; no se recomienda.
+
 ## Pedir desde el calendario
 
 Al tocar una hora libre del calendario, el formulario se abre con la sala, la fecha

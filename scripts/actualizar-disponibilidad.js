@@ -6,8 +6,9 @@
      node scripts/actualizar-disponibilidad.js
    Lee el enlace ICS de cada sala (el mismo enlace publicado de config.js, con
    calendar.ics en vez de calendar.html), calcula las horas ocupadas de los
-   próximos 10 días hábiles (sin fines de semana ni festivos de Colombia) y
-   escribe disponibilidad.js solo si algo cambió.
+   próximos 10 días hábiles (sin fines de semana ni festivos de Colombia), con el
+   asunto y la descripción de cada reserva si el calendario los publica, y escribe
+   disponibilidad.js solo si algo cambió.
    Estructura del archivo:
      1. Configuración
      2. Fechas en Bogotá y festivos de Colombia
@@ -240,6 +241,22 @@ const leerDuracion = (texto) => {
   return m[1] === '-' ? -ms : ms;
 };
 
+// Texto de una propiedad (SUMMARY, DESCRIPTION, LOCATION): deshace los escapes del ICS,
+// convierte <br> en saltos de línea, quita etiquetas HTML y recorta.
+const LARGO_MAX_TEXTO = 600;
+const limpiarTexto = (texto) => {
+  if (!texto) return '';
+  const plano = texto
+    .replace(/\\n/gi, '\n').replace(/\\,/g, ',').replace(/\\;/g, ';').replace(/\\\\/g, '\\')
+    .replace(/<br\s*\/?>/gi, '\n').replace(/<\/p>/gi, '\n').replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .split('\n').map((l) => l.trim()).filter(Boolean).join('\n').trim();
+  return plano.length > LARGO_MAX_TEXTO ? plano.slice(0, LARGO_MAX_TEXTO - 1) + '…' : plano;
+};
+// Lo que Outlook escribe como asunto cuando el calendario solo publica si está ocupado.
+const TITULOS_VACIOS = new Set(['busy', 'ocupado', 'ocupada', 'occupé', 'beschäftigt', 'free', 'libre', 'tentative', 'provisional', 'out of office', 'fuera de la oficina', 'working elsewhere', 'trabajando en otro lugar']);
+const titulo = (texto) => { const t = limpiarTexto(texto); return TITULOS_VACIOS.has(t.toLowerCase()) ? '' : t; };
+
 /* ===== 5. Eventos y repeticiones ===== */
 
 const leerEvento = (comp, zonas) => {
@@ -266,8 +283,18 @@ const leerEvento = (comp, zonas) => {
     }
   }
   const recId = leerFechaHora(prop(comp, 'RECURRENCE-ID'), zonas);
+  // Detalle que se muestra en la página al tocar la franja; solo viene si el calendario
+  // se publicó con títulos (o con todos los detalles).
+  const info = {};
+  const t = titulo((prop(comp, 'SUMMARY') || {}).valor);
+  const d = limpiarTexto((prop(comp, 'DESCRIPTION') || {}).valor);
+  const l = limpiarTexto((prop(comp, 'LOCATION') || {}).valor);
+  if (t) info.t = t;
+  if (d) info.d = d;
+  if (l) info.l = l;
   return {
     uid: ((prop(comp, 'UID') || {}).valor || '').trim(),
+    info: Object.keys(info).length ? info : null,
     inicio: inicio.epoch,
     fin: Math.max(fin.epoch, inicio.epoch),
     naive: inicio.naive,
@@ -413,7 +440,7 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
     const instancias = ev.recurrenceId === null ? expandir(ev, excepciones.get(ev.uid) || new Set(), inicioVentana, finVentana, zonas) : [ev];
     for (const i of instancias) {
       if (i.omitir || i.fin <= inicioVentana || i.inicio >= finVentana || i.fin <= i.inicio) continue;
-      intervalos.push([i.inicio, i.fin]);
+      intervalos.push([i.inicio, i.fin, i.info]);
     }
   }
   // citasArchivo: todas las citas y series del archivo, dentro o fuera de la ventana; sirve en el
@@ -424,18 +451,9 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
 
 /* ===== 6. Ocupación por sala y por día ===== */
 
-const fusionar = (franjas) => {
-  const orden = [...franjas].sort((x, y) => x[0] - y[0]);
-  const salida = [];
-  for (const f of orden) {
-    const ultima = salida[salida.length - 1];
-    if (ultima && f[0] <= ultima[1]) ultima[1] = Math.max(ultima[1], f[1]);
-    else salida.push([f[0], f[1]]);
-  }
-  return salida;
-};
-
-// { 'AAAA-MM-DD': [['08:00','09:30'], ...] } con minutos del día en Bogotá.
+// { 'AAAA-MM-DD': [['08:00','09:30'], ['11:00','12:00', { t, d, l }], ...] } con minutos del día
+// en Bogotá. Cada reserva es su propia franja (dos reservas cruzadas se ven las dos); el tercer
+// elemento solo va cuando el calendario publica el asunto o la descripción.
 const ocupacionPorDia = (intervalos, dias) => {
   const salida = {};
   for (const dia of dias) {
@@ -443,12 +461,20 @@ const ocupacionPorDia = (intervalos, dias) => {
     const iniDia = epochBogota(a, m, d);
     const finDia = iniDia + MS_DIA;
     const franjas = [];
-    for (const [x, y] of intervalos) {
+    for (const [x, y, info] of intervalos) {
       const s = Math.max(x, iniDia);
       const e = Math.min(y, finDia);
-      if (e > s) franjas.push([Math.floor((s - iniDia) / MS_MIN), Math.ceil((e - iniDia) / MS_MIN)]);
+      if (e > s) franjas.push([Math.floor((s - iniDia) / MS_MIN), Math.ceil((e - iniDia) / MS_MIN), info || null]);
     }
-    salida[dia] = fusionar(franjas).map(([s, e]) => [hhmm(s), hhmm(e)]);
+    franjas.sort((p, q) => p[0] - q[0] || p[1] - q[1]);
+    const vistas = new Set();
+    salida[dia] = [];
+    for (const [ini, fin, info] of franjas) {
+      const clave = `${ini}|${fin}|${JSON.stringify(info)}`;
+      if (vistas.has(clave)) continue; // la misma cita repetida en el archivo
+      vistas.add(clave);
+      salida[dia].push(info ? [hhmm(ini), hhmm(fin), info] : [hhmm(ini), hhmm(fin)]);
+    }
   }
   return salida;
 };
@@ -529,7 +555,8 @@ const principal = async () => {
       ocupado[sala.nombre] = ocupacionPorDia(intervalos, dias);
       leidas += 1;
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
-      console.log(`${sala.nombre}: ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles, ${total} franjas ocupadas`);
+      const conTitulo = intervalos.filter((x) => x[2] && x[2].t).length;
+      console.log(`${sala.nombre}: ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
     } catch (e) {
       errores[sala.nombre] = e.message;
       console.error(`${sala.nombre}: ${e.message}`);
@@ -568,4 +595,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, fusionar, ocupacionPorDia, urlIcs, diasHabiles, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, diasHabiles, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };

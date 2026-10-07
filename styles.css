@@ -78,7 +78,11 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
   background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px);background-size:100% calc(100% / var(--horas));
   background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px),linear-gradient(to bottom,color-mix(in srgb,var(--line) 45%,transparent) 1px,transparent 1px);
   background-size:100% calc(100% / var(--horas)),100% calc(100% / (var(--horas) * 2))}
-.ag-oc{position:absolute;left:3px;right:3px;min-height:18px;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);border-radius:6px;padding:2px 6px;font-size:11.5px;line-height:1.3;overflow:hidden;font-variant-numeric:tabular-nums;color:var(--ink)}
+/* Cada franja ocupada es un botón que abre el detalle de la reserva */
+.ag-oc{position:absolute;left:3px;right:3px;min-height:18px;display:block;width:auto;appearance:none;font:inherit;text-align:left;cursor:pointer;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border:0;border-left:3px solid var(--c);border-radius:6px;padding:2px 6px;font-size:11.5px;line-height:1.3;overflow:hidden;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ag-oc:hover{background:color-mix(in srgb,var(--c) 34%,var(--surface))}
+.ag-oc:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.ag-oc .ag-oc-t{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ag-libre,.ag-sin{position:absolute;top:8px;left:4px;right:4px;text-align:center;font-size:12px;color:var(--muted)}
 .ag-sin a{color:var(--accent)}
 /* Hora libre que se puede pedir: invisible hasta pasar el ratón o llegar con el teclado */
@@ -90,6 +94,20 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .ag-capa{position:absolute;inset:8px 0 8px var(--eje);pointer-events:none}
 .ag-ahora{position:absolute;left:0;right:0;height:2px;background:#D64545;transform:translateY(-1px)}
 .ag-ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D64545}
+/* Cuadro de detalle de una reserva */
+.det{border:0;border-radius:14px;padding:0;max-width:min(92vw,26rem);width:100%;background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.25)}
+.det::backdrop{background:rgba(13,19,23,.45)}
+.det-in{padding:18px 20px 20px}
+.det-sala{margin:0 0 4px;font-family:var(--m);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.det h3{margin:0 0 6px;font-size:1.15rem;line-height:1.25;overflow-wrap:anywhere}
+.det-hora{margin:0 0 12px;font-size:15px;font-variant-numeric:tabular-nums}
+.det-lista{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 12px;font-size:14.5px}
+.det-lista:empty{display:none}
+.det-lista dt{color:var(--muted)}
+.det-lista dd{margin:0;overflow-wrap:anywhere;white-space:pre-line}
+.det-nota{margin:12px 0 0;font-size:13.5px;color:var(--muted);background:var(--bg);border-radius:8px;padding:8px 10px}
+.det-nota:empty{display:none}
+.det-cerrar{margin-top:16px;padding:8px 16px}
 .disp-nota{margin:10px 0 0;font-size:13px;color:var(--muted)}
 .disp-nota.aviso{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:8px 10px}
 .disp-nota.aviso a{color:var(--accent)}
@@ -103,6 +121,7 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
   .ag-oc{padding:2px 4px;font-size:11px}
   .ag-oc span{display:block}
   .ag-oc.corta span + span{display:none}
+  .ag-oc .ag-oc-t{display:none}
 }
 
 /* ===== 4. Pasos, reglas y contacto ===== */

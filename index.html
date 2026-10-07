@@ -59,6 +59,18 @@
   </section>
 </main>
 
+<!-- Cuadro de detalle de una reserva; lo llena app.js al tocar una franja del calendario -->
+<dialog class="det" id="detalle" aria-labelledby="det-titulo">
+  <div class="det-in">
+    <p class="det-sala" id="det-sala"></p>
+    <h3 id="det-titulo">Reserva</h3>
+    <p class="det-hora" id="det-hora"></p>
+    <dl class="det-lista" id="det-lista"></dl>
+    <p class="det-nota" id="det-nota"></p>
+    <button class="btn btn-s det-cerrar" id="det-cerrar" type="button">Cerrar</button>
+  </div>
+</dialog>
+
 <footer class="wrap">
   Unidad Administrativa · Alcaldía de Medellín. Reservas gestionadas desde el buzón sal9@medellin.gov.co.
 </footer>
