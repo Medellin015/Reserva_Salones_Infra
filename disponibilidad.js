@@ -8,7 +8,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-07",
- "actualizado": "2026-10-07T12:02:00-05:00",
+ "actualizado": "2026-10-07T13:09:23-05:00",
  "avisado": null,
  "dias": [
   "2026-10-07",
@@ -36,7 +36,12 @@ window.DISPONIBILIDAD = {
    "2026-10-21": []
   },
   "Sala 2": {
-   "2026-10-07": [],
+   "2026-10-07": [
+    [
+     "14:00",
+     "15:30"
+    ]
+   ],
    "2026-10-08": [],
    "2026-10-09": [],
    "2026-10-13": [],
