@@ -15,6 +15,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | --- | --- |
 | `index.html` | Contenido de la página: encabezado, calendario, pasos, reglas y contacto. |
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
+| `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
 | `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, enlaces de los calendarios y enlace rellenado de Forms. |
 | `app.js` | Pinta el calendario de disponibilidad, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
