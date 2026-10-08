@@ -1,13 +1,13 @@
 'use strict';
 /* ============================================================================
    Salas Piso 9 CAM — página de disponibilidad y acceso al formulario
-   Lee FORM_URL, CONTACTO, SALAS y FORM_PREFILL de config.js, y las horas ocupadas de
-   disponibilidad.js; los dos se cargan antes que este archivo.
+   Lee FORM_URL, CONTACTO, SALAS, SALAS_JUNTAS y FORM_PREFILL de config.js, y las horas
+   ocupadas de disponibilidad.js; los dos se cargan antes que este archivo.
    Estructura del archivo:
      1. Utilidades
      2. Calendario de disponibilidad (y enlace de Forms con respuestas rellenadas)
      3. Tema claro/oscuro
-     4. Contacto y copiar correo
+     4. Reglas de las salas, contacto y copiar correo
      5. Arranque
    ============================================================================ */
 
@@ -81,8 +81,12 @@ const etiquetaDia = (iso, hoy) => {
 const enumerar = (lista) => (lista.length > 1 ? `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}` : lista[0]);
 const listaFranjas = (franjas) => enumerar(franjas.map(([a, b]) => `${a} a ${b}`));
 
+// Salas que muestra la página: las que config.js marca con activa: false no aparecen.
+const salasActivas = () => SALAS.filter((s) => s.activa !== false);
+const conAforo = (s) => (Number(s.aforo) > 0 ? `${s.nombre} (${s.aforo} personas)` : s.nombre);
+
 const enlaceOutlook = (s, texto = s.nombre) => `<a href="${escapar(s.calendario.trim())}" target="_blank" rel="noopener" aria-label="${escapar(`Calendario de la ${s.nombre} en Outlook`)}">${escapar(texto)}</a>`;
-const enlacesOutlook = () => SALAS.filter((s) => esUrl(s.calendario)).map((s) => enlaceOutlook(s)).join(' · ');
+const enlacesOutlook = () => salasActivas().filter((s) => esUrl(s.calendario)).map((s) => enlaceOutlook(s)).join(' · ');
 
 // --- Enlace de Forms con respuestas rellenadas ---
 // Formas en que Forms puede escribir una fecha en el enlace; se prueban contra la fecha de ejemplo.
@@ -146,16 +150,21 @@ const plantillaPrefill = () => {
   // Cualquier otra respuesta rellenada en el enlace de ejemplo viajará fija en todos los enlaces.
   const extras = pares.filter((p) => !['id', 'lang'].includes(p.clave) && !Object.values(campos).includes(p.clave) && p.decodificado !== '');
   if (extras.length) console.info(`FORM_PREFILL: el enlace trae además ${enumerar(extras.map((p) => `${p.clave} = "${p.decodificado}"`))}; ese valor irá fijo en todas las solicitudes.`);
+  // La sala solo se rellena si el enlace de ejemplo la trae (el formulario actual la pregunta
+  // al final, según el número de personas).
   const enlace = (sala, fechaIso, hora) => {
-    const nuevos = { [campos.sala]: sala, [campos.fecha]: formato ? formato.f(fechaIso) : null, [campos.hora]: hora };
+    const nuevos = {};
+    if (campos.sala) nuevos[campos.sala] = sala;
+    if (campos.fecha) nuevos[campos.fecha] = formato.f(fechaIso);
+    if (campos.hora) nuevos[campos.hora] = hora;
     const consulta = pares.map((p) => {
-      if (!(p.clave in nuevos) || nuevos[p.clave] === null) return `${p.clave}=${p.valor}`;
+      if (!(p.clave in nuevos)) return `${p.clave}=${p.valor}`;
       const texto = p.comillas ? JSON.stringify(nuevos[p.clave]) : nuevos[p.clave];
       return `${p.clave}=${encodeURIComponent(texto)}`;
     }).join('&');
     return `${url.origin}${url.pathname}?${consulta}${url.hash}`;
   };
-  return { campos, enlace };
+  return { campos, enlace, conSala: Boolean(campos.sala) };
 };
 
 let diaElegido = null;
@@ -163,11 +172,11 @@ let prefill = null;
 let claveRender = null;
 
 // --- Detalle de una reserva ---
-// El flujo pone en el asunto "Motivo · Nombre del solicitante"; si viene así, se separan.
+// El flujo pone en el asunto "Motivo · Responsable"; si viene así, se separan.
 const resumenReserva = (info) => {
-  if (!info || !info.t) return { titulo: '', motivo: '', solicitante: '' };
+  if (!info || !info.t) return { titulo: '', motivo: '', responsable: '' };
   const m = /^(.+?)\s+·\s+(.+)$/.exec(info.t);
-  return m ? { titulo: info.t, motivo: m[1].trim(), solicitante: m[2].trim() } : { titulo: info.t, motivo: '', solicitante: '' };
+  return m ? { titulo: info.t, motivo: m[1].trim(), responsable: m[2].trim() } : { titulo: info.t, motivo: '', responsable: '' };
 };
 
 const abrirDetalle = (sala, k) => {
@@ -181,16 +190,17 @@ const abrirDetalle = (sala, k) => {
   $('#det-titulo').textContent = r.motivo || r.titulo || 'Sala reservada';
   $('#det-hora').textContent = `${fechaLarga(diaElegido)}, de ${a} a ${b}`;
   const filas = [];
-  if (r.solicitante) filas.push(['Solicitó', r.solicitante]);
-  if (info && info.l) filas.push(['Lugar', info.l]);
+  if (r.responsable) filas.push(['Responsable', r.responsable]);
+  // El flujo pone como lugar la sala pedida: solo dice algo nuevo si son dos salas juntas.
+  if (info && info.l && info.l.trim() !== sala.nombre) filas.push(['Lugar', info.l]);
   if (info && info.d) {
     // Cada línea "Etiqueta: valor" de la descripción va como fila; el resto, como texto.
+    // La línea del responsable (o del solicitante, en reservas viejas) repite el asunto.
     const sueltas = [];
     for (const linea of info.d.split('\n')) {
       const m = /^([^:]{2,30}):\s*(.+)$/.exec(linea);
-      if (m && !(r.solicitante && /^solicitante$/i.test(m[1]))) filas.push([m[1], m[2]]);
-      else if (!m) sueltas.push(linea);
-      else if (!r.solicitante) filas.push([m[1], m[2]]);
+      if (!m) sueltas.push(linea);
+      else if (!(r.responsable && /^(solicitante|responsable)$/i.test(m[1]))) filas.push([m[1], m[2]]);
     }
     if (sueltas.length) filas.push(['Nota', sueltas.join('\n')]);
   }
@@ -226,6 +236,7 @@ const renderDisponibilidad = () => {
   const hoy = ahoraBogota();
   const dias = datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : [];
   const errores = (datos && datos.errores) || {};
+  const salas = salasActivas();
   const activo = document.activeElement && cont.contains(document.activeElement) ? document.activeElement : null;
   const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href'), sala: activo.dataset.sala, k: activo.dataset.k } : null;
   const tira = cont.querySelector('.dias');
@@ -239,7 +250,8 @@ const renderDisponibilidad = () => {
     if (!recordado) return;
     let mismo = null;
     if (recordado.dia) mismo = cont.querySelector(`button[data-dia="${recordado.dia}"]`);
-    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
+    // Los enlaces "Pedir" de la misma hora llevan el mismo href en todas las salas.
+    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]${recordado.sala ? `[data-sala="${CSS.escape(recordado.sala)}"]` : ''}`);
     else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-k="${recordado.k}"]`);
     const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
     if (destino) destino.focus({ preventScroll: true });
@@ -266,11 +278,13 @@ const renderDisponibilidad = () => {
   const horas = [];
   for (let m = INICIO_DIA; m <= FIN_DIA; m += 60) horas.push(`<span style="top:${pct(m)}%">${hhmm(m)}</span>`);
 
-  const columnas = SALAS.map((s) => {
+  const columnas = salas.map((s) => {
+    if (!esUrl(s.calendario)) {
+      return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Calendario pendiente.</span></div>`;
+    }
     if (!datos.ocupado[s.nombre]) {
       // El enlace debe seguir siendo accesible, así que esta columna no se oculta a los lectores.
-      const enlace = esUrl(s.calendario) ? ` ${enlaceOutlook(s, 'Ver en Outlook')}` : '';
-      return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Sin datos.${enlace}</span></div>`;
+      return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Sin datos. ${enlaceOutlook(s, 'Ver en Outlook')}</span></div>`;
     }
     // Cada franja guarda su índice (data-k) para abrir el detalle de esa reserva.
     const franjas = (datos.ocupado[s.nombre][diaElegido] || [])
@@ -292,9 +306,12 @@ const renderDisponibilidad = () => {
         if (diaElegido === hoy.fecha && m < hoy.minutos) continue;
         if (!franjas.some((f) => f.ini < m + BLOQUE && f.fin > m)) libres.push(m);
       }
-      pedir = libres.map((m) => `<a class="ag-pedir" href="${escapar(prefill.enlace(s.nombre, diaElegido, hhmm(m)))}" target="_blank" rel="noopener" style="top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%" aria-label="${escapar(`Pedir la ${s.nombre} el ${fechaLarga(diaElegido)} a las ${hhmm(m)}`)}"><span aria-hidden="true">Pedir ${hhmm(m)}</span></a>`).join('');
+      const nombrePedir = (m) => (prefill.conSala
+        ? `Pedir la ${s.nombre} el ${fechaLarga(diaElegido)} a las ${hhmm(m)}`
+        : `Pedir el ${fechaLarga(diaElegido)} a las ${hhmm(m)} (${s.nombre} libre)`);
+      pedir = libres.map((m) => `<a class="ag-pedir" href="${escapar(prefill.enlace(s.nombre, diaElegido, hhmm(m)))}" target="_blank" rel="noopener" data-sala="${escapar(s.nombre)}" style="top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%" aria-label="${escapar(nombrePedir(m))}"><span aria-hidden="true">Pedir ${hhmm(m)}</span></a>`).join('');
     }
-    const resumen = franjas.length ? `<span class="sr">${escapar(`${s.nombre}: ${franjas.length} ${franjas.length === 1 ? 'reserva' : 'reservas'}.`)}</span>` : `<span class="sr">${escapar(`${s.nombre}: libre todo el día.`)}</span>`;
+    const resumen = franjas.length ? `<span class="sr">${escapar(`${conAforo(s)}: ${franjas.length} ${franjas.length === 1 ? 'reserva' : 'reservas'}.`)}</span>` : `<span class="sr">${escapar(`${conAforo(s)}: libre todo el día.`)}</span>`;
     const libreTexto = !franjas.length && !prefill ? '<span class="ag-libre" aria-hidden="true">Libre</span>' : '';
     return `<div class="ag-col" style="--c:${s.color}">${resumen}${bloques}${libreTexto}${pedir}</div>`;
   }).join('');
@@ -304,9 +321,9 @@ const renderDisponibilidad = () => {
 
   // Estado de los datos: cuándo se leyeron los calendarios y si alguno falló.
   const notas = [];
-  const nombrar = (salas) => enumerar(salas.map((s) => `la ${s.nombre}`));
-  const sinDatos = SALAS.filter((s) => !datos.ocupado[s.nombre]);
-  const conError = SALAS.filter((s) => s.nombre in errores && datos.ocupado[s.nombre]);
+  const nombrar = (lista) => enumerar(lista.map((s) => `la ${s.nombre}`));
+  const sinDatos = salas.filter((s) => esUrl(s.calendario) && !datos.ocupado[s.nombre]);
+  const conError = salas.filter((s) => s.nombre in errores && datos.ocupado[s.nombre]);
   if (sinLeerHoy) {
     const inicio = datos.verificado
       ? `Los datos son del ${fechaLarga(datos.verificado)} y pueden estar desactualizados.`
@@ -325,15 +342,17 @@ const renderDisponibilidad = () => {
     }
   }
 
-  const leyenda = prefill
-    ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la sala, la fecha y la hora ya puestas.'
-    : 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Lo que está en blanco está libre.';
+  const leyenda = !prefill
+    ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Lo que está en blanco está libre.'
+    : prefill.conSala
+      ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la sala, la fecha y la hora ya puestas.'
+      : 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la fecha y la hora ya puestas; la sala se elige al final del formulario, según cuántas personas asisten.';
 
   cont.innerHTML = `<p class="disp-ley">${leyenda}</p>
     <div class="dias" role="group" aria-label="Día">${chips}</div>
     <a class="saltar" href="#como-funciona">Saltar el calendario</a>
-    <div class="ag" style="--n:${SALAS.length};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad del ${fechaLarga(diaElegido)}`)}">
-      <div class="ag-cab" aria-hidden="true"><span></span>${SALAS.map((s) => `<span style="--c:${s.color}">${escapar(s.nombre)}</span>`).join('')}</div>
+    <div class="ag" style="--n:${salas.length};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad del ${fechaLarga(diaElegido)}`)}">
+      <div class="ag-cab" aria-hidden="true"><span></span>${salas.map((s) => `<span style="--c:${s.color}">${escapar(s.nombre)}${Number(s.aforo) > 0 ? `<small>${s.aforo} personas</small>` : ''}</span>`).join('')}</div>
       <div class="ag-cuerpo"><div class="ag-eje" aria-hidden="true">${horas.join('')}</div>${columnas}${lineaAhora}</div>
     </div>
     ${notas.join('')}
@@ -435,7 +454,44 @@ const iniciarTema = () => {
   });
 };
 
-/* ===== 4. Contacto y copiar correo ===== */
+/* ===== 4. Reglas de las salas, contacto y copiar correo ===== */
+
+// Aforos, salas que se piden juntas y salas deshabilitadas salen de config.js, para que las
+// reglas cambien solas cuando cambie una sala.
+const mayuscula = (t) => t.charAt(0).toUpperCase() + t.slice(1);
+const reglasDeSalas = () => {
+  const activas = salasActivas();
+  const conCupo = activas.filter((s) => Number(s.aforo) > 0);
+  const reglas = [];
+  if (conCupo.length) reglas.push(`Aforo: ${conCupo.map((s, i) => `${s.nombre}, ${s.aforo}${i === 0 ? ' personas' : ''}`).join('; ')}.`);
+  const grupos = (typeof SALAS_JUNTAS !== 'undefined' && Array.isArray(SALAS_JUNTAS) ? SALAS_JUNTAS : [])
+    .map((nombres) => nombres.map((n) => conCupo.find((s) => s.nombre === n)))
+    .filter((grupo) => grupo.length > 1 && grupo.every(Boolean));
+  if (grupos.length) {
+    const mayor = Math.max(...conCupo.map((s) => Number(s.aforo)));
+    const juntas = grupos.map((g) => `${enumerar(g.map((s) => s.nombre))}, hasta ${g.reduce((t, s) => t + Number(s.aforo), 0)} personas`);
+    reglas.push(`Para más de ${mayor} personas se piden dos salas juntas: ${juntas.join('; ')}.`);
+  }
+  const inactivas = SALAS.filter((s) => s.activa === false);
+  if (inactivas.length) {
+    reglas.push(inactivas.length === 1
+      ? `La ${inactivas[0].nombre} está deshabilitada por ahora.`
+      : `${mayuscula(enumerar(inactivas.map((s) => `la ${s.nombre}`)))} están deshabilitadas por ahora.`);
+  }
+  return reglas;
+};
+// Van después de la primera regla (el horario).
+const iniciarReglas = () => {
+  const lista = $('.reglas');
+  if (!lista) return;
+  let ancla = lista.querySelector('li');
+  for (const texto of reglasDeSalas()) {
+    const li = document.createElement('li');
+    li.textContent = texto;
+    if (ancla) ancla.after(li); else lista.prepend(li);
+    ancla = li;
+  }
+};
 
 const iniciarContacto = () => {
   $('#correo-contacto').textContent = CONTACTO.correo;
@@ -458,4 +514,5 @@ const iniciarContacto = () => {
 /* ===== 5. Arranque ===== */
 iniciarDisponibilidad();
 iniciarTema();
+iniciarReglas();
 iniciarContacto();
