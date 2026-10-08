@@ -469,8 +469,10 @@ const reglasDeSalas = () => {
     .filter((grupo) => grupo.length > 1 && grupo.every(Boolean));
   if (grupos.length) {
     const mayor = Math.max(...conCupo.map((s) => Number(s.aforo)));
-    const juntas = grupos.map((g) => `${enumerar(g.map((s) => s.nombre))}, hasta ${g.reduce((t, s) => t + Number(s.aforo), 0)} personas`);
-    reglas.push(`Para más de ${mayor} personas se piden dos salas juntas: ${juntas.join('; ')}.`);
+    const total = (g) => g.reduce((t, s) => t + Number(s.aforo), 0);
+    reglas.push(grupos.length === 1
+      ? `Para más de ${mayor} personas se unen ${enumerar(grupos[0].map((s) => `la ${s.nombre}`))} en una sola, hasta ${total(grupos[0])} personas.`
+      : `Para más de ${mayor} personas se unen dos salas en una sola: ${grupos.map((g) => `${enumerar(g.map((s) => s.nombre))}, hasta ${total(g)} personas`).join('; ')}.`);
   }
   const inactivas = SALAS.filter((s) => s.activa === false);
   if (inactivas.length) {

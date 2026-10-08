@@ -46,10 +46,10 @@ const SALAS = [
     calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/19a63b4cf73d461ca1a099f8ae676dfe9251628108054404143/calendar.html' },
 ];
 
-// Salas que se pueden pedir juntas cuando el grupo no cabe en una sola. El formulario las
-// ofrece como "Salas 1 y 2" y el flujo reserva las dos. La página las anuncia en las reglas
-// solo si todas sus salas están activas.
-const SALAS_JUNTAS = [['Sala 1', 'Sala 2'], ['Sala 3', 'Sala 4']];
+// Salas que se pueden unir en una sola cuando el grupo no cabe en una: solo la 1 y la 2,
+// para 40 personas. El formulario las ofrece como "Salas 1 y 2" y el flujo reserva las dos.
+// La página las anuncia en las reglas solo si todas sus salas están activas.
+const SALAS_JUNTAS = [['Sala 1', 'Sala 2']];
 
 /* ===== 4. Pedir desde el calendario ===== */
 

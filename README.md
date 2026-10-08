@@ -77,9 +77,8 @@ reactivarla. Desde esa misma pestaña se puede lanzar a mano con "Run workflow".
 | Sala 4 | 15 personas | Deshabilitada desde el 08/10/2026 |
 | Sala 5 | 15 personas | Activa desde el 08/10/2026 |
 
-Para grupos grandes se piden dos salas juntas: la 1 y la 2 (hasta 40 personas) o, cuando
-la Sala 4 vuelva a estar activa, la 3 y la 4 (hasta 27). Todo esto está en `SALAS` y
-`SALAS_JUNTAS` de `config.js`. La página saca de ahí el aforo de cada columna y las
+Las únicas salas que se pueden unir en una sola son la 1 y la 2, para grupos de 21 a 40
+personas. Todo esto está en `SALAS` y `SALAS_JUNTAS` de `config.js`. La página saca de ahí el aforo de cada columna y las
 reglas; las salas con `activa: false` no aparecen.
 
 El formulario pregunta primero cuántas personas asisten, por rangos, y al final muestra
@@ -98,10 +97,8 @@ revisa cruces en los dos calendarios y crea la reserva en ambos, con "Salas 1 y 
 lugar.
 
 **Para volver a activar la Sala 4:** en `config.js`, quite `activa: false` de la Sala 4.
-En el formulario, agregue "Sala 4" a las salas de 1 a 12 y de 13 a 15 personas. Para
-ofrecer también "Salas 3 y 4", divida el rango de 21 a 40 en "21 a 27" (Salas 1 y 2,
-Salas 3 y 4) y "28 a 40" (Salas 1 y 2), con su pregunta de sala, y agregue el rango nuevo
-a la expresión que arma la sala en el flujo.
+En el formulario, agregue "Sala 4" a las salas de 1 a 12 y de 13 a 15 personas. El flujo
+no necesita cambios.
 
 Una sala nueva se agrega en `SALAS` con su enlace publicado (ver "Cómo publicar el
 calendario de una sala"). Mientras no tenga enlace, su columna dice "Calendario pendiente"
