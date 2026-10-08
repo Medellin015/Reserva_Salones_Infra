@@ -16,7 +16,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `index.html` | Contenido de la página: encabezado, calendario, pasos, reglas y contacto. |
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
-| `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, enlaces de los calendarios y enlace rellenado de Forms. |
+| `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y enlace rellenado de Forms. |
 | `app.js` | Pinta el calendario de disponibilidad, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
@@ -25,13 +25,13 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 
 ## Cómo se actualiza la disponibilidad
 
-Los cuatro calendarios están publicados desde el buzón sal9 con el nivel "Puede ver
-cuando estoy ocupado", así que solo exponen si la sala está ocupada o libre. Como
-Outlook titula igual las cuatro páginas publicadas, la página no manda a Outlook:
-pinta ella misma las horas ocupadas.
+Los calendarios de las salas están publicados desde el buzón sal9 con el nivel "Puede
+ver títulos y ubicaciones" (ver "Qué muestra el detalle de una reserva"). Como Outlook
+titula igual todas las páginas publicadas, la página no manda a Outlook: pinta ella
+misma las horas ocupadas.
 
 1. La tarea lee el enlace ICS de cada sala (el mismo enlace de `config.js` con
-   `calendar.ics` al final). Se dispara de tres formas:
+   `calendar.ics` al final). Se dispara de cuatro formas:
    - **Desde el flujo de reservas.** Al aprobar una reserva, el flujo de Power
      Automate usa la acción de GitHub "Create a repository dispatch event" (conector
      estándar, sin licencia premium) con el tipo `actualizar-disponibilidad`. La
@@ -67,6 +67,46 @@ GitHub desactiva las tareas programadas de un repositorio público tras 60 días
 actividad. Si pasa, en Actions → "Actualizar disponibilidad" aparece un botón para
 reactivarla. Desde esa misma pestaña se puede lanzar a mano con "Run workflow".
 
+## Salas y aforos
+
+| Sala | Aforo | Estado |
+| --- | --- | --- |
+| Sala 1 | 20 personas | Activa |
+| Sala 2 | 20 personas | Activa |
+| Sala 3 | 12 personas | Activa |
+| Sala 4 | 15 personas | Deshabilitada desde el 08/10/2026 |
+| Sala 5 | 15 personas | Activa; su calendario aún no está publicado |
+
+Para grupos grandes se piden dos salas juntas: la 1 y la 2 (hasta 40 personas) o, cuando
+la Sala 4 vuelva a estar activa, la 3 y la 4 (hasta 27). Todo esto está en `SALAS` y
+`SALAS_JUNTAS` de `config.js`. La página saca de ahí el aforo de cada columna y las
+reglas; las salas con `activa: false` no aparecen.
+
+El formulario pregunta primero cuántas personas asisten, por rangos, y al final muestra
+solo las salas donde cabe el grupo:
+
+| Personas | Salas que ofrece el formulario |
+| --- | --- |
+| 1 a 12 | Sala 1, Sala 2, Sala 3, Sala 5 |
+| 13 a 15 | Sala 1, Sala 2, Sala 5 |
+| 16 a 20 | Sala 1, Sala 2 |
+| 21 a 40 | Salas 1 y 2 |
+
+Cada rango tiene su propia pregunta de sala, porque Forms solo puede saltar a otra
+pregunta según una respuesta de opción. Cuando alguien pide "Salas 1 y 2", el flujo
+revisa cruces en los dos calendarios y crea la reserva en ambos, con "Salas 1 y 2" como
+lugar.
+
+**Para volver a activar la Sala 4:** en `config.js`, quite `activa: false` de la Sala 4.
+En el formulario, agregue "Sala 4" a las salas de 1 a 12 y de 13 a 15 personas. Para
+ofrecer también "Salas 3 y 4", divida el rango de 21 a 40 en "21 a 27" (Salas 1 y 2,
+Salas 3 y 4) y "28 a 40" (Salas 1 y 2), con su pregunta de sala, y agregue el rango nuevo
+a la expresión que arma la sala en el flujo.
+
+**Cuando se publique el calendario de la Sala 5:** pegue su enlace HTML en el campo
+`calendario` de la Sala 5 en `config.js`. Mientras esté vacío, su columna dice
+"Calendario pendiente" y la tarea no la lee.
+
 ## Qué muestra el detalle de una reserva
 
 Al tocar una franja ocupada se abre un cuadro con la sala, el día y la hora, y con lo
@@ -75,8 +115,8 @@ que el calendario de esa sala tenga publicado:
 | Nivel de publicación en Outlook | Qué se ve en el detalle |
 | --- | --- |
 | Puede ver cuando estoy ocupado | Solo la hora. El cuadro dice que los detalles no están publicados. |
-| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto de la reserva. El flujo lo arma como "Motivo · Nombre del solicitante", y la página lo separa en motivo y solicitante. |
-| Puede ver todos los detalles | Además, la descripción: correo del solicitante y número de asistentes. |
+| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"). |
+| Puede ver todos los detalles | Además, la descripción: teléfono, dependencia, correo de quien pidió y número de personas. |
 
 El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
 Calendarios compartidos → "Publicar un calendario" → elegir la sala y el nivel →
@@ -84,38 +124,42 @@ Publicar. Los enlaces no cambian. El cambio se ve en la página en la siguiente 
 
 La página es pública: lo que se publique lo verá cualquiera que tenga el enlace. Con
 "títulos y ubicaciones" quedan a la vista los nombres de quienes reservan y los motivos
-de las reuniones. "Todos los detalles" expone además los correos; no se recomienda.
+de las reuniones. "Todos los detalles" expone además teléfonos y correos; no se recomienda.
 
 ## Pedir desde el calendario
 
-Al tocar una hora libre del calendario, el formulario se abre con la sala, la fecha
-y la hora de inicio ya escogidas. Para activarlo, con la cuenta dueña del formulario:
+Al tocar una hora libre del calendario, el formulario se abre con la fecha y la hora de
+inicio ya escogidas. La sala no se rellena: el formulario la pregunta al final, según
+cuántas personas asisten. Para activarlo, con la cuenta dueña del formulario:
 
 1. En Forms, menú ⋯ (arriba a la derecha) → "Obtener dirección URL rellenada
    previamente" y active las respuestas rellenadas.
-2. Rellene Sala = "Sala 1", Fecha = 15/10/2026 y Hora de inicio = "07:00"; copie el
-   enlace que genera Forms.
+2. Rellene solo Fecha = 15/10/2026 y Hora de inicio = "07:00"; copie el enlace que
+   genera Forms.
 3. Péguelo en `FORM_PREFILL.enlace` de `config.js`. Si usó otros valores de
    ejemplo, escríbalos tal cual en `FORM_PREFILL.ejemplo`.
 
-Está activo desde el 07/10/2026. Forms escribe cada respuesta entre comillas en el
-enlace (`%22Sala%201%22`); la página las tiene en cuenta al comparar y al generar.
+Está activo desde el 07/10/2026, y desde el 08/10/2026 ya no rellena la sala. Forms
+escribe cada respuesta entre comillas en el enlace (`%222026-10-15%22`); la página las
+tiene en cuenta al comparar y al generar. Si el formulario vuelve a tener una sola
+pregunta de sala, agregue `sala: 'Sala 1'` al ejemplo y la página la rellenará también.
 
 La página busca esos valores en el enlace para saber qué parámetro es cada pregunta.
 Si alguno no aparece, no genera enlaces y lo avisa en la consola del navegador, para
-no pedir una sala, fecha u hora equivocadas. Mientras el enlace esté vacío, el
+no pedir una fecha u hora equivocadas. Mientras el enlace esté vacío, el
 calendario no ofrece pedir desde una hora y queda el botón "Pedir una sala".
 
 ## Cómo publicar el calendario de una sala
 
-Los cuatro calendarios ya están publicados y enlazados en `config.js`. Estos pasos
-sirven para cambiar o volver a publicar alguno.
+Los calendarios de las salas 1 a 4 ya están publicados y enlazados en `config.js`; falta
+el de la Sala 5. Estos pasos sirven para publicarlo o para volver a publicar alguno.
 
 1. En Outlook web, entrando como sal9: ⚙ Configuración → Calendario → Calendarios
    compartidos → "Publicar un calendario".
-2. Elija la sala y el nivel "Puede ver cuando estoy ocupado" → Publicar.
+2. Elija la sala y el nivel "Puede ver títulos y ubicaciones" → Publicar. Con ese
+   nivel la página muestra el detalle de cada reserva.
 3. Copie el enlace **HTML** (termina en `calendar.html`) y péguelo en el campo
    `calendario` de esa sala en `config.js`. La tarea programada deriva de ahí el
    enlace ICS.
 
-Si una sala no tiene enlace, su columna del calendario muestra "Sin datos".
+Si una sala activa no tiene enlace, su columna del calendario dice "Calendario pendiente".

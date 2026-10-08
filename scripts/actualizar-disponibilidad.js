@@ -548,7 +548,10 @@ const principal = async () => {
   const errores = {};
   let leidas = 0;
   for (const sala of SALAS) {
-    if (!/^https?:\/\//i.test((sala.calendario || '').trim())) { errores[sala.nombre] = 'Sin enlace de calendario en config.js'; continue; }
+    // Las salas deshabilitadas no se muestran en la página, y una sala sin enlace todavía no
+    // tiene calendario publicado: ninguna de las dos se lee ni cuenta como error.
+    if (sala.activa === false) { console.log(`${sala.nombre}: deshabilitada en config.js; no se lee.`); continue; }
+    if (!/^https?:\/\//i.test((sala.calendario || '').trim())) { console.log(`${sala.nombre}: sin enlace de calendario en config.js; no se lee.`); continue; }
     try {
       const texto = await descargar(urlIcs(sala.calendario));
       const intervalos = intervalosOcupados(texto, inicioVentana, finVentana);

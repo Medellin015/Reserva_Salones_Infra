@@ -12,7 +12,7 @@
 :root{
   --bg:#F2F5F6; --surface:#FFFFFF; --ink:#15212A; --muted:#55636E; --line:#D6DEE3;
   --accent:#0C7566; --accent-ink:#FFFFFF; --accent-soft:#E0F0EC; --warn-soft:#FAEEDC;
-  --s1:#3466D6; --s2:#CC7418; --s3:#8052C8; --s4:#C4426B;
+  --s1:#3466D6; --s2:#CC7418; --s3:#8052C8; --s4:#C4426B; --s5:#4D8A1E;
   --logo-mezcla:multiply;
   --f:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
   --m:ui-monospace,"Cascadia Mono",Consolas,monospace;
@@ -21,7 +21,7 @@
 :root[data-tema="oscuro"]{
   --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
   --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
-  --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+  --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0; --s5:#9CCB62;
   --logo-mezcla:normal;
   color-scheme:dark;
 }
@@ -29,7 +29,7 @@
   :root:not([data-tema="claro"]){
     --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
     --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
-    --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+    --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0; --s5:#9CCB62;
     --logo-mezcla:normal;
     color-scheme:dark;
   }
@@ -80,6 +80,7 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .ag-cab,.ag-cuerpo{display:grid;grid-template-columns:var(--eje) repeat(var(--n),minmax(0,1fr))}
 .ag-cab{border-bottom:1px solid var(--line)}
 .ag-cab span{padding:10px 8px 8px;font-weight:700;font-size:14.5px;text-align:center;border-left:1px solid var(--line);border-top:4px solid var(--c,transparent);min-width:0;overflow-wrap:anywhere}
+.ag-cab small{display:block;font-size:11.5px;font-weight:400;color:var(--muted)}
 .ag-cab span:first-child{border-left:0;border-top-color:transparent}
 .ag-cuerpo{position:relative;height:calc(var(--horas) * var(--hora) + 16px);padding:8px 0}
 .ag-eje{position:relative}
@@ -133,6 +134,7 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
   .ag{--eje:42px;--hora:48px}
   .ag-eje span{right:4px;font-size:10px}
   .ag-cab span{font-size:13px;padding:8px 2px 6px}
+  .ag-cab small{font-size:10.5px}
   .ag-oc{padding:2px 4px;font-size:11px}
   .ag-oc span{display:block}
   .ag-oc.corta span + span{display:none}
