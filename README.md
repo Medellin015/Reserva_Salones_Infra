@@ -49,6 +49,8 @@ pinta ella misma las horas ocupadas.
    ni festivos de Colombia) y, solo si algo cambió, hace commit de
    `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un minuto.
 3. La página muestra las franjas ocupadas por sala y por día, con la hora actual.
+   Vuelve a leer los datos cada 5 minutos y al volver a la pestaña, así que una
+   pantalla que queda abierta todo el día se mantiene al día sin recargarla.
    Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer. Eso no
    causa reservas dobles: el flujo revisa cruces al recibir la solicitud y otra vez
    al aprobarla.

@@ -308,8 +308,10 @@ const renderDisponibilidad = () => {
   const sinDatos = SALAS.filter((s) => !datos.ocupado[s.nombre]);
   const conError = SALAS.filter((s) => s.nombre in errores && datos.ocupado[s.nombre]);
   if (sinLeerHoy) {
-    const cuando = datos.verificado ? `son del ${fechaLarga(datos.verificado)}` : 'no se han podido leer';
-    notas.push(`<p class="disp-nota aviso">Los calendarios no se han podido leer hoy: los datos ${cuando} y pueden estar desactualizados. Antes de pedir, revise el calendario en Outlook: ${enlacesOutlook()}.</p>`);
+    const inicio = datos.verificado
+      ? `Los datos son del ${fechaLarga(datos.verificado)} y pueden estar desactualizados.`
+      : 'Los calendarios todavía no se han podido leer.';
+    notas.push(`<p class="disp-nota aviso">${inicio} Recargue la página; si el aviso sigue, los calendarios no se han podido leer hoy. Antes de pedir, revise el calendario en Outlook: ${enlacesOutlook()}.</p>`);
   } else {
     if (sinDatos.length) notas.push(`<p class="disp-nota aviso">No se pudo leer el calendario de ${escapar(nombrar(sinDatos))}. Revíselo en Outlook antes de pedir.</p>`);
     if (conError.length) notas.push(`<p class="disp-nota aviso">En la última lectura no se pudo leer el calendario de ${escapar(nombrar(conError))}; se muestran los datos de la lectura anterior de hoy. Revíselo en Outlook antes de pedir.</p>`);
@@ -349,6 +351,32 @@ const refrescar = () => {
   if (linea && diaElegido === hoy.fecha) linea.style.top = `${pct(hoy.minutos)}%`;
 };
 
+// --- Recarga de los datos ---
+// disponibilidad.js se lee una vez al abrir la página. Una pestaña que queda abierta todo el
+// día (o desde ayer) seguiría mostrando esos datos, así que se vuelve a pedir cada 5 minutos y
+// al volver a la pestaña. El parámetro ?v= cambia cada minuto para no recibir la copia que el
+// navegador guardó; si la descarga falla, se conservan los datos que ya había.
+const RECARGA_MS = 5 * 60000;
+let recargando = false;
+let ultimaRecarga = Date.now();
+const recargarDatos = () => {
+  if (recargando) return;
+  recargando = true;
+  ultimaRecarga = Date.now();
+  const antes = JSON.stringify(window.DISPONIBILIDAD || null);
+  const script = document.createElement('script');
+  script.src = `disponibilidad.js?v=${Math.floor(Date.now() / 60000)}`;
+  const terminar = () => { recargando = false; script.remove(); };
+  script.onload = () => {
+    terminar();
+    if (JSON.stringify(window.DISPONIBILIDAD || null) !== antes) renderDisponibilidad();
+  };
+  script.onerror = terminar;
+  document.head.appendChild(script);
+};
+// Al volver a la pestaña (o al restaurarla el navegador), recargar si pasó más de un minuto.
+const recargarSiHaceRato = () => { if (Date.now() - ultimaRecarga > 60000) recargarDatos(); };
+
 const iniciarDisponibilidad = () => {
   prefill = plantillaPrefill();
   renderDisponibilidad();
@@ -368,6 +396,10 @@ const iniciarDisponibilidad = () => {
     if (elegido) elegido.focus();
   });
   setInterval(refrescar, 60000);
+  setInterval(recargarDatos, RECARGA_MS);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') recargarSiHaceRato(); });
+  window.addEventListener('pageshow', (ev) => { if (ev.persisted) recargarSiHaceRato(); });
+  window.addEventListener('online', recargarDatos);
 };
 
 /* ===== 3. Tema claro/oscuro ===== */
