@@ -43,7 +43,7 @@ const SALAS = [
   { nombre: 'Sala 4', aforo: 15, color: 'var(--s4)', activa: false,
     calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/8e4d1d7594bd463baaaebd8efaf0f7d514839775579376083701/calendar.html' },
   { nombre: 'Sala 5', aforo: 15, color: 'var(--s5)',
-    calendario: '' },
+    calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/19a63b4cf73d461ca1a099f8ae676dfe9251628108054404143/calendar.html' },
 ];
 
 // Salas que se pueden pedir juntas cuando el grupo no cabe en una sola. El formulario las
