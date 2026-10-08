@@ -75,7 +75,7 @@ reactivarla. Desde esa misma pestaña se puede lanzar a mano con "Run workflow".
 | Sala 2 | 20 personas | Activa |
 | Sala 3 | 12 personas | Activa |
 | Sala 4 | 15 personas | Deshabilitada desde el 08/10/2026 |
-| Sala 5 | 15 personas | Activa; su calendario aún no está publicado |
+| Sala 5 | 15 personas | Activa desde el 08/10/2026 |
 
 Para grupos grandes se piden dos salas juntas: la 1 y la 2 (hasta 40 personas) o, cuando
 la Sala 4 vuelva a estar activa, la 3 y la 4 (hasta 27). Todo esto está en `SALAS` y
@@ -103,9 +103,9 @@ ofrecer también "Salas 3 y 4", divida el rango de 21 a 40 en "21 a 27" (Salas 1
 Salas 3 y 4) y "28 a 40" (Salas 1 y 2), con su pregunta de sala, y agregue el rango nuevo
 a la expresión que arma la sala en el flujo.
 
-**Cuando se publique el calendario de la Sala 5:** pegue su enlace HTML en el campo
-`calendario` de la Sala 5 en `config.js`. Mientras esté vacío, su columna dice
-"Calendario pendiente" y la tarea no la lee.
+Una sala nueva se agrega en `SALAS` con su enlace publicado (ver "Cómo publicar el
+calendario de una sala"). Mientras no tenga enlace, su columna dice "Calendario pendiente"
+y la tarea no la lee.
 
 ## Qué muestra el detalle de una reserva
 
@@ -151,8 +151,8 @@ calendario no ofrece pedir desde una hora y queda el botón "Pedir una sala".
 
 ## Cómo publicar el calendario de una sala
 
-Los calendarios de las salas 1 a 4 ya están publicados y enlazados en `config.js`; falta
-el de la Sala 5. Estos pasos sirven para publicarlo o para volver a publicar alguno.
+Los calendarios de las cinco salas ya están publicados y enlazados en `config.js`. Estos
+pasos sirven para publicar el de una sala nueva o para volver a publicar alguno.
 
 1. En Outlook web, entrando como sal9: ⚙ Configuración → Calendario → Calendarios
    compartidos → "Publicar un calendario".
