@@ -13,6 +13,7 @@
   --bg:#F2F5F6; --surface:#FFFFFF; --ink:#15212A; --muted:#55636E; --line:#D6DEE3;
   --accent:#0C7566; --accent-ink:#FFFFFF; --accent-soft:#E0F0EC; --warn-soft:#FAEEDC;
   --s1:#3466D6; --s2:#CC7418; --s3:#8052C8; --s4:#C4426B;
+  --logo-mezcla:multiply;
   --f:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
   --m:ui-monospace,"Cascadia Mono",Consolas,monospace;
   color-scheme:light;
@@ -21,6 +22,7 @@
   --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
   --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
   --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+  --logo-mezcla:normal;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: dark){
@@ -28,6 +30,7 @@
     --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
     --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
     --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0;
+    --logo-mezcla:normal;
     color-scheme:dark;
   }
 }
@@ -40,9 +43,17 @@ a{color:var(--accent)}
 .wrap{max-width:60rem;margin-inline:auto;padding:0 20px}
 
 /* Encabezado */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0}
-.marca{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:-.01em}
-.marca i{width:30px;height:30px;border-radius:8px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-style:normal;font-weight:800}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.marca{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.01em}
+/* El PNG del logo mide 246×193 y trae 43 px vacíos arriba y 19 a la izquierda (en píxeles
+   del archivo). Se recortan los 37 de arriba para que el escudo quede centrado con el nombre,
+   y el margen negativo alinea el dibujo con el texto de la página. El fondo del PNG es blanco:
+   en el tema claro se funde con el de la página (multiply) y en el oscuro queda como placa
+   blanca, sin alterar los colores del escudo. */
+.logo{--alto:72px;display:block;box-sizing:content-box;height:var(--alto);width:auto;aspect-ratio:246/156;object-fit:cover;object-position:50% 100%;
+  margin-left:calc(var(--alto) * -19 / 156);padding:4px 0;background:#FFFFFF;border-radius:8px;mix-blend-mode:var(--logo-mezcla)}
+.nombre{align-self:stretch;display:flex;align-items:center;padding-left:14px;border-left:1px solid var(--line)}
+.nombre:first-child{padding-left:0;border-left:0}
 .tema{font:inherit;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
 .tema:hover{color:var(--ink)}
 
@@ -114,6 +125,10 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .disp-outlook{margin:4px 0 0;font-size:13px;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (max-width:560px){
+  /* En el celular no caben logo, nombre y botón de tema: el nombre se repite en el título de abajo */
+  .logo{--alto:50px}
+  .nombre{display:none}
+  .nombre:first-child{display:flex}
   /* 48px por hora = 24px por media hora, el mínimo táctil recomendado para los enlaces "Pedir" */
   .ag{--eje:42px;--hora:48px}
   .ag-eje span{right:4px;font-size:10px}

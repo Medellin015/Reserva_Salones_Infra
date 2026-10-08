@@ -14,7 +14,11 @@
 </head>
 <body>
 <header class="wrap top">
-  <div class="marca"><i>9</i> Salas Piso 9 CAM</div>
+  <!-- Si el PNG del logo no carga, se quita y queda solo el nombre de la página -->
+  <div class="marca">
+    <img class="logo" src="logo-alcaldia-medellin.png" width="246" height="193" alt="Alcaldía de Medellín, Distrito de Ciencia, Tecnología e Innovación" onerror="this.remove()">
+    <span class="nombre">Salas Piso 9 CAM</span>
+  </div>
   <button class="tema" id="btn-tema" type="button" title="Cambiar tema">Tema</button>
 </header>
 
