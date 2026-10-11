@@ -446,6 +446,10 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
   // citasArchivo: todas las citas y series del archivo, dentro o fuera de la ventana; sirve en el
   // registro para distinguir un calendario vacío de un archivo que no trae citas.
   intervalos.citasArchivo = eventos.length;
+  // calendario: nombre que Outlook pone en el archivo (X-WR-CALNAME); en el registro sirve para
+  // comprobar que el enlace de cada sala en config.js es el de su calendario, aunque esté vacío.
+  const vcalendar = buscar(raiz, 'VCALENDAR')[0];
+  intervalos.calendario = vcalendar ? limpiarTexto((prop(vcalendar, 'X-WR-CALNAME') || {}).valor) : '';
   return intervalos;
 };
 
@@ -559,7 +563,8 @@ const principal = async () => {
       leidas += 1;
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
       const conTitulo = intervalos.filter((x) => x[2] && x[2].t).length;
-      console.log(`${sala.nombre}: ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
+      const calendario = intervalos.calendario ? `calendario "${intervalos.calendario}"` : 'el archivo no trae el nombre del calendario';
+      console.log(`${sala.nombre} (${calendario}): ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
     } catch (e) {
       errores[sala.nombre] = e.message;
       console.error(`${sala.nombre}: ${e.message}`);
