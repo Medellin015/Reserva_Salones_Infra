@@ -123,6 +123,9 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .disp-nota{margin:10px 0 0;font-size:13px;color:var(--muted)}
 .disp-nota.aviso{background:var(--warn-soft);color:var(--ink);border-radius:8px;padding:8px 10px}
 .disp-nota.aviso a{color:var(--accent)}
+.recargar{font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:var(--surface);border:1px solid var(--accent);border-radius:6px;padding:3px 10px;margin-left:2px;cursor:pointer}
+.recargar:not(:disabled):hover{background:var(--accent);color:var(--accent-ink)}
+.recargar:disabled{opacity:.7;cursor:progress}
 .disp-outlook{margin:4px 0 0;font-size:13px;color:var(--muted)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 @media (max-width:560px){

@@ -260,7 +260,7 @@ const renderDisponibilidad = () => {
   // Plan B: sin datos vigentes (la tarea no ha corrido, lleva días sin correr o el archivo
   // no cargó), se ofrecen los calendarios de Outlook.
   if (!dias.length || !datos.ocupado) {
-    cont.innerHTML = `<p class="disp-nota aviso">La disponibilidad no está disponible en este momento. Puede revisarla en Outlook: ${enlacesOutlook()}.</p>`;
+    cont.innerHTML = `<p class="disp-nota aviso">La disponibilidad no está disponible en este momento. Puede revisarla en Outlook: ${enlacesOutlook()}. <button class="recargar" type="button">Recargar</button></p>`;
     claveRender = claveDe(hoy, datos);
     restaurar();
     return;
@@ -328,7 +328,7 @@ const renderDisponibilidad = () => {
     const inicio = datos.verificado
       ? `Los datos son del ${fechaLarga(datos.verificado)} y pueden estar desactualizados.`
       : 'Los calendarios todavía no se han podido leer.';
-    notas.push(`<p class="disp-nota aviso">${inicio} Recargue la página; si el aviso sigue, los calendarios no se han podido leer hoy. Antes de pedir, revise el calendario en Outlook: ${enlacesOutlook()}.</p>`);
+    notas.push(`<p class="disp-nota aviso">${inicio} Si el aviso sigue después de recargar, los calendarios no se han podido leer hoy; antes de pedir, revise el calendario en Outlook: ${enlacesOutlook()}. <button class="recargar" type="button">Recargar</button></p>`);
   } else {
     if (sinDatos.length) notas.push(`<p class="disp-nota aviso">No se pudo leer el calendario de ${escapar(nombrar(sinDatos))}. Revíselo en Outlook antes de pedir.</p>`);
     if (conError.length) notas.push(`<p class="disp-nota aviso">En la última lectura no se pudo leer el calendario de ${escapar(nombrar(conError))}; se muestran los datos de la lectura anterior de hoy. Revíselo en Outlook antes de pedir.</p>`);
@@ -396,11 +396,28 @@ const recargarDatos = () => {
 // Al volver a la pestaña (o al restaurarla el navegador), recargar si pasó más de un minuto.
 const recargarSiHaceRato = () => { if (Date.now() - ultimaRecarga > 60000) recargarDatos(); };
 
+// Botón "Recargar" de los avisos. Antes de recargar se vuelven a pedir los archivos de la página
+// con cache: 'reload', que se salta la copia guardada del navegador y le pide a cualquier proxy de
+// la red que tampoco use la suya; así la recarga no vuelve a mostrar una página o unos datos viejos.
+// Abierta como archivo (file://) no hay caché que saltar y se recarga directo.
+const ARCHIVOS_PAGINA = ['./', 'styles.css', 'config.js', 'disponibilidad.js', 'app.js'];
+const recargarPagina = (boton) => {
+  boton.disabled = true;
+  boton.textContent = 'Recargando…';
+  const recargar = () => window.location.reload();
+  if (typeof window.fetch !== 'function' || !/^https?:$/.test(window.location.protocol)) { recargar(); return; }
+  // Si la red no responde, se recarga igual a los 5 segundos.
+  setTimeout(recargar, 5000);
+  Promise.all(ARCHIVOS_PAGINA.map((u) => window.fetch(u, { cache: 'reload' }).catch(() => null))).then(recargar);
+};
+
 const iniciarDisponibilidad = () => {
   prefill = plantillaPrefill();
   renderDisponibilidad();
   iniciarDetalle();
   $('#disponibilidad').addEventListener('click', (ev) => {
+    const boton = ev.target.closest('button.recargar');
+    if (boton) { recargarPagina(boton); return; }
     const franja = ev.target.closest('button.ag-oc');
     if (franja) {
       const sala = SALAS.find((s) => s.nombre === franja.dataset.sala);
