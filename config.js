@@ -32,7 +32,8 @@ const CONTACTO = { nombre: 'Victor Lezcano', correo: 'victor.lezcano@medellin.go
 // El enlace ICS no sirve aquí.
 // La tarea programada de GitHub lee estos mismos enlaces (con calendar.ics al final)
 // y escribe disponibilidad.js, que es lo que pinta el calendario de la página.
-// Si una sala activa todavía no tiene enlace, su columna dice "Calendario pendiente".
+// Si una sala activa todavía no tiene enlace, su columna va rayada y la lista de salas de la
+// página dice "calendario pendiente".
 const SALAS = [
   { nombre: 'Sala 1', aforo: 20, color: 'var(--s1)',
     calendario: 'https://outlook.office365.com/owa/calendar/e7f5063f1ad54d0ebc2b7e5a8b3f2a58@medellin.gov.co/55937f16e55f435a93fb07014c46b8a912560906985531697418/calendar.html' },

@@ -5,8 +5,8 @@
    cada 5 minutos en horario hábil. También se puede correr a mano:
      node scripts/actualizar-disponibilidad.js
    Lee el enlace ICS de cada sala (el mismo enlace publicado de config.js, con
-   calendar.ics en vez de calendar.html), calcula las horas ocupadas de los
-   próximos 10 días hábiles (sin fines de semana ni festivos de Colombia), con el
+   calendar.ics en vez de calendar.html), calcula las horas ocupadas de la semana
+   actual y las dos siguientes, de lunes a viernes (sin festivos de Colombia), con el
    asunto y la descripción de cada reserva si el calendario los publica, y escribe
    disponibilidad.js solo si algo cambió.
    Estructura del archivo:
@@ -27,7 +27,8 @@ const path = require('path');
 const RAIZ = path.join(__dirname, '..');
 const ARCHIVO_CONFIG = path.join(RAIZ, 'config.js');
 const ARCHIVO_SALIDA = path.join(RAIZ, 'disponibilidad.js');
-const DIAS_HABILES = 10;
+// Semanas que muestra la página, de lunes a viernes: la actual y las dos siguientes.
+const SEMANAS = 3;
 const MS_MIN = 60000;
 const MS_DIA = 1440 * MS_MIN;
 // Colombia no cambia de hora: Bogotá es siempre UTC-5.
@@ -101,14 +102,23 @@ const esFestivo = (iso) => {
   if (!festivosPorAno[a]) festivosPorAno[a] = festivosColombia(a);
   return festivosPorAno[a].has(iso);
 };
-const diasHabiles = (desde, n) => {
-  const lista = [];
-  for (let e = desde; lista.length < n; e += MS_DIA) {
-    const c = camposBogota(e);
-    const iso = isoDe(c);
-    if (c.semana >= 1 && c.semana <= 5 && !esFestivo(iso)) lista.push(iso);
+// Semanas completas de lunes a viernes desde la semana actual; en fin de semana, desde el lunes
+// siguiente. Los días pasados de la semana actual también se leen, para que la página muestre la
+// semana entera. Devuelve los días hábiles, los festivos de esas semanas (la página los marca) y
+// los límites de la ventana de lectura.
+const semanasHabiles = (ahora, semanas) => {
+  const c = camposBogota(ahora);
+  const hoy = epochBogota(c.a, c.m, c.d);
+  const lunes = hoy + (c.semana === 0 ? 1 : c.semana === 6 ? 2 : 1 - c.semana) * MS_DIA;
+  const dias = [];
+  const festivos = [];
+  for (let w = 0; w < semanas; w += 1) {
+    for (let d = 0; d < 5; d += 1) {
+      const iso = isoDe(camposBogota(lunes + (w * 7 + d) * MS_DIA));
+      (esFestivo(iso) ? festivos : dias).push(iso);
+    }
   }
-  return lista;
+  return { dias, festivos, inicio: lunes, fin: lunes + ((semanas - 1) * 7 + 5) * MS_DIA };
 };
 
 /* ===== 3. Zonas horarias ===== */
@@ -529,6 +539,7 @@ const escribir = (datos) => {
    verificado: último día (Bogotá) en que se pudo leer al menos un calendario.
    actualizado: última vez que cambió algo de este archivo.
    avisado: día en que la tarea quedó en rojo por no poder leer ningún calendario.
+   dias: días hábiles de la semana actual y las dos siguientes; festivos: los de esas semanas.
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = ${JSON.stringify(datos, null, 1)};
@@ -541,10 +552,10 @@ const principal = async () => {
   // AHORA_FIJO (epoch en ms) solo sirve para probar el script con una hora concreta.
   const ahora = Number(process.env.AHORA_FIJO) || Date.now();
   const hoy = camposBogota(ahora);
-  const dias = diasHabiles(ahora, DIAS_HABILES);
-  const inicioVentana = epochBogota(hoy.a, hoy.m, hoy.d);
-  const [ua, um, ud] = dias[dias.length - 1].split('-').map(Number);
-  const finVentana = epochBogota(ua, um, ud) + MS_DIA;
+  const ventana = semanasHabiles(ahora, SEMANAS);
+  const { dias, festivos } = ventana;
+  const inicioVentana = ventana.inicio;
+  const finVentana = ventana.fin;
   const anterior = leerAnterior() || {};
   const mismaVentana = JSON.stringify(anterior.dias) === JSON.stringify(dias);
 
@@ -564,7 +575,7 @@ const principal = async () => {
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
       const conTitulo = intervalos.filter((x) => x[2] && x[2].t).length;
       const calendario = intervalos.calendario ? `calendario "${intervalos.calendario}"` : 'el archivo no trae el nombre del calendario';
-      console.log(`${sala.nombre} (${calendario}): ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} en los próximos ${DIAS_HABILES} días hábiles (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
+      console.log(`${sala.nombre} (${calendario}): ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} entre el ${dias[0]} y el ${dias[dias.length - 1]} (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
     } catch (e) {
       errores[sala.nombre] = e.message;
       console.error(`${sala.nombre}: ${e.message}`);
@@ -584,6 +595,7 @@ const principal = async () => {
     actualizado: anterior.actualizado || null,
     avisado: avisarFallo ? isoDe(hoy) : anterior.avisado || null,
     dias,
+    festivos,
     ocupado,
     errores,
   };
@@ -603,4 +615,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, diasHabiles, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, semanasHabiles, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };

@@ -66,24 +66,40 @@ const ahoraBogota = () => {
 // new Date(a, m - 1, d) evita el desfase de zona horaria al leer "AAAA-MM-DD".
 const fechaLocal = (iso) => { const [a, m, d] = iso.split('-').map(Number); return new Date(a, m - 1, d); };
 const isoDe = (f) => `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}-${String(f.getDate()).padStart(2, '0')}`;
+const sumarDias = (iso, n) => { const f = fechaLocal(iso); f.setDate(f.getDate() + n); return isoDe(f); };
+// Lunes de la semana de una fecha (getDay: 0 es domingo).
+const lunesDe = (iso) => sumarDias(iso, -((fechaLocal(iso).getDay() + 6) % 7));
 const DIAS_CORTOS = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const fechaLarga = (iso) => fechaLocal(iso).toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' });
-const etiquetaDia = (iso, hoy) => {
-  if (iso === hoy) return 'Hoy';
-  const manana = fechaLocal(hoy);
-  manana.setDate(manana.getDate() + 1);
-  if (iso === isoDe(manana)) return 'Mañana';
-  const f = fechaLocal(iso);
-  return `${DIAS_CORTOS[f.getDay()]} ${f.getDate()}`;
+// Lunes a viernes de una semana: "12–16 oct" y "del 12 al 16 de octubre"; si cruza de mes,
+// "28 sep–2 oct" y "del 28 de septiembre al 2 de octubre".
+const rangoCorto = (lunes) => {
+  const a = fechaLocal(lunes);
+  const b = fechaLocal(sumarDias(lunes, 4));
+  const mes = (f) => MESES[f.getMonth()].slice(0, 3);
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}–${b.getDate()} ${mes(b)}` : `${a.getDate()} ${mes(a)}–${b.getDate()} ${mes(b)}`;
+};
+const rangoLargo = (lunes) => {
+  const a = fechaLocal(lunes);
+  const b = fechaLocal(sumarDias(lunes, 4));
+  const mes = (f) => MESES[f.getMonth()];
+  return a.getMonth() === b.getMonth() ? `del ${a.getDate()} al ${b.getDate()} de ${mes(b)}` : `del ${a.getDate()} de ${mes(a)} al ${b.getDate()} de ${mes(b)}`;
+};
+// "Esta semana" o "Próxima semana" según la semana de hoy; las demás no llevan nombre.
+const nombreSemana = (lunes, hoyIso) => {
+  const actual = lunesDe(hoyIso);
+  if (lunes === actual) return 'Esta semana';
+  return lunes === sumarDias(actual, 7) ? 'Próxima semana' : '';
 };
 
-// "08:00 a 09:30, 11:00 a 12:00 y 14:00 a 16:00" o "la Sala 1, la Sala 2 y la Sala 3".
+// "la Sala 1, la Sala 2 y la Sala 3".
 const enumerar = (lista) => (lista.length > 1 ? `${lista.slice(0, -1).join(', ')} y ${lista[lista.length - 1]}` : lista[0]);
-const listaFranjas = (franjas) => enumerar(franjas.map(([a, b]) => `${a} a ${b}`));
 
 // Salas que muestra la página: las que config.js marca con activa: false no aparecen.
 const salasActivas = () => SALAS.filter((s) => s.activa !== false);
-const conAforo = (s) => (Number(s.aforo) > 0 ? `${s.nombre} (${s.aforo} personas)` : s.nombre);
+// Código de la columna de cada sala dentro de un día: "Sala 1" → "S1".
+const codigoSala = (s) => { const m = /^sala\s+(\S{1,3})$/i.exec(s.nombre.trim()); return m ? `S${m[1]}` : s.nombre.trim().slice(0, 3); };
 
 const enlaceOutlook = (s, texto = s.nombre) => `<a href="${escapar(s.calendario.trim())}" target="_blank" rel="noopener" aria-label="${escapar(`Calendario de la ${s.nombre} en Outlook`)}">${escapar(texto)}</a>`;
 const enlacesOutlook = () => salasActivas().filter((s) => esUrl(s.calendario)).map((s) => enlaceOutlook(s)).join(' · ');
@@ -167,7 +183,10 @@ const plantillaPrefill = () => {
   return { campos, enlace, conSala: Boolean(campos.sala) };
 };
 
-let diaElegido = null;
+let semanaElegida = null;
+// Al abrir la página o cambiar de semana, el calendario se desliza hasta hoy (en el celular la
+// semana no cabe a lo ancho); en los repintados siguientes conserva el desplazamiento.
+let irAHoy = true;
 let prefill = null;
 let claveRender = null;
 
@@ -179,16 +198,16 @@ const resumenReserva = (info) => {
   return m ? { titulo: info.t, motivo: m[1].trim(), responsable: m[2].trim() } : { titulo: info.t, motivo: '', responsable: '' };
 };
 
-const abrirDetalle = (sala, k) => {
+const abrirDetalle = (sala, dia, k) => {
   const datos = window.DISPONIBILIDAD;
-  const franja = datos && datos.ocupado && datos.ocupado[sala.nombre] && (datos.ocupado[sala.nombre][diaElegido] || [])[k];
+  const franja = datos && datos.ocupado && datos.ocupado[sala.nombre] && (datos.ocupado[sala.nombre][dia] || [])[k];
   const dialogo = $('#detalle');
   if (!franja || !dialogo) return;
   const [a, b, info] = franja;
   const r = resumenReserva(info);
   $('#det-sala').textContent = sala.nombre;
   $('#det-titulo').textContent = r.motivo || r.titulo || 'Sala reservada';
-  $('#det-hora').textContent = `${fechaLarga(diaElegido)}, de ${a} a ${b}`;
+  $('#det-hora').textContent = `${fechaLarga(dia)}, de ${a} a ${b}`;
   const filas = [];
   if (r.responsable) filas.push(['Responsable', r.responsable]);
   // El flujo pone como lugar la sala pedida: solo dice algo nuevo si son dos salas juntas.
@@ -218,107 +237,161 @@ const iniciarDetalle = () => {
   dialogo.addEventListener('click', (ev) => { if (ev.target === dialogo) dialogo.close(); });
 };
 
+// Días con datos desde hoy: si no queda ninguno, los datos están vencidos y va el plan B.
+const diasVigentes = (datos, hoy) => (datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : []);
+
 // Resume lo que puede cambiar el dibujo: el día, el bloque de media hora (ceil: las horas que
 // se pueden pedir son las que empiezan en o después de ahora, así que el conjunto cambia al
-// pasar cada :00 y :30), el aviso de datos viejos y el día elegido; o el plan B sin datos.
+// pasar cada :00 y :30), el aviso de datos viejos y la semana elegida; o el plan B sin datos.
 const claveDe = (hoy, datos) => {
-  const dias = datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : [];
-  if (!dias.length || !datos.ocupado) return `${hoy.fecha}|plan-b`;
+  if (!diasVigentes(datos, hoy).length || !datos.ocupado) return `${hoy.fecha}|plan-b`;
   const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
-  return `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${diaElegido}`;
+  return `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${semanaElegida}`;
 };
 
-// Pinta el calendario completo. Guarda y devuelve el foco y el desplazamiento de la tira
-// de días, porque reemplazar el HTML los perdería.
+// Pinta el calendario de la semana elegida, de lunes a viernes, con una columna por sala en
+// cada día. Guarda y devuelve el foco y los desplazamientos (la tira de semanas y, en el
+// celular, el calendario), porque reemplazar el HTML los perdería.
 const renderDisponibilidad = () => {
   const cont = $('#disponibilidad');
   const datos = window.DISPONIBILIDAD;
   const hoy = ahoraBogota();
-  const dias = datos && Array.isArray(datos.dias) ? datos.dias.filter((d) => d >= hoy.fecha) : [];
   const errores = (datos && datos.errores) || {};
   const salas = salasActivas();
   const activo = document.activeElement && cont.contains(document.activeElement) ? document.activeElement : null;
-  const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href'), sala: activo.dataset.sala, k: activo.dataset.k, recargar: activo.classList.contains('recargar') } : null;
-  const tira = cont.querySelector('.dias');
-  const desplazamiento = tira ? tira.scrollLeft : 0;
+  const recordado = activo ? { semana: activo.dataset.semana, href: activo.getAttribute('href'), sala: activo.dataset.sala, dia: activo.dataset.dia, k: activo.dataset.k, recargar: activo.classList.contains('recargar') } : null;
+  const tira = cont.querySelector('.semanas');
+  const desplTira = tira ? tira.scrollLeft : 0;
+  const rejilla = cont.querySelector('.ag');
+  const desplRejilla = rejilla ? rejilla.scrollLeft : 0;
 
-  // Devuelve el desplazamiento de la tira y el foco a donde estaban (o al chip del día si el
-  // elemento enfocado ya no existe).
+  // Devuelve los desplazamientos y el foco a donde estaban (o al botón de la semana si el
+  // elemento enfocado ya no existe). Tras abrir la página o cambiar de semana, el calendario
+  // se desliza hasta hoy, que queda junto a la columna de las horas.
   const restaurar = () => {
-    const tiraNueva = cont.querySelector('.dias');
-    if (tiraNueva) tiraNueva.scrollLeft = desplazamiento;
+    const tiraNueva = cont.querySelector('.semanas');
+    if (tiraNueva) tiraNueva.scrollLeft = desplTira;
+    const rejillaNueva = cont.querySelector('.ag');
+    if (rejillaNueva) {
+      const colHoy = rejillaNueva.querySelector('.ag-dia.hoy');
+      const eje = rejillaNueva.querySelector('.ag-eje');
+      rejillaNueva.scrollLeft = !irAHoy ? desplRejilla : colHoy && eje ? colHoy.offsetLeft - eje.offsetWidth : 0;
+      irAHoy = false;
+    }
     if (!recordado) return;
     let mismo = null;
-    if (recordado.dia) mismo = cont.querySelector(`button[data-dia="${recordado.dia}"]`);
-    // Los enlaces "Pedir" de la misma hora llevan el mismo href en todas las salas.
-    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]${recordado.sala ? `[data-sala="${CSS.escape(recordado.sala)}"]` : ''}`);
-    else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-k="${recordado.k}"]`);
+    if (recordado.semana) mismo = cont.querySelector(`button[data-semana="${recordado.semana}"]`);
+    // Cada enlace "Pedir" lleva su propia fecha y hora (y su sala, si el formulario la rellena).
+    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
+    else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-dia="${recordado.dia}"][data-k="${recordado.k}"]`);
     else if (recordado.recargar) mismo = cont.querySelector('button.recargar');
-    const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
+    const destino = mismo || cont.querySelector(`button[data-semana="${semanaElegida}"]`);
     if (destino) destino.focus({ preventScroll: true });
   };
 
   // Plan B: sin datos vigentes (la tarea no ha corrido, lleva días sin correr o el archivo
   // no cargó), se ofrecen los calendarios de Outlook.
-  if (!dias.length || !datos.ocupado) {
+  if (!diasVigentes(datos, hoy).length || !datos.ocupado) {
     cont.innerHTML = `<p class="disp-nota aviso">La disponibilidad no está disponible en este momento. Puede revisarla en Outlook: ${enlacesOutlook()}. <button class="recargar" type="button">Recargar</button></p>`;
     claveRender = claveDe(hoy, datos);
     restaurar();
     return;
   }
-  if (!dias.includes(diaElegido)) diaElegido = dias[0];
+  // Semanas con algún día de hoy en adelante. Los datos traen la semana actual completa (también
+  // los días que ya pasaron) y las dos siguientes; los festivos van aparte.
+  const esFecha = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d);
+  const habiles = datos.dias.filter(esFecha);
+  const festivos = Array.isArray(datos.festivos) ? datos.festivos.filter(esFecha) : [];
+  const semanas = [...new Set([...habiles, ...festivos].map(lunesDe))].sort().filter((l) => sumarDias(l, 4) >= hoy.fecha);
+  if (!semanas.includes(semanaElegida)) { semanaElegida = semanas[0]; irAHoy = true; }
   claveRender = claveDe(hoy, datos);
   const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
+  const diasSemana = [0, 1, 2, 3, 4].map((i) => sumarDias(semanaElegida, i));
+  const leidas = salas.filter((s) => esUrl(s.calendario) && datos.ocupado[s.nombre]);
+  const libreEn = (franjas, m) => !franjas.some((f) => f.ini < m + BLOQUE && f.fin > m);
 
-  const chips = dias.map((d) => {
-    const etiqueta = etiquetaDia(d, hoy.fecha);
-    const nombre = etiqueta === 'Hoy' || etiqueta === 'Mañana' ? `${etiqueta}, ${fechaLarga(d)}` : fechaLarga(d);
-    return `<button class="dia" type="button" data-dia="${d}" aria-pressed="${d === diaElegido}" aria-label="${escapar(nombre)}">${etiqueta}</button>`;
+  const chips = semanas.map((l) => {
+    const nombre = nombreSemana(l, hoy.fecha);
+    // El rango corto se ve; el largo es el que oyen los lectores de pantalla.
+    const visible = `${nombre ? `${nombre}<span aria-hidden="true"> · </span>` : ''}<span aria-hidden="true">${rangoCorto(l)}</span>`;
+    return `<button class="semana" type="button" data-semana="${l}" aria-pressed="${l === semanaElegida}">${visible}<span class="sr">${nombre ? ', ' : 'Semana '}${rangoLargo(l)}</span></button>`;
+  }).join('');
+
+  const salasLeyenda = salas.map((s) => {
+    const estado = !esUrl(s.calendario) ? ': calendario pendiente' : !datos.ocupado[s.nombre] ? ': sin datos' : '';
+    return `<li style="--c:${s.color}"><i aria-hidden="true">${escapar(codigoSala(s))}</i>${escapar(s.nombre)}${Number(s.aforo) > 0 ? `, ${s.aforo} personas` : ''}${estado}</li>`;
   }).join('');
 
   const horas = [];
   for (let m = INICIO_DIA; m <= FIN_DIA; m += 60) horas.push(`<span style="top:${pct(m)}%">${hhmm(m)}</span>`);
 
-  const columnas = salas.map((s) => {
-    if (!esUrl(s.calendario)) {
-      return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Calendario pendiente.</span></div>`;
-    }
-    if (!datos.ocupado[s.nombre]) {
-      // El enlace debe seguir siendo accesible, así que esta columna no se oculta a los lectores.
-      return `<div class="ag-col"><span class="ag-sin"><span class="sr">${escapar(s.nombre)}: </span>Sin datos. ${enlaceOutlook(s, 'Ver en Outlook')}</span></div>`;
-    }
-    // Cada franja guarda su índice (data-k) para abrir el detalle de esa reserva.
-    const franjas = (datos.ocupado[s.nombre][diaElegido] || [])
-      .map(([a, b, info], k) => ({ ini: aMinutos(a), fin: aMinutos(b), info: info || null, k }))
-      .filter((f) => f.fin > INICIO_DIA && f.ini < FIN_DIA);
-    const bloques = franjas.map((f) => {
-      const desde = Math.max(f.ini, INICIO_DIA);
-      const hasta = Math.min(f.fin, FIN_DIA);
-      const r = resumenReserva(f.info);
-      const etiqueta = `${s.nombre}, ${hhmm(desde)} a ${hhmm(hasta)}${r.titulo ? `, ${r.titulo}` : ''}. Ver detalle.`;
-      const tituloVisible = r.titulo && hasta - desde >= 60 ? `<span class="ag-oc-t">${escapar(r.titulo)}</span>` : '';
-      return `<button type="button" class="ag-oc${hasta - desde < 60 ? ' corta' : ''}" style="top:${pct(desde)}%;height:${pct(hasta) - pct(desde)}%" data-sala="${escapar(s.nombre)}" data-k="${f.k}" aria-label="${escapar(etiqueta)}"><span aria-hidden="true">${hhmm(desde)}</span><span aria-hidden="true">–${hhmm(hasta)}</span>${tituloVisible}</button>`;
-    }).join('');
-    // Horas libres que se pueden pedir con el formulario ya rellenado (solo futuras).
-    let pedir = '';
-    if (prefill) {
-      const libres = [];
-      for (let m = INICIO_DIA; m < FIN_DIA; m += BLOQUE) {
-        if (diaElegido === hoy.fecha && m < hoy.minutos) continue;
-        if (!franjas.some((f) => f.ini < m + BLOQUE && f.fin > m)) libres.push(m);
-      }
-      const nombrePedir = (m) => (prefill.conSala
-        ? `Pedir la ${s.nombre} el ${fechaLarga(diaElegido)} a las ${hhmm(m)}`
-        : `Pedir el ${fechaLarga(diaElegido)} a las ${hhmm(m)} (${s.nombre} libre)`);
-      pedir = libres.map((m) => `<a class="ag-pedir" href="${escapar(prefill.enlace(s.nombre, diaElegido, hhmm(m)))}" target="_blank" rel="noopener" data-sala="${escapar(s.nombre)}" style="top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%" aria-label="${escapar(nombrePedir(m))}"><span aria-hidden="true">Pedir ${hhmm(m)}</span></a>`).join('');
-    }
-    const resumen = franjas.length ? `<span class="sr">${escapar(`${conAforo(s)}: ${franjas.length} ${franjas.length === 1 ? 'reserva' : 'reservas'}.`)}</span>` : `<span class="sr">${escapar(`${conAforo(s)}: libre todo el día.`)}</span>`;
-    const libreTexto = !franjas.length && !prefill ? '<span class="ag-libre" aria-hidden="true">Libre</span>' : '';
-    return `<div class="ag-col" style="--c:${s.color}">${resumen}${bloques}${libreTexto}${pedir}</div>`;
+  const cabecera = diasSemana.map((dia) => {
+    const f = fechaLocal(dia);
+    const esHoy = dia === hoy.fecha;
+    const pie = festivos.includes(dia) ? '<small>Festivo</small>'
+      : !habiles.includes(dia) ? `<small>${dia < hoy.fecha ? '' : 'Sin datos'}</small>`
+        : `<span class="ag-cods">${salas.map((s) => `<i style="--c:${s.color}">${escapar(codigoSala(s))}</i>`).join('')}</span>`;
+    return `<span class="ag-dcab${esHoy ? ' hoy' : ''}${dia < hoy.fecha ? ' pasado' : ''}"><b>${DIAS_CORTOS[f.getDay()]} ${f.getDate()}${esHoy ? '<em>Hoy</em>' : ''}</b>${pie}</span>`;
   }).join('');
 
-  const lineaAhora = diaElegido === hoy.fecha && hoy.minutos >= INICIO_DIA && hoy.minutos <= FIN_DIA
-    ? `<div class="ag-capa" aria-hidden="true"><div class="ag-ahora" style="top:${pct(hoy.minutos)}%"></div></div>` : '';
+  // Franja ocupada: un botón que abre el detalle de la reserva (data-k es su índice en el día).
+  const bloque = (s, dia, f) => {
+    const desde = Math.max(f.ini, INICIO_DIA);
+    const hasta = Math.min(f.fin, FIN_DIA);
+    const r = resumenReserva(f.info);
+    const etiqueta = `${s.nombre}, ${fechaLarga(dia)}, de ${hhmm(desde)} a ${hhmm(hasta)}${r.titulo ? `: ${r.titulo}` : ''}. Ver detalle.`;
+    const titulo = r.titulo ? `<span class="ag-oc-t" aria-hidden="true">${escapar(r.titulo)}</span>` : '';
+    return `<button type="button" class="ag-oc${hasta - desde < 60 ? ' corta' : ''}" style="top:${pct(desde)}%;height:${pct(hasta) - pct(desde)}%" data-sala="${escapar(s.nombre)}" data-dia="${dia}" data-k="${f.k}" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"><span class="ag-oc-h" aria-hidden="true">${hhmm(desde)}</span><span class="ag-oc-f" aria-hidden="true">–${hhmm(hasta)}</span>${titulo}</button>`;
+  };
+  const pedirEn = (m) => `top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%`;
+
+  const columna = (dia) => {
+    const esHoy = dia === hoy.fecha;
+    const pasado = dia < hoy.fecha;
+    const clases = `ag-dia${esHoy ? ' hoy' : ''}${pasado ? ' pasado' : ''}`;
+    const nombre = `${fechaLarga(dia)}${esHoy ? ' (hoy)' : ''}`;
+    const capaPasado = (alto) => `<div class="ag-pasado" style="height:${alto}%"></div>`;
+    if (festivos.includes(dia)) return `<div class="${clases} festivo" role="group" aria-label="${escapar(nombre)}"><span class="sr">Festivo.</span></div>`;
+    // Día que no está en los datos: uno pasado que la tarea ya no leyó, o uno futuro sin leer.
+    if (!habiles.includes(dia)) return `<div class="${clases} sin-dia" role="group" aria-label="${escapar(nombre)}"><span class="sr">Sin datos.</span>${pasado ? capaPasado(100) : ''}</div>`;
+
+    const porSala = new Map(leidas.map((s) => [s, (datos.ocupado[s.nombre][dia] || [])
+      .map(([a, b, info], k) => ({ ini: aMinutos(a), fin: aMinutos(b), info: info || null, k }))
+      .filter((f) => f.fin > INICIO_DIA && f.ini < FIN_DIA)]));
+    // Medias horas que todavía se pueden pedir: las de hoy desde ahora y las de los días que vienen.
+    const pedibles = [];
+    if (prefill && !pasado) for (let m = INICIO_DIA; m < FIN_DIA; m += BLOQUE) if (!esHoy || m >= hoy.minutos) pedibles.push(m);
+
+    const carriles = salas.map((s) => {
+      const franjas = porSala.get(s);
+      if (!franjas) return `<div class="ag-carril sin" style="--c:${s.color}"></div>`;
+      // Si el formulario rellena la sala, cada sala tiene sus propias horas para pedir.
+      const pedir = prefill && prefill.conSala ? pedibles.filter((m) => libreEn(franjas, m)).map((m) => `<a class="ag-pedir" href="${escapar(prefill.enlace(s.nombre, dia, hhmm(m)))}" target="_blank" rel="noopener" data-sala="${escapar(s.nombre)}" style="${pedirEn(m)}" aria-label="${escapar(`Pedir la ${s.nombre} el ${fechaLarga(dia)} a las ${hhmm(m)}`)}"><span aria-hidden="true">${hhmm(m)}</span></a>`).join('') : '';
+      return `<div class="ag-carril" style="--c:${s.color}">${franjas.map((f) => bloque(s, dia, f)).join('')}${pedir}</div>`;
+    }).join('');
+
+    // Si no, cada media hora con alguna sala libre se pide para el día entero: el formulario
+    // pregunta la sala al final.
+    const pedirDia = prefill && !prefill.conSala ? pedibles.map((m) => {
+      const libres = leidas.filter((s) => libreEn(porSala.get(s), m));
+      if (!libres.length) return '';
+      const etiqueta = `Pedir el ${fechaLarga(dia)} a las ${hhmm(m)} (${libres.length === 1 ? 'libre' : 'libres'}: ${enumerar(libres.map((s) => s.nombre))})`;
+      return `<a class="ag-pedir" href="${escapar(prefill.enlace(null, dia, hhmm(m)))}" target="_blank" rel="noopener" style="${pedirEn(m)}" aria-label="${escapar(etiqueta)}"><span aria-hidden="true">Pedir ${hhmm(m)}</span></a>`;
+    }).join('') : '';
+
+    // Resumen para lectores de pantalla.
+    const partes = [];
+    if (pasado) partes.push('Día pasado.');
+    leidas.filter((s) => porSala.get(s).length).forEach((s) => { const n = porSala.get(s).length; partes.push(`${s.nombre}: ${n} ${n === 1 ? 'reserva' : 'reservas'}.`); });
+    const libresTodo = leidas.filter((s) => !porSala.get(s).length);
+    if (libresTodo.length) partes.push(libresTodo.length === salas.length ? 'Todas las salas, libres todo el día.' : `Libres todo el día: ${enumerar(libresTodo.map((s) => s.nombre))}.`);
+    const sinLeer = salas.filter((s) => !porSala.has(s));
+    if (sinLeer.length) partes.push(`Sin datos: ${enumerar(sinLeer.map((s) => s.nombre))}.`);
+
+    const capas = pasado ? capaPasado(100)
+      : esHoy ? `${capaPasado(pct(hoy.minutos))}${hoy.minutos >= INICIO_DIA && hoy.minutos <= FIN_DIA ? `<div class="ag-ahora" style="top:${pct(hoy.minutos)}%"></div>` : ''}` : '';
+    return `<div class="${clases}" role="group" aria-label="${escapar(nombre)}"><span class="sr">${escapar(partes.join(' '))}</span><div class="ag-carriles">${carriles}</div>${pedirDia}${capas}</div>`;
+  };
 
   // Estado de los datos: cuándo se leyeron los calendarios y si alguno falló.
   const notas = [];
@@ -348,18 +421,20 @@ const renderDisponibilidad = () => {
   const botonRecargar = sinLeerHoy ? '' : ' <button class="recargar" type="button">Recargar</button>';
   if (novedad || botonRecargar) notas.push(`<p class="disp-nota">${novedad}${novedad ? botonRecargar : botonRecargar.trim()}</p>`);
 
-  const leyenda = !prefill
-    ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Lo que está en blanco está libre.'
-    : prefill.conSala
-      ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la sala, la fecha y la hora ya puestas.'
-      : 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Toque una hora libre para pedirla con la fecha y la hora ya puestas; la sala se elige al final del formulario, según cuántas personas asisten.';
+  const comoPedir = !prefill ? 'Lo que está en blanco está libre.'
+    : prefill.conSala ? 'Toque una hora libre en la columna de una sala para pedirla con la sala, la fecha y la hora ya puestas.'
+      : 'Toque una hora libre para pedirla con la fecha y la hora ya puestas; la sala se elige al final del formulario, según cuántas personas asisten.';
+  const leyenda = `Cada día tiene una columna por sala. Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. ${comoPedir}<span class="movil"> Deslice el calendario de lado para ver toda la semana.</span>`;
 
   cont.innerHTML = `<p class="disp-ley">${leyenda}</p>
-    <div class="dias" role="group" aria-label="Día">${chips}</div>
+    <div class="semanas" role="group" aria-label="Semana">${chips}</div>
+    <ul class="ag-salas">${salasLeyenda}</ul>
     <a class="saltar" href="#como-funciona">Saltar el calendario</a>
-    <div class="ag" style="--n:${salas.length};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad del ${fechaLarga(diaElegido)}`)}">
-      <div class="ag-cab" aria-hidden="true"><span></span>${salas.map((s) => `<span style="--c:${s.color}">${escapar(s.nombre)}${Number(s.aforo) > 0 ? `<small>${s.aforo} personas</small>` : ''}</span>`).join('')}</div>
-      <div class="ag-cuerpo"><div class="ag-eje" aria-hidden="true">${horas.join('')}</div>${columnas}${lineaAhora}</div>
+    <div class="ag" style="--n:${Math.max(salas.length, 1)};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad de la semana ${rangoLargo(semanaElegida)}`)}">
+      <div class="ag-in">
+        <div class="ag-cab" aria-hidden="true"><span></span>${cabecera}</div>
+        <div class="ag-cuerpo"><div class="ag-eje" aria-hidden="true">${horas.join('')}</div>${diasSemana.map(columna).join('')}</div>
+      </div>
     </div>
     ${notas.join('')}
     <p class="disp-outlook">Calendarios en Outlook: ${enlacesOutlook()}</p>`;
@@ -367,13 +442,18 @@ const renderDisponibilidad = () => {
   restaurar();
 };
 
-// Cada minuto solo se mueve la línea de "ahora"; el calendario completo se repinta cuando
-// cambia algo visible (el día, el bloque de media hora o el aviso), para no perder el foco.
+// Cada minuto solo se mueven la línea de "ahora" y el sombreado de lo que ya pasó; el calendario
+// completo se repinta cuando cambia algo visible (el día, el bloque de media hora o el aviso),
+// para no perder el foco.
 const refrescar = () => {
   const hoy = ahoraBogota();
   if (claveDe(hoy, window.DISPONIBILIDAD) !== claveRender) { renderDisponibilidad(); return; }
-  const linea = $('#disponibilidad .ag-ahora');
-  if (linea && diaElegido === hoy.fecha) linea.style.top = `${pct(hoy.minutos)}%`;
+  const col = $('#disponibilidad .ag-dia.hoy');
+  if (!col) return;
+  const linea = col.querySelector('.ag-ahora');
+  if (linea) linea.style.top = `${pct(hoy.minutos)}%`;
+  const pasado = col.querySelector('.ag-pasado');
+  if (pasado) pasado.style.height = `${pct(hoy.minutos)}%`;
 };
 
 // --- Recarga de los datos ---
@@ -427,14 +507,15 @@ const iniciarDisponibilidad = () => {
     const franja = ev.target.closest('button.ag-oc');
     if (franja) {
       const sala = SALAS.find((s) => s.nombre === franja.dataset.sala);
-      if (sala) abrirDetalle(sala, Number(franja.dataset.k));
+      if (sala) abrirDetalle(sala, franja.dataset.dia, Number(franja.dataset.k));
       return;
     }
-    const chip = ev.target.closest('button[data-dia]');
+    const chip = ev.target.closest('button[data-semana]');
     if (!chip) return;
-    diaElegido = chip.dataset.dia;
+    semanaElegida = chip.dataset.semana;
+    irAHoy = true;
     renderDisponibilidad();
-    const elegido = $(`#disponibilidad button[data-dia="${diaElegido}"]`);
+    const elegido = $(`#disponibilidad button[data-semana="${semanaElegida}"]`);
     if (elegido) elegido.focus();
   });
   setInterval(refrescar, 60000);

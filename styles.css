@@ -71,41 +71,71 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 
 /* ===== 3. Calendario de disponibilidad ===== */
 .disp-ley{margin:0 0 12px;font-size:14.5px;color:var(--muted)}
-.dias{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:thin}
-.dia{flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
-.dia:hover{border-color:var(--accent)}
-.dia[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
-/* --eje: ancho de la columna de horas; --hora: alto de cada hora; --n: salas; --horas: horas del día mostradas */
-.ag{--eje:46px;--hora:44px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.ag-cab,.ag-cuerpo{display:grid;grid-template-columns:var(--eje) repeat(var(--n),minmax(0,1fr))}
-.ag-cab{border-bottom:1px solid var(--line)}
-.ag-cab span{padding:10px 8px 8px;font-weight:700;font-size:14.5px;text-align:center;border-left:1px solid var(--line);border-top:4px solid var(--c,transparent);min-width:0;overflow-wrap:anywhere}
-.ag-cab small{display:block;font-size:11.5px;font-weight:400;color:var(--muted)}
-.ag-cab span:first-child{border-left:0;border-top-color:transparent}
-.ag-cuerpo{position:relative;height:calc(var(--horas) * var(--hora) + 16px);padding:8px 0}
-.ag-eje{position:relative}
-.ag-eje span{position:absolute;right:6px;transform:translateY(-50%);font-family:var(--m);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.disp-ley .movil{display:none}
+.semanas{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:thin}
+.semana{position:relative;flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.semana:hover{border-color:var(--accent)}
+.semana[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+/* Salas: el código de su columna en cada día, el nombre y el aforo */
+.ag-salas{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 10px;padding:0;list-style:none;font-size:13.5px;color:var(--muted)}
+.ag-salas li{display:flex;align-items:center;gap:6px}
+.ag-salas i,.ag-cods i{font-style:normal;font-weight:700}
 /* Las declaraciones repetidas son el respaldo para navegadores sin color-mix (Edge/Chrome < 111) */
-.ag-col{position:relative;border-left:1px solid var(--line);border-bottom:1px solid var(--line);min-width:0;
+.ag-salas i{font-size:11.5px;color:var(--ink);background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);border-radius:4px;padding:0 6px}
+/* --eje: ancho de la columna de horas; --hora: alto de cada hora; --n: salas, que son las columnas
+   de cada día; --carril: ancho mínimo de la columna de una sala; --horas: horas del día mostradas.
+   Si la semana no cabe a lo ancho (en el celular), el calendario se desliza de lado y la columna
+   de las horas queda fija. */
+.ag{--eje:46px;--hora:44px;--carril:30px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.ag-in{min-width:calc(var(--eje) + 5 * var(--n) * var(--carril))}
+.ag-cab,.ag-cuerpo{display:grid;grid-template-columns:var(--eje) repeat(5,minmax(0,1fr))}
+.ag-cab{border-bottom:1px solid var(--line)}
+.ag-cab > span{min-width:0;padding-top:9px;text-align:center;border-left:1px solid var(--line)}
+.ag-cab > span:first-child,.ag-eje{position:sticky;left:0;z-index:5;background:var(--surface);border-left:0}
+.ag-dcab b{display:block;font-size:14.5px;line-height:1.35;white-space:nowrap}
+.ag-dcab em{font-style:normal;font-size:11px;font-weight:700;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.ag-dcab.hoy b{color:var(--accent)}
+.ag-dcab.pasado b{color:var(--muted);font-weight:600}
+.ag-dcab small,.ag-cods{display:grid;min-height:24px;margin-top:6px}
+.ag-dcab small{align-content:center;font-size:11.5px;color:var(--muted)}
+.ag-cods{grid-template-columns:repeat(var(--n),minmax(0,1fr))}
+.ag-cods i{font-size:10.5px;color:var(--muted);border-top:3px solid var(--c);padding:3px 0 4px;overflow:hidden}
+.ag-cuerpo{position:relative;height:calc(var(--horas) * var(--hora) + 16px);padding:8px 0}
+.ag-eje span{position:absolute;right:6px;transform:translateY(-50%);font-family:var(--m);font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+/* Cada día: líneas de las horas y de las medias horas y, adentro, una columna por sala */
+.ag-dia{position:relative;isolation:isolate;min-width:0;border-left:1px solid var(--line);border-bottom:1px solid var(--line);
   background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px);background-size:100% calc(100% / var(--horas));
   background-image:linear-gradient(to bottom,var(--line) 1px,transparent 1px),linear-gradient(to bottom,color-mix(in srgb,var(--line) 45%,transparent) 1px,transparent 1px);
   background-size:100% calc(100% / var(--horas)),100% calc(100% / (var(--horas) * 2))}
+.ag-dia.hoy{background-color:var(--accent-soft);background-color:color-mix(in srgb,var(--accent-soft) 40%,var(--surface))}
+.ag-dia.festivo,.ag-dia.sin-dia:not(.pasado){background-image:repeating-linear-gradient(135deg,transparent 0 7px,var(--line) 7px 8px);background-size:auto}
+.ag-carriles{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));pointer-events:none}
+.ag-carril{position:relative;min-width:0;container-type:inline-size}
+.ag-carril + .ag-carril{border-left:1px dotted var(--line)}
+.ag-carril.sin{background-image:repeating-linear-gradient(135deg,transparent 0 5px,var(--line) 5px 6px)}
 /* Cada franja ocupada es un botón que abre el detalle de la reserva */
-.ag-oc{position:absolute;left:3px;right:3px;min-height:18px;display:block;width:auto;appearance:none;font:inherit;text-align:left;cursor:pointer;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border:0;border-left:3px solid var(--c);border-radius:6px;padding:2px 6px;font-size:11.5px;line-height:1.3;overflow:hidden;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ag-oc{position:absolute;left:1px;right:1px;min-height:18px;display:block;width:auto;appearance:none;font:inherit;text-align:left;cursor:pointer;pointer-events:auto;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border:0;border-left:3px solid var(--c);border-radius:5px;padding:2px 1px 2px 3px;font-size:11px;line-height:1.3;white-space:nowrap;overflow:hidden;font-variant-numeric:tabular-nums;color:var(--ink)}
 .ag-oc:hover{background:color-mix(in srgb,var(--c) 34%,var(--surface))}
 .ag-oc:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
-.ag-oc .ag-oc-t{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.ag-libre,.ag-sin{position:absolute;top:8px;left:4px;right:4px;text-align:center;font-size:12px;color:var(--muted)}
-.ag-sin a{color:var(--accent)}
-/* Hora libre que se puede pedir: invisible hasta pasar el ratón o llegar con el teclado */
-.ag-pedir{position:absolute;left:3px;right:3px;display:flex;align-items:center;justify-content:center;border-radius:5px;font-size:11.5px;font-weight:600;color:transparent;text-decoration:none}
-.ag-pedir:hover,.ag-pedir:focus-visible{background:var(--accent-soft);color:var(--accent);outline-offset:-2px}
+.ag-oc-h{font-weight:600}
+.ag-oc-f,.ag-oc-t{display:none}
+.ag-oc-t{overflow:hidden;text-overflow:ellipsis}
+/* Columna de sala angosta: solo el color; ancha (pocas salas): también la hora de fin y el asunto */
+@container (max-width:33px){.ag-oc-h{display:none}}
+@container (min-width:90px){.ag-oc-f{display:inline}.ag-oc:not(.corta) .ag-oc-t{display:block}}
+/* Hora libre que se puede pedir: media hora a lo ancho del día, invisible hasta pasar el ratón o
+   llegar con el teclado. Queda debajo de las reservas; su texto, encima, para que se lea entero. */
+.ag-pedir{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;pointer-events:auto;font-size:11.5px;font-weight:600;color:transparent;text-decoration:none;white-space:nowrap}
+.ag-pedir span{position:relative;z-index:3;pointer-events:none;padding:0 7px;border-radius:999px;line-height:1.55}
+.ag-pedir:hover,.ag-pedir:focus-visible{background:var(--accent-soft);outline-offset:-2px}
+.ag-pedir:hover span,.ag-pedir:focus-visible span{color:var(--accent-ink);background:var(--accent)}
+/* Lo que ya pasó (los días anteriores y hoy hasta ahora) se ve desvaído, sin tapar los clics */
+.ag-pasado{position:absolute;top:0;left:0;right:0;z-index:2;background:var(--surface);opacity:.55;pointer-events:none}
+.ag-ahora{position:absolute;left:0;right:0;z-index:4;height:2px;background:#D64545;transform:translateY(-1px);pointer-events:none}
+.ag-ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D64545}
 /* Enlace para saltar el calendario con el teclado: solo se ve al recibir el foco */
 .saltar{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .saltar:focus-visible{position:static;width:auto;height:auto;clip-path:none;display:inline-block;margin:0 0 8px;padding:4px 10px;border-radius:6px;background:var(--surface);font-size:13.5px}
-.ag-capa{position:absolute;inset:8px 0 8px var(--eje);pointer-events:none}
-.ag-ahora{position:absolute;left:0;right:0;height:2px;background:#D64545;transform:translateY(-1px)}
-.ag-ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D64545}
 /* Cuadro de detalle de una reserva */
 .det{border:0;border-radius:14px;padding:0;max-width:min(92vw,26rem);width:100%;background:var(--surface);color:var(--ink);box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .det::backdrop{background:rgba(13,19,23,.45)}
@@ -133,15 +163,15 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
   .logo{--alto:50px}
   .nombre{display:none}
   .nombre:first-child{display:flex}
-  /* 48px por hora = 24px por media hora, el mínimo táctil recomendado para los enlaces "Pedir" */
-  .ag{--eje:42px;--hora:48px}
+  .disp-ley .movil{display:inline}
+  /* Caben unos tres días a la vez. 48px por hora = 24px por media hora, el mínimo táctil
+     recomendado para los enlaces "Pedir" */
+  .ag{--eje:40px;--hora:48px;--carril:24px}
   .ag-eje span{right:4px;font-size:10px}
-  .ag-cab span{font-size:13px;padding:8px 2px 6px}
-  .ag-cab small{font-size:10.5px}
-  .ag-oc{padding:2px 4px;font-size:11px}
-  .ag-oc span{display:block}
-  .ag-oc.corta span + span{display:none}
-  .ag-oc .ag-oc-t{display:none}
+  .ag-dcab b{font-size:13px}
+  .ag-dcab em{font-size:10px;padding:0 5px;margin-left:4px}
+  .ag-cods i{font-size:9.5px}
+  .ag-oc{font-size:10.5px}
 }
 
 /* ===== 4. Pasos, reglas y contacto ===== */
