@@ -51,10 +51,11 @@ misma las horas ocupadas.
    `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un minuto.
 3. La página muestra las franjas ocupadas por sala y por día, con la hora actual.
    Vuelve a leer los datos cada 5 minutos y al volver a la pestaña, así que una
-   pantalla que queda abierta todo el día se mantiene al día sin recargarla. Si los
-   datos no son de hoy, el aviso trae un botón "Recargar": antes de recargar pide de
-   nuevo los archivos de la página sin usar la copia guardada del navegador ni la de
-   un proxy de la red, que es lo que hace que una página vieja siga apareciendo.
+   pantalla que queda abierta todo el día se mantiene al día sin recargarla. Debajo del
+   calendario siempre hay un botón "Recargar" (si los datos no son de hoy, va dentro del
+   aviso). Antes de recargar pide de nuevo los archivos de la página sin usar la copia
+   guardada del navegador ni la de un proxy de la red, que es lo que hace que una página
+   vieja siga apareciendo.
    Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer. Eso no
    causa reservas dobles: el flujo revisa cruces al recibir la solicitud y otra vez
    al aprobarla.

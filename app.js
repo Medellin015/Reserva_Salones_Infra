@@ -238,7 +238,7 @@ const renderDisponibilidad = () => {
   const errores = (datos && datos.errores) || {};
   const salas = salasActivas();
   const activo = document.activeElement && cont.contains(document.activeElement) ? document.activeElement : null;
-  const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href'), sala: activo.dataset.sala, k: activo.dataset.k } : null;
+  const recordado = activo ? { dia: activo.dataset.dia, href: activo.getAttribute('href'), sala: activo.dataset.sala, k: activo.dataset.k, recargar: activo.classList.contains('recargar') } : null;
   const tira = cont.querySelector('.dias');
   const desplazamiento = tira ? tira.scrollLeft : 0;
 
@@ -253,6 +253,7 @@ const renderDisponibilidad = () => {
     // Los enlaces "Pedir" de la misma hora llevan el mismo href en todas las salas.
     else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]${recordado.sala ? `[data-sala="${CSS.escape(recordado.sala)}"]` : ''}`);
     else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-k="${recordado.k}"]`);
+    else if (recordado.recargar) mismo = cont.querySelector('button.recargar');
     const destino = mismo || cont.querySelector(`button[data-dia="${diaElegido}"]`);
     if (destino) destino.focus({ preventScroll: true });
   };
@@ -333,14 +334,19 @@ const renderDisponibilidad = () => {
     if (sinDatos.length) notas.push(`<p class="disp-nota aviso">No se pudo leer el calendario de ${escapar(nombrar(sinDatos))}. Revíselo en Outlook antes de pedir.</p>`);
     if (conError.length) notas.push(`<p class="disp-nota aviso">En la última lectura no se pudo leer el calendario de ${escapar(nombrar(conError))}; se muestran los datos de la lectura anterior de hoy. Revíselo en Outlook antes de pedir.</p>`);
   }
+  // El botón Recargar siempre está a la vista: en el aviso de datos viejos si lo hay y, si no,
+  // al final de la línea de la última novedad.
+  let novedad = '';
   if (datos.actualizado) {
     const act = new Date(datos.actualizado);
     if (!Number.isNaN(act.getTime())) {
       const { fecha: diaAct, minutos: minAct } = enBogota(act);
       const cuando = diaAct === hoy.fecha ? `hoy a las ${hhmm(minAct)}` : `el ${fechaLarga(diaAct)} a las ${hhmm(minAct)}`;
-      notas.push(`<p class="disp-nota">Última novedad ${cuando}. Una reserva nueva puede tardar hasta 30 minutos en aparecer; al pedir la sala, el sistema revisa de nuevo que esté libre.</p>`);
+      novedad = `Última novedad ${cuando}. Una reserva nueva puede tardar hasta 30 minutos en aparecer; al pedir la sala, el sistema revisa de nuevo que esté libre.`;
     }
   }
+  const botonRecargar = sinLeerHoy ? '' : ' <button class="recargar" type="button">Recargar</button>';
+  if (novedad || botonRecargar) notas.push(`<p class="disp-nota">${novedad}${novedad ? botonRecargar : botonRecargar.trim()}</p>`);
 
   const leyenda = !prefill
     ? 'Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. Lo que está en blanco está libre.'
