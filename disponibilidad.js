@@ -8,7 +8,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-14",
- "actualizado": "2026-10-14T15:28:58-05:00",
+ "actualizado": "2026-10-14T15:47:07-05:00",
  "avisado": null,
  "dias": [
   "2026-10-14",
@@ -24,7 +24,16 @@ window.DISPONIBILIDAD = {
  ],
  "ocupado": {
   "Sala 1": {
-   "2026-10-14": [],
+   "2026-10-14": [
+    [
+     "16:30",
+     "17:00",
+     {
+      "t": "Prueba 2 · Víctor Daniel Lezcano Quintero",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-10-15": [],
    "2026-10-16": [],
    "2026-10-19": [],
