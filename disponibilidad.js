@@ -9,7 +9,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-15",
- "actualizado": "2026-10-15T06:00:59-05:00",
+ "actualizado": "2026-10-15T18:23:21-05:00",
  "avisado": null,
  "dias": [
   "2026-10-13",
@@ -126,7 +126,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-23": [],
+   "2026-10-23": [
+    [
+     "08:00",
+     "09:00",
+     {
+      "t": "Vhgghjfhh · Vane",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-10-26": [
     [
      "08:15",
@@ -270,6 +279,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Wilfrido Jose Ascendra",
       "l": "Sala 2"
      }
+    ],
+    [
+     "14:00",
+     "15:00",
+     {
+      "t": "Prueba · Vanesa",
+      "l": "Sala 2"
+     }
     ]
    ],
    "2026-10-22": [
@@ -282,7 +299,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-23": [],
+   "2026-10-23": [
+    [
+     "08:00",
+     "09:00",
+     {
+      "t": "Vhgghjfhh · Vane",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-10-26": [
     [
      "08:15",
