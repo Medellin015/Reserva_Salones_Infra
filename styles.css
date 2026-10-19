@@ -10,26 +10,34 @@
 
 /* ===== 1. Variables de tema ===== */
 :root{
-  --bg:#F2F5F6; --surface:#FFFFFF; --ink:#15212A; --muted:#55636E; --line:#D6DEE3;
-  --accent:#0C7566; --accent-ink:#FFFFFF; --accent-soft:#E0F0EC; --warn-soft:#FAEEDC;
+  --bg:#F4F8FA; --surface:#FFFFFF; --ink:#13232B; --muted:#53656F; --line:#D5E2E8;
+  /* Azul de la Alcaldía de Medellín. Con letra blanca encima no llega al contraste mínimo
+     (2,4:1), así que de fondo va con letra oscura (--marca-ink). Para textos, enlaces, bordes y
+     fondos con letra blanca va un tono más hondo del mismo azul (--accent, 4,9:1). */
+  --marca:#14B8CE; --marca-ink:#052A33;
+  --accent:#0A7C8E; --accent-ink:#FFFFFF; --accent-soft:#DDF3F7; --warn-soft:#FBEEDB;
   --s1:#3466D6; --s2:#CC7418; --s3:#8052C8; --s4:#C4426B; --s5:#4D8A1E;
+  /* Resplandor azul del fondo y sombra de las tarjetas, del mismo matiz */
+  --resplandor:#C4ECF4; --sombra:rgba(10,124,142,.22);
   --logo-mezcla:multiply;
   --f:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
   --m:ui-monospace,"Cascadia Mono",Consolas,monospace;
   color-scheme:light;
 }
 :root[data-tema="oscuro"]{
-  --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
-  --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
+  --bg:#0C1518; --surface:#132026; --ink:#E2EDF0; --muted:#97AEB6; --line:#253840;
+  --accent:#5ED0E2; --accent-ink:#04252C; --accent-soft:#0F2F37; --warn-soft:#2B2213;
   --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0; --s5:#9CCB62;
+  --resplandor:#0F2F37; --sombra:rgba(0,0,0,.55);
   --logo-mezcla:normal;
   color-scheme:dark;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-tema="claro"]){
-    --bg:#0D1317; --surface:#141C22; --ink:#E3EAED; --muted:#98A7B1; --line:#25323A;
-    --accent:#45C3AF; --accent-ink:#04201B; --accent-soft:#102D28; --warn-soft:#2B2213;
+    --bg:#0C1518; --surface:#132026; --ink:#E2EDF0; --muted:#97AEB6; --line:#253840;
+    --accent:#5ED0E2; --accent-ink:#04252C; --accent-soft:#0F2F37; --warn-soft:#2B2213;
     --s1:#7099F0; --s2:#EEA352; --s3:#AD88EC; --s4:#EB7DA0; --s5:#9CCB62;
+    --resplandor:#0F2F37; --sombra:rgba(0,0,0,.55);
     --logo-mezcla:normal;
     color-scheme:dark;
   }
@@ -37,13 +45,13 @@
 /* ===== 2. Base y encabezado ===== */
 *{box-sizing:border-box}
 html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
+body{background:radial-gradient(70rem 28rem at 12% -8rem,var(--resplandor),transparent 70%) no-repeat,var(--bg);color:var(--ink);font-family:var(--f);font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
 .wrap{max-width:60rem;margin-inline:auto;padding:0 20px}
 
 /* Encabezado */
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px}
 .marca{display:flex;align-items:center;gap:12px;font-weight:700;letter-spacing:-.01em}
 /* El PNG del logo mide 246×193 y trae 43 px vacíos arriba y 19 a la izquierda (en píxeles
    del archivo). Se recortan los 37 de arriba para que el escudo quede centrado con el nombre,
@@ -57,13 +65,14 @@ a{color:var(--accent)}
 .tema{font:inherit;font-size:13px;color:var(--muted);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer}
 .tema:hover{color:var(--ink)}
 
-.hero{padding:22px 0 8px}
-.ey{font-family:var(--m);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
-h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;margin:0 0 10px;text-wrap:balance}
-.lede{max-width:40rem;margin:0 0 18px;color:var(--muted)}
-.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:600;text-decoration:none;border-radius:10px;padding:11px 18px;border:1px solid transparent;cursor:pointer}
-.btn-p{background:var(--accent);color:var(--accent-ink)}
-.btn-p:hover{filter:brightness(1.06)}
+.hero{padding:36px 0 18px}
+.ey{font-family:var(--m);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin:0 0 10px}
+h1{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:800;line-height:1.02;letter-spacing:-.03em;margin:0 0 12px;text-wrap:balance}
+.lede{max-width:40rem;margin:0 0 24px;font-size:18px;color:var(--muted)}
+.btn{display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:600;text-decoration:none;border-radius:10px;padding:11px 18px;border:1px solid transparent;cursor:pointer;transition:transform .15s ease,box-shadow .15s ease,border-color .15s,color .15s}
+.btn-p{background:var(--marca);color:var(--marca-ink);border-radius:999px;padding:14px 26px;font-size:16.5px;box-shadow:0 12px 28px -12px var(--sombra)}
+.btn-p:hover{transform:translateY(-2px);box-shadow:0 18px 32px -12px var(--sombra)}
+.btn-p:active{transform:translateY(0)}
 .btn-s{background:var(--surface);color:var(--ink);border-color:var(--line)}
 .btn-s:hover{border-color:var(--accent);color:var(--accent)}
 .btn[aria-disabled="true"]{opacity:.55;cursor:not-allowed;pointer-events:none}
@@ -73,27 +82,29 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .disp-ley{margin:0 0 12px;font-size:14.5px;color:var(--muted)}
 .disp-ley .movil{display:none}
 .semanas{display:flex;gap:6px;overflow-x:auto;padding:2px 2px 10px;margin:0 -2px;scrollbar-width:thin}
-.semana{position:relative;flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.semana{position:relative;flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid transparent;border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.06);transition:border-color .15s,background .15s}
 .semana:hover{border-color:var(--accent)}
-.semana[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.semana[aria-pressed="true"]{background:var(--marca);border-color:var(--marca);color:var(--marca-ink);font-weight:600}
 /* Salas: el código de su columna en cada día, el nombre y el aforo */
 .ag-salas{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 10px;padding:0;list-style:none;font-size:13.5px;color:var(--muted)}
 .ag-salas li{display:flex;align-items:center;gap:6px}
 .ag-salas i,.ag-cods i{font-style:normal;font-weight:700}
 /* Las declaraciones repetidas son el respaldo para navegadores sin color-mix (Edge/Chrome < 111) */
-.ag-salas i{font-size:11.5px;color:var(--ink);background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-left:3px solid var(--c);border-radius:4px;padding:0 6px}
+.ag-salas i{font-size:11.5px;color:var(--ink);background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-radius:999px;padding:1px 8px}
 /* --eje: ancho de la columna de horas; --hora: alto de cada hora; --n: salas, que son las columnas
    de cada día; --carril: ancho mínimo de la columna de una sala; --horas: horas del día mostradas.
    Si la semana no cabe a lo ancho (en el celular), el calendario se desliza de lado y la columna
    de las horas queda fija. */
-.ag{--eje:46px;--hora:44px;--carril:30px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
+.ag{--eje:46px;--hora:44px;--carril:30px;background:var(--surface);border-radius:20px;box-shadow:0 2px 4px rgba(0,0,0,.03),0 26px 50px -26px var(--sombra);overflow-x:auto;overflow-y:hidden;scrollbar-width:thin}
 .ag-in{min-width:calc(var(--eje) + 5 * var(--n) * var(--carril))}
 .ag-cab,.ag-cuerpo{display:grid;grid-template-columns:var(--eje) repeat(5,minmax(0,1fr))}
+/* Cabecera de los días con un tinte del azul */
+.ag-cab,.ag-cab > span:first-child{background:var(--accent-soft);background:color-mix(in srgb,var(--accent-soft) 45%,var(--surface))}
 .ag-cab{border-bottom:1px solid var(--line)}
 .ag-cab > span{min-width:0;padding-top:9px;text-align:center;border-left:1px solid var(--line)}
 .ag-cab > span:first-child,.ag-eje{position:sticky;left:0;z-index:5;background:var(--surface);border-left:0}
 .ag-dcab b{display:block;font-size:14.5px;line-height:1.35;white-space:nowrap}
-.ag-dcab em{font-style:normal;font-size:11px;font-weight:700;color:var(--accent-ink);background:var(--accent);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.ag-dcab em{font-style:normal;font-size:11px;font-weight:700;color:var(--marca-ink);background:var(--marca);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
 .ag-dcab.hoy b{color:var(--accent)}
 .ag-dcab.pasado b{color:var(--muted);font-weight:600}
 .ag-dcab small,.ag-cods{display:grid;min-height:24px;margin-top:6px}
@@ -128,7 +139,7 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 .ag-pedir{position:absolute;left:0;right:0;display:flex;align-items:center;justify-content:center;pointer-events:auto;font-size:11.5px;font-weight:600;color:transparent;text-decoration:none;white-space:nowrap}
 .ag-pedir span{position:relative;z-index:3;pointer-events:none;padding:0 7px;border-radius:999px;line-height:1.55}
 .ag-pedir:hover,.ag-pedir:focus-visible{background:var(--accent-soft);outline-offset:-2px}
-.ag-pedir:hover span,.ag-pedir:focus-visible span{color:var(--accent-ink);background:var(--accent)}
+.ag-pedir:hover span,.ag-pedir:focus-visible span{color:var(--marca-ink);background:var(--marca)}
 /* Lo que ya pasó (los días anteriores y hoy hasta ahora) se ve desvaído, sin tapar los clics */
 .ag-pasado{position:absolute;top:0;left:0;right:0;z-index:2;background:var(--surface);opacity:.55;pointer-events:none}
 .ag-ahora{position:absolute;left:0;right:0;z-index:4;height:2px;background:#D64545;transform:translateY(-1px);pointer-events:none}
@@ -161,6 +172,7 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 @media (max-width:560px){
   /* En el celular no caben logo, nombre y botón de tema: el nombre se repite en el título de abajo */
   .logo{--alto:50px}
+  .hero{padding:26px 0 14px}
   .nombre{display:none}
   .nombre:first-child{display:flex}
   .disp-ley .movil{display:inline}
@@ -175,20 +187,22 @@ h1{font-size:clamp(1.7rem,4.5vw,2.4rem);line-height:1.1;letter-spacing:-.015em;m
 }
 
 /* ===== 4. Pasos, reglas y contacto ===== */
-.sec{padding:26px 0 6px}
-.sec h2{font-size:1.1rem;margin:0 0 10px}
-.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:12px;margin:0;padding:0;list-style:none;counter-reset:p}
-.pasos li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px 14px 52px;position:relative;min-width:0}
-.pasos li::before{counter-increment:p;content:counter(p);position:absolute;left:14px;top:14px;width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;display:grid;place-items:center;font-size:14px}
-.pasos b{display:block;margin-bottom:2px}
-.pasos p{margin:0;font-size:14.5px;color:var(--muted)}
-.reglas{margin:0;padding:0;list-style:none;display:grid;gap:8px}
+.sec{padding:30px 0 8px}
+.sec h2{font-size:1.4rem;letter-spacing:-.02em;margin:0 0 12px}
+.pasos{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:16px;margin:0;padding:0;list-style:none;counter-reset:p}
+/* Tarjetas con el número grande de fondo, en un tinte del azul */
+.pasos li{position:relative;min-width:0;overflow:hidden;background:var(--surface);border-radius:16px;padding:20px 20px 18px;box-shadow:0 2px 4px rgba(0,0,0,.03),0 22px 44px -30px var(--sombra)}
+.pasos li::before{counter-increment:p;content:counter(p);position:absolute;right:16px;top:4px;font-size:60px;font-weight:800;line-height:1;color:var(--accent-soft);color:color-mix(in srgb,var(--marca) 28%,var(--surface))}
+.pasos b{position:relative;display:block;margin-bottom:2px;padding-right:44px;font-size:17px}
+.pasos p{position:relative;margin:0;font-size:14.5px;color:var(--muted)}
+.reglas{margin:0;padding:18px 20px;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(21rem,100%),1fr));gap:10px 28px;background:var(--surface);border-radius:16px;box-shadow:0 2px 4px rgba(0,0,0,.03),0 22px 44px -30px var(--sombra)}
 .reglas li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
-.reglas li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--accent);margin-top:9px}
+.reglas li::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;background:var(--marca);margin-top:9px}
 
-.contacto{margin-top:22px;background:var(--accent-soft);border-radius:12px;padding:14px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px}
-.contacto code{font-family:var(--m);font-size:14px;background:var(--surface);padding:3px 8px;border-radius:6px;overflow-wrap:anywhere}
-.copiar{font:inherit;font-size:13px;font-weight:600;color:var(--accent);background:transparent;border:1px solid var(--accent);border-radius:6px;padding:3px 10px;cursor:pointer}
-.copiar.ok{background:var(--accent);color:var(--accent-ink)}
+/* Franja de contacto en el azul de la Alcaldía, con letra oscura */
+.contacto{margin-top:22px;background:var(--marca);color:var(--marca-ink);border-radius:16px;padding:18px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;font-size:15px;box-shadow:0 18px 36px -20px var(--sombra)}
+.contacto code{font-family:var(--m);font-size:14px;background:#FFFFFF;color:var(--marca-ink);padding:3px 8px;border-radius:6px;overflow-wrap:anywhere}
+.copiar{font:inherit;font-size:13px;font-weight:600;color:var(--marca-ink);background:transparent;border:1px solid var(--marca-ink);border-radius:6px;padding:3px 10px;cursor:pointer;transition:background .15s,color .15s}
+.copiar:hover,.copiar.ok{background:var(--marca-ink);color:#FFFFFF}
 footer{padding:34px 0 40px;font-size:13px;color:var(--muted)}
 footer a{color:inherit}
