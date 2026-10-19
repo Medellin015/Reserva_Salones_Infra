@@ -85,6 +85,26 @@ h1{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:800;line-height:1.02;letter-
 .semana{position:relative;flex:none;font:inherit;font-size:13.5px;color:var(--ink);background:var(--surface);border:1px solid transparent;border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.06);transition:border-color .15s,background .15s}
 .semana:hover{border-color:var(--accent)}
 .semana[aria-pressed="true"]{background:var(--marca);border-color:var(--marca);color:var(--marca-ink);font-weight:600}
+/* Botón de meses con su lista y, al lado, la tira con el mes completo y sus semanas. Si no caben
+   en una línea (en el celular), la tira pasa abajo. */
+.vista-ctl{display:flex;flex-wrap:wrap;align-items:flex-start;gap:4px 10px}
+.vista-ctl .semanas{flex:1 1 18rem;min-width:0}
+.mes-sel{position:relative;flex:none;padding-top:2px}
+.mes-btn{position:relative;display:inline-flex;align-items:center;gap:7px;font:inherit;font-size:13.5px;font-weight:600;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:5px 12px;cursor:pointer;white-space:nowrap;box-shadow:0 1px 2px rgba(0,0,0,.06);transition:border-color .15s}
+.mes-btn:hover,.mes-btn[aria-expanded="true"]{border-color:var(--accent)}
+.mes-btn svg{width:15px;height:15px;flex:none;color:var(--accent)}
+.mes-btn svg:last-child{width:13px;height:13px;color:var(--muted);transition:transform .15s}
+.mes-btn[aria-expanded="true"] svg:last-child{transform:rotate(180deg)}
+.mes-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:20;min-width:100%;width:max-content;max-width:min(18rem,calc(100vw - 32px));background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px;box-shadow:0 18px 40px -16px rgba(0,0,0,.3)}
+.mes-pop[hidden]{display:none}
+.mes-lista{margin:0;padding:0;list-style:none}
+/* Cada mes: el elegido lleva la marca de verificación y el fondo azul claro */
+.mes-op{position:relative;display:flex;align-items:center;gap:16px;width:100%;font:inherit;font-size:14.5px;text-align:left;color:var(--ink);background:transparent;border:0;border-radius:9px;padding:8px 12px 8px 30px;cursor:pointer}
+.mes-op:hover{background:var(--bg)}
+.mes-op[aria-current="true"]{background:var(--accent-soft);font-weight:700}
+.mes-op[aria-current="true"]::before{content:"";position:absolute;left:11px;top:50%;width:9px;height:5px;border-left:2px solid var(--accent);border-bottom:2px solid var(--accent);transform:translateY(-70%) rotate(-45deg)}
+.mes-op small{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted)}
+.mes-nota{margin:4px 12px 6px;font-size:12px;line-height:1.4;color:var(--muted)}
 /* Salas: el código de su columna en cada día, el nombre y el aforo */
 .ag-salas{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 10px;padding:0;list-style:none;font-size:13.5px;color:var(--muted)}
 .ag-salas li{display:flex;align-items:center;gap:6px}
@@ -144,6 +164,34 @@ h1{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:800;line-height:1.02;letter-
 .ag-pasado{position:absolute;top:0;left:0;right:0;z-index:2;background:var(--surface);opacity:.55;pointer-events:none}
 .ag-ahora{position:absolute;left:0;right:0;z-index:4;height:2px;background:#D64545;transform:translateY(-1px);pointer-events:none}
 .ag-ahora::before{content:"";position:absolute;left:-5px;top:-4px;width:10px;height:10px;border-radius:50%;background:#D64545}
+/* Vista del mes: una fila por semana y, en cada día, una barra por sala de 07:00 a 18:00 con lo
+   reservado en su color. Los días con datos son botones que abren su semana. */
+.mes{background:var(--surface);border-radius:20px;box-shadow:0 2px 4px rgba(0,0,0,.03),0 26px 50px -26px var(--sombra);overflow:hidden}
+.mes-cab,.mes-sem{display:grid;grid-template-columns:repeat(5,minmax(0,1fr))}
+.mes-cab{background:var(--accent-soft);background:color-mix(in srgb,var(--accent-soft) 45%,var(--surface));border-bottom:1px solid var(--line)}
+.mes-cab span{padding:9px 12px;font-size:13.5px;font-weight:700;color:var(--muted)}
+.mes-cab span + span{border-left:1px solid var(--line)}
+.mes-sem + .mes-sem{border-top:1px solid var(--line)}
+.mes-dia{position:relative;display:flex;flex-direction:column;gap:7px;min-width:0;min-height:88px;margin:0;padding:8px 12px 12px;font:inherit;text-align:left;color:var(--ink);background:transparent;border:0;border-radius:0}
+.mes-dia + .mes-dia{border-left:1px solid var(--line)}
+button.mes-dia{cursor:pointer;transition:background .15s}
+button.mes-dia:hover{background:var(--accent-soft);background:color-mix(in srgb,var(--accent-soft) 70%,var(--surface))}
+button.mes-dia:focus-visible{outline:2px solid var(--accent);outline-offset:-3px;border-radius:4px}
+.mes-num{display:block;font-size:14.5px;font-weight:700;line-height:1.35;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mes-num em{font-style:normal;font-size:11px;font-weight:700;color:var(--marca-ink);background:var(--marca);border-radius:999px;padding:1px 7px;margin-left:6px;vertical-align:1px}
+.mes-dia.hoy{background:var(--accent-soft);background:color-mix(in srgb,var(--accent-soft) 40%,var(--surface))}
+.mes-dia.hoy .mes-num{color:var(--accent)}
+.mes-dia.pasado > *{opacity:.5}
+.mes-dia.otro{background:var(--bg);background:color-mix(in srgb,var(--bg) 60%,var(--surface))}
+.mes-dia.otro .mes-num{color:var(--muted);font-weight:500;opacity:.7}
+.mes-dia small{display:block;margin-top:4px;font-size:11.5px;color:var(--muted)}
+.mes-dia.festivo,.mes-dia.sin-dia:not(.pasado){background-image:repeating-linear-gradient(135deg,transparent 0 7px,var(--line) 7px 8px)}
+.mes-barras{display:grid;gap:5px}
+.mes-fila{display:grid;grid-template-columns:2.1em minmax(0,1fr);align-items:center;gap:4px}
+.mes-fila b{font-size:10.5px;font-weight:700;line-height:1;color:var(--muted)}
+.mes-barra{position:relative;height:7px;border-radius:999px;overflow:hidden;background:var(--line);background:color-mix(in srgb,var(--line) 65%,var(--surface))}
+.mes-barra i{position:absolute;top:0;bottom:0;min-width:3px;background:var(--c)}
+.mes-fila.sin .mes-barra{background-image:repeating-linear-gradient(135deg,transparent 0 3px,var(--surface) 3px 5px)}
 /* Enlace para saltar el calendario con el teclado: solo se ve al recibir el foco */
 .saltar{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .saltar:focus-visible{position:static;width:auto;height:auto;clip-path:none;display:inline-block;margin:0 0 8px;padding:4px 10px;border-radius:6px;background:var(--surface);font-size:13.5px}
@@ -184,6 +232,16 @@ h1{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:800;line-height:1.02;letter-
   .ag-dcab em{font-size:10px;padding:0 5px;margin-left:4px}
   .ag-cods i{font-size:9.5px}
   .ag-oc{font-size:10.5px}
+  /* En el mes caben los cinco días: sin los códigos de las salas, que dicen los colores */
+  .mes-cab span{padding:8px 6px;font-size:12.5px}
+  .mes-dia{min-height:72px;gap:6px;padding:6px 6px 9px}
+  .mes-num{font-size:13px}
+  .mes-num em{display:block;width:max-content;font-size:10px;padding:0 5px;margin:2px 0 0}
+  .mes-dia small{font-size:10.5px;line-height:1.25}
+  .mes-barras{gap:4px}
+  .mes-fila{grid-template-columns:minmax(0,1fr)}
+  .mes-fila b{display:none}
+  .mes-barra{height:6px}
 }
 
 /* ===== 4. Pasos, reglas y contacto ===== */

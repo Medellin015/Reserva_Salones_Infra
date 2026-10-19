@@ -5,10 +5,10 @@
    cada 5 minutos en horario hábil. También se puede correr a mano:
      node scripts/actualizar-disponibilidad.js
    Lee el enlace ICS de cada sala (el mismo enlace publicado de config.js, con
-   calendar.ics en vez de calendar.html), calcula las horas ocupadas de la semana
-   actual y las dos siguientes, de lunes a viernes (sin festivos de Colombia), con el
-   asunto y la descripción de cada reserva si el calendario los publica, y escribe
-   disponibilidad.js solo si algo cambió.
+   calendar.ics en vez de calendar.html), calcula las horas ocupadas de lunes a viernes
+   (sin festivos de Colombia) desde la semana actual hasta el fin del segundo mes
+   siguiente, con el asunto y la descripción de cada reserva si el calendario los
+   publica, y escribe disponibilidad.js solo si algo cambió.
    Estructura del archivo:
      1. Configuración
      2. Fechas en Bogotá y festivos de Colombia
@@ -27,8 +27,10 @@ const path = require('path');
 const RAIZ = path.join(__dirname, '..');
 const ARCHIVO_CONFIG = path.join(RAIZ, 'config.js');
 const ARCHIVO_SALIDA = path.join(RAIZ, 'disponibilidad.js');
-// Semanas que muestra la página, de lunes a viernes: la actual y las dos siguientes.
-const SEMANAS = 3;
+// Meses que muestra la página: el mes en curso y los dos siguientes. Outlook solo publica las
+// citas de cierto rango de fechas hacia adelante; antes de subir este número hay que ampliar ese
+// rango en el calendario publicado de cada sala (ver README, "Meses que se pueden ver").
+const MESES = 3;
 const MS_MIN = 60000;
 const MS_DIA = 1440 * MS_MIN;
 // Colombia no cambia de hora: Bogotá es siempre UTC-5.
@@ -102,23 +104,29 @@ const esFestivo = (iso) => {
   if (!festivosPorAno[a]) festivosPorAno[a] = festivosColombia(a);
   return festivosPorAno[a].has(iso);
 };
-// Semanas completas de lunes a viernes desde la semana actual; en fin de semana, desde el lunes
-// siguiente. Los días pasados de la semana actual también se leen, para que la página muestre la
-// semana entera. Devuelve los días hábiles, los festivos de esas semanas (la página los marca) y
-// los límites de la ventana de lectura.
-const semanasHabiles = (ahora, semanas) => {
+// Días de lunes a viernes desde el lunes de la semana actual (en fin de semana, desde el lunes
+// siguiente) hasta el último día del mes en curso y de los meses siguientes que se pidan. Los días
+// pasados de la semana actual también se leen, para que la página muestre la semana entera.
+// Devuelve los días hábiles, los festivos de ese rango (la página los marca) y los límites de la
+// ventana de lectura.
+const ventanaHabil = (ahora, meses) => {
   const c = camposBogota(ahora);
   const hoy = epochBogota(c.a, c.m, c.d);
+  const finDeSemana = c.semana === 0 || c.semana === 6;
   const lunes = hoy + (c.semana === 0 ? 1 : c.semana === 6 ? 2 : 1 - c.semana) * MS_DIA;
+  // El mes en curso es el de hoy o, en fin de semana, el del lunes siguiente. Date.UTC pasa solo
+  // al año siguiente cuando el mes se sale de diciembre.
+  const base = finDeSemana ? camposBogota(lunes) : c;
+  const fin = epochBogota(base.a, base.m + meses, 1);
   const dias = [];
   const festivos = [];
-  for (let w = 0; w < semanas; w += 1) {
-    for (let d = 0; d < 5; d += 1) {
-      const iso = isoDe(camposBogota(lunes + (w * 7 + d) * MS_DIA));
-      (esFestivo(iso) ? festivos : dias).push(iso);
-    }
+  for (let e = lunes; e < fin; e += MS_DIA) {
+    const d = camposBogota(e);
+    if (d.semana === 0 || d.semana === 6) continue;
+    const iso = isoDe(d);
+    (esFestivo(iso) ? festivos : dias).push(iso);
   }
-  return { dias, festivos, inicio: lunes, fin: lunes + ((semanas - 1) * 7 + 5) * MS_DIA };
+  return { dias, festivos, inicio: lunes, fin };
 };
 
 /* ===== 3. Zonas horarias ===== */
@@ -539,7 +547,8 @@ const escribir = (datos) => {
    verificado: último día (Bogotá) en que se pudo leer al menos un calendario.
    actualizado: última vez que cambió algo de este archivo.
    avisado: día en que la tarea quedó en rojo por no poder leer ningún calendario.
-   dias: días hábiles de la semana actual y las dos siguientes; festivos: los de esas semanas.
+   dias: días hábiles desde el lunes de esta semana hasta el fin del segundo mes siguiente;
+   festivos: los de ese rango.
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = ${JSON.stringify(datos, null, 1)};
@@ -552,7 +561,7 @@ const principal = async () => {
   // AHORA_FIJO (epoch en ms) solo sirve para probar el script con una hora concreta.
   const ahora = Number(process.env.AHORA_FIJO) || Date.now();
   const hoy = camposBogota(ahora);
-  const ventana = semanasHabiles(ahora, SEMANAS);
+  const ventana = ventanaHabil(ahora, MESES);
   const { dias, festivos } = ventana;
   const inicioVentana = ventana.inicio;
   const finVentana = ventana.fin;
@@ -615,4 +624,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, semanasHabiles, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };
