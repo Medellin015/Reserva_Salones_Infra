@@ -8,14 +8,10 @@
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
- "verificado": "2026-10-16",
- "actualizado": "2026-10-16T06:01:02-05:00",
+ "verificado": "2026-10-19",
+ "actualizado": "2026-10-19T06:00:17-05:00",
  "avisado": null,
  "dias": [
-  "2026-10-13",
-  "2026-10-14",
-  "2026-10-15",
-  "2026-10-16",
   "2026-10-19",
   "2026-10-20",
   "2026-10-21",
@@ -25,68 +21,17 @@ window.DISPONIBILIDAD = {
   "2026-10-27",
   "2026-10-28",
   "2026-10-29",
-  "2026-10-30"
+  "2026-10-30",
+  "2026-11-03",
+  "2026-11-04",
+  "2026-11-05",
+  "2026-11-06"
  ],
  "festivos": [
-  "2026-10-12"
+  "2026-11-02"
  ],
  "ocupado": {
   "Sala 1": {
-   "2026-10-13": [],
-   "2026-10-14": [
-    [
-     "08:00",
-     "17:00",
-     {
-      "t": "Reserva · Deiby Valencia Salgado",
-      "l": "Sala 1"
-     }
-    ]
-   ],
-   "2026-10-15": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Claudia Maritza Velasquez Higuita",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Reserva · Maria Fernanda Uribe",
-      "l": "Sala 1"
-     }
-    ],
-    [
-     "16:00",
-     "17:00",
-     {
-      "t": "Reserva · Lubian de Jesus Cartagena",
-      "l": "Sala 1"
-     }
-    ]
-   ],
-   "2026-10-16": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "Reserva · Yesica Restrepo Sepulveda",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Jessica Alejandra Carmona García",
-      "l": "Sala 1"
-     }
-    ]
-   ],
    "2026-10-19": [
     [
      "08:15",
@@ -193,56 +138,30 @@ window.DISPONIBILIDAD = {
       "l": "Sala 1"
      }
     ]
-   ]
-  },
-  "Sala 2": {
-   "2026-10-13": [],
-   "2026-10-14": [
+   ],
+   "2026-11-03": [
     [
      "08:00",
-     "12:00",
+     "11:00",
      {
-      "t": "Reserva · Andrés Fernando Cardona Gómez",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Reserva · Judith Patricia Urrego Goez",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-10-15": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Claudia Maritza Velasquez Higuita",
+      "t": "Reserva · Lina Maria Murillo Perez",
       "l": "Salas 1 y 2"
      }
     ],
     [
      "14:00",
-     "15:00",
+     "18:00",
      {
-      "t": "Reserva · Jose Alejandro Zuluaga Salazar",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-10-16": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "Reserva · Yesica Restrepo Sepulveda",
+      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
       "l": "Salas 1 y 2"
      }
     ]
    ],
+   "2026-11-04": [],
+   "2026-11-05": [],
+   "2026-11-06": []
+  },
+  "Sala 2": {
    "2026-10-19": [
     [
      "08:15",
@@ -357,55 +276,30 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-30": []
-  },
-  "Sala 3": {
-   "2026-10-13": [],
-   "2026-10-14": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "Reserva · María José Mosquera Martínez",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Juan Fernando Vargas",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-10-15": [
+   "2026-10-30": [],
+   "2026-11-03": [
     [
      "08:00",
-     "10:00",
+     "11:00",
      {
-      "t": "Reserva · Anyi Xiomara Higuera Largo",
-      "l": "Sala 3"
+      "t": "Reserva · Lina Maria Murillo Perez",
+      "l": "Salas 1 y 2"
      }
     ],
     [
-     "10:00",
-     "12:00",
+     "14:00",
+     "18:00",
      {
-      "t": "Reserva · Pedro Jesus Portillo Andrade",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "13:00",
-     "16:30",
-     {
-      "t": "Reserva · Monica Yanet Montoya",
-      "l": "Sala 3"
+      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
+      "l": "Salas 1 y 2"
      }
     ]
    ],
-   "2026-10-16": [],
+   "2026-11-04": [],
+   "2026-11-05": [],
+   "2026-11-06": []
+  },
+  "Sala 3": {
    "2026-10-19": [],
    "2026-10-20": [
     [
@@ -493,48 +387,13 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-30": []
+   "2026-10-30": [],
+   "2026-11-03": [],
+   "2026-11-04": [],
+   "2026-11-05": [],
+   "2026-11-06": []
   },
   "Sala 5": {
-   "2026-10-13": [],
-   "2026-10-14": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Manuela Ciro Palacio",
-      "l": "Sala 5"
-     }
-    ],
-    [
-     "14:00",
-     "17:00",
-     {
-      "t": "Reserva · Jose Alejandro Zuluaga Salazar",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-15": [
-    [
-     "08:00",
-     "17:00",
-     {
-      "t": "Reserva · Deiby Valencia Salgado",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-16": [
-    [
-     "10:30",
-     "11:30",
-     {
-      "t": "Reserva · Carolina Hernández",
-      "l": "Sala 5"
-     }
-    ]
-   ],
    "2026-10-19": [
     [
      "08:00",
@@ -606,7 +465,20 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-30": []
+   "2026-10-30": [],
+   "2026-11-03": [],
+   "2026-11-04": [],
+   "2026-11-05": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Reserva · Hiller Correa - Laura Aguila",
+      "l": "Sala 5"
+     }
+    ]
+   ],
+   "2026-11-06": []
   }
  },
  "errores": {}
