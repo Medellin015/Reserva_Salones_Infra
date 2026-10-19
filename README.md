@@ -17,7 +17,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
 | `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y enlace rellenado de Forms. |
-| `app.js` | Pinta el calendario de la semana, maneja el tema claro/oscuro y el botón Copiar correo. |
+| `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses), maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
 | `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` si cambió. |
@@ -46,17 +46,23 @@ misma las horas ocupadas.
      exacta de sus tareas programadas y a veces no las dispara; por eso el aviso
      principal sale de Power Automate.
    - **A mano**, en la pestaña Actions → "Actualizar disponibilidad" → "Run workflow".
-2. Calcula las horas ocupadas de la semana actual, de lunes a viernes (también los días
-   que ya pasaron), y de las dos siguientes, y anota cuáles de esos días son festivos en
-   Colombia. Un sábado o un domingo empieza en la semana que viene. Solo si algo cambió,
-   hace commit de `disponibilidad.js` en `main`. GitHub Pages publica el cambio en un
-   minuto.
-3. La página muestra la semana de lunes a viernes. Cada día tiene una columna angosta por
-   sala (S1, S2, …) con sus horas ocupadas, y arriba está la lista de salas con el
-   código de cada columna y su aforo. Los días que ya pasaron y lo que va corrido de hoy
-   se ven desvaídos, la línea roja marca la hora actual y los festivos van rayados. Con
-   los botones de arriba se pasa a la próxima semana y a la siguiente. En el celular el
-   calendario se desliza de lado y abre en el día de hoy.
+2. Calcula las horas ocupadas de lunes a viernes desde el lunes de la semana actual
+   (también los días que ya pasaron) hasta el fin del segundo mes siguiente, y anota
+   cuáles de esos días son festivos en Colombia. Un sábado o un domingo empieza en la
+   semana que viene. Solo si algo cambió, hace commit de `disponibilidad.js` en `main`.
+   GitHub Pages publica el cambio en un minuto.
+3. La página abre en la semana actual, de lunes a viernes. Cada día tiene una columna
+   angosta por sala (S1, S2, …) con sus horas ocupadas, y arriba está la lista de salas
+   con el código de cada columna y su aforo. Los días que ya pasaron y lo que va corrido
+   de hoy se ven desvaídos, la línea roja marca la hora actual y los festivos van
+   rayados. En el celular el calendario se desliza de lado y abre en el día de hoy.
+   El botón del mes ("Octubre 2026") abre la lista de los meses con datos: el mes en
+   curso y los dos siguientes (ver "Meses que se pueden ver"). Al elegir uno se ve el mes
+   completo, una fila por semana, con una barra por sala en cada día que va de 07:00 a
+   18:00; lo de color está reservado y, al pasar el ratón, el día dice las horas ocupadas
+   de cada sala. Al tocar un día se abre su semana. Al lado del botón están "Todo el mes"
+   y las semanas de ese mes que quedan por delante; en el mes en curso, si esta semana es
+   la última del mes, también está la próxima.
    Vuelve a leer los datos cada 5 minutos y al volver a la pestaña, así que una
    pantalla que queda abierta todo el día se mantiene al día sin recargarla. Debajo del
    calendario siempre hay un botón "Recargar" (si los datos no son de hoy, va dentro del
@@ -78,6 +84,31 @@ estar desactualizados y la ejecución de las 09:00 queda en rojo en la pestaña 
 GitHub desactiva las tareas programadas de un repositorio público tras 60 días sin
 actividad. Si pasa, en Actions → "Actualizar disponibilidad" aparece un botón para
 reactivarla. Desde esa misma pestaña se puede lanzar a mano con "Run workflow".
+
+## Meses que se pueden ver
+
+La página muestra el mes en curso y los dos siguientes (`MESES` en
+`scripts/actualizar-disponibilidad.js`). El límite lo pone Outlook: un calendario
+publicado solo trae las citas de cierto rango de fechas hacia adelante. El 14/10/2026 el
+de las salas traía citas hasta el 29 de diciembre, así que alcanza para tres meses. Si la
+página mostrara más meses de los que Outlook publica, esos días se verían libres aunque
+tuvieran reservas.
+
+Para ver más meses:
+
+1. Un administrador de Exchange Online amplía el rango publicado del calendario de cada
+   sala, por ejemplo a un año:
+
+   ```powershell
+   Set-MailboxCalendarFolder -Identity "sal9@medellin.gov.co:\Calendario\Sala 1" -PublishDateRangeTo OneYear
+   ```
+
+   Se corre una vez por sala. Los valores posibles son `OneDay`, `ThreeDays`, `OneWeek`,
+   `OneMonth`, `ThreeMonths`, `SixMonths` y `OneYear`. `Get-MailboxCalendarFolder` con la
+   misma identidad muestra el rango actual; si la carpeta de la sala tiene otra ruta,
+   `Get-MailboxFolderStatistics sal9@medellin.gov.co -FolderScope Calendar` la muestra.
+2. Después se sube `MESES` en el script. La página no necesita cambios: la lista de meses
+   sale de los datos.
 
 ## Salas y aforos
 

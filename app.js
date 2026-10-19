@@ -16,6 +16,7 @@
 const $ = (sel) => document.querySelector(sel);
 const esUrl = (v) => typeof v === 'string' && /^https?:\/\//i.test(v.trim());
 const escapar = (t) => String(t).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const mayuscula = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 
 // Plan B para copiar cuando navigator.clipboard no existe (páginas servidas por http
 // sin TLS) o rechaza la escritura: un textarea invisible y el comando copy clásico.
@@ -91,6 +92,19 @@ const nombreSemana = (lunes, hoyIso) => {
   const actual = lunesDe(hoyIso);
   if (lunes === actual) return 'Esta semana';
   return lunes === sumarDias(actual, 7) ? 'Próxima semana' : '';
+};
+// "2026-10" → "Octubre 2026" en el botón y la lista de meses, y "octubre de 2026" para los
+// lectores de pantalla.
+const nombreMes = (mes) => { const [a, m] = mes.split('-').map(Number); return `${mayuscula(MESES[m - 1])} ${a}`; };
+const mesLargo = (mes) => { const [a, m] = mes.split('-').map(Number); return `${MESES[m - 1]} de ${a}`; };
+// Lunes de las semanas de un mes: las que tienen algún día de lunes a viernes en ese mes.
+const semanasDelMes = (mes) => {
+  const [a, m] = mes.split('-').map(Number);
+  const primero = `${mes}-01`;
+  const ultimo = isoDe(new Date(a, m, 0)); // el día 0 del mes siguiente es el último de este
+  const lunes = [];
+  for (let l = lunesDe(primero); l <= ultimo; l = sumarDias(l, 7)) if (sumarDias(l, 4) >= primero) lunes.push(l);
+  return lunes;
 };
 
 // "la Sala 1, la Sala 2 y la Sala 3".
@@ -183,10 +197,17 @@ const plantillaPrefill = () => {
   return { campos, enlace, conSala: Boolean(campos.sala) };
 };
 
+// Vista del calendario: 'semana' (la semana elegida, con el detalle de cada reserva) o 'mes' (el
+// mes completo). mesElegido ('AAAA-MM') es el del botón de meses; al lado van sus semanas.
+let vista = 'semana';
+let mesElegido = null;
 let semanaElegida = null;
-// Al abrir la página o cambiar de semana, el calendario se desliza hasta hoy (en el celular la
-// semana no cabe a lo ancho); en los repintados siguientes conserva el desplazamiento.
-let irAHoy = true;
+let listaMesesAbierta = false;
+let mesPintado = null;
+// Al abrir la página, cambiar de semana o tocar un día del mes, el calendario se desliza hasta hoy
+// o hasta ese día (en el celular la semana no cabe a lo ancho); en los repintados siguientes
+// conserva el desplazamiento. Vale 'hoy', una fecha AAAA-MM-DD o null.
+let irA = 'hoy';
 let prefill = null;
 let claveRender = null;
 
@@ -242,16 +263,32 @@ const diasVigentes = (datos, hoy) => (datos && Array.isArray(datos.dias) ? datos
 
 // Resume lo que puede cambiar el dibujo: el día, el bloque de media hora (ceil: las horas que
 // se pueden pedir son las que empiezan en o después de ahora, así que el conjunto cambia al
-// pasar cada :00 y :30), el aviso de datos viejos y la semana elegida; o el plan B sin datos.
+// pasar cada :00 y :30), el aviso de datos viejos, la vista, el mes y la semana elegidos; o el
+// plan B sin datos.
 const claveDe = (hoy, datos) => {
   if (!diasVigentes(datos, hoy).length || !datos.ocupado) return `${hoy.fecha}|plan-b`;
   const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
-  return `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${semanaElegida}`;
+  return `${hoy.fecha}|${Math.ceil(hoy.minutos / BLOQUE)}|${sinLeerHoy}|${vista}|${mesElegido}|${semanaElegida}`;
 };
 
-// Pinta el calendario de la semana elegida, de lunes a viernes, con una columna por sala en
-// cada día. Guarda y devuelve el foco y los desplazamientos (la tira de semanas y, en el
-// celular, el calendario), porque reemplazar el HTML los perdería.
+// Selector que vuelve a encontrar el elemento enfocado después de repintar: cada botón y cada
+// enlace del calendario se distingue por su id, sus datos o su dirección.
+const selectorDe = (el) => {
+  if (el.id) return `#${el.id}`;
+  for (const k of ['semana', 'vista', 'mes', 'ir']) if (el.dataset[k]) return `button[data-${k}="${el.dataset[k]}"]`;
+  if (el.matches('button.ag-oc')) return `button.ag-oc[data-sala="${CSS.escape(el.dataset.sala)}"][data-dia="${el.dataset.dia}"][data-k="${el.dataset.k}"]`;
+  // Cada enlace "Pedir" lleva su propia fecha y hora (y su sala, si el formulario la rellena).
+  if (el.getAttribute('href')) return `a[href="${CSS.escape(el.getAttribute('href'))}"]`;
+  return el.matches('button.recargar') ? 'button.recargar' : null;
+};
+
+const ICONO_MES = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="2" y="3" width="12" height="11" rx="2"/><path d="M2 6.5h12M5.5 1.5v3M10.5 1.5v3"/></svg>';
+const ICONO_ABRIR = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>';
+
+// Pinta el calendario: la semana elegida, de lunes a viernes, con una columna por sala en cada
+// día, o el mes completo, con una barra por sala en cada día. Arriba van el botón de meses y la
+// tira con el mes completo y sus semanas. Guarda y devuelve el foco y los desplazamientos (la
+// tira y, en el celular, el calendario), porque reemplazar el HTML los perdería.
 const renderDisponibilidad = () => {
   const cont = $('#disponibilidad');
   const datos = window.DISPONIBILIDAD;
@@ -259,33 +296,39 @@ const renderDisponibilidad = () => {
   const errores = (datos && datos.errores) || {};
   const salas = salasActivas();
   const activo = document.activeElement && cont.contains(document.activeElement) ? document.activeElement : null;
-  const recordado = activo ? { semana: activo.dataset.semana, href: activo.getAttribute('href'), sala: activo.dataset.sala, dia: activo.dataset.dia, k: activo.dataset.k, recargar: activo.classList.contains('recargar') } : null;
+  const recordado = activo ? selectorDe(activo) : null;
   const tira = cont.querySelector('.semanas');
   const desplTira = tira ? tira.scrollLeft : 0;
   const rejilla = cont.querySelector('.ag');
   const desplRejilla = rejilla ? rejilla.scrollLeft : 0;
+  const mesAntes = mesPintado;
 
-  // Devuelve los desplazamientos y el foco a donde estaban (o al botón de la semana si el
-  // elemento enfocado ya no existe). Tras abrir la página o cambiar de semana, el calendario
-  // se desliza hasta hoy, que queda junto a la columna de las horas.
+  // Devuelve los desplazamientos y el foco a donde estaban (o al botón elegido de la tira si el
+  // elemento enfocado ya no existe). Con otro mes, la tira vuelve al principio. Tras cambiar de
+  // semana o de mes, la tira muestra el botón elegido y la semana se desliza hasta hoy o hasta el
+  // día tocado en el mes, que queda junto a la columna de las horas.
   const restaurar = () => {
     const tiraNueva = cont.querySelector('.semanas');
-    if (tiraNueva) tiraNueva.scrollLeft = desplTira;
     const rejillaNueva = cont.querySelector('.ag');
-    if (rejillaNueva) {
-      const colHoy = rejillaNueva.querySelector('.ag-dia.hoy');
-      const eje = rejillaNueva.querySelector('.ag-eje');
-      rejillaNueva.scrollLeft = !irAHoy ? desplRejilla : colHoy && eje ? colHoy.offsetLeft - eje.offsetWidth : 0;
-      irAHoy = false;
+    if (tiraNueva) {
+      tiraNueva.scrollLeft = mesAntes === mesElegido ? desplTira : 0;
+      const pulsado = tiraNueva.querySelector('[aria-pressed="true"]');
+      if (irA && pulsado) {
+        const t = tiraNueva.getBoundingClientRect();
+        const b = pulsado.getBoundingClientRect();
+        if (b.left < t.left) tiraNueva.scrollLeft -= t.left - b.left;
+        else if (b.right > t.right) tiraNueva.scrollLeft += b.right - t.right;
+      }
     }
+    if (rejillaNueva) {
+      const dia = irA ? rejillaNueva.querySelector(irA === 'hoy' ? '.ag-dia.hoy' : `.ag-dia[data-dia="${irA}"]`) : null;
+      const eje = rejillaNueva.querySelector('.ag-eje');
+      rejillaNueva.scrollLeft = !irA ? desplRejilla : dia && eje ? dia.offsetLeft - eje.offsetWidth : 0;
+    }
+    // En el plan B no hay calendario: el salto queda pendiente para cuando lleguen los datos.
+    if (tiraNueva) { irA = null; mesPintado = mesElegido; }
     if (!recordado) return;
-    let mismo = null;
-    if (recordado.semana) mismo = cont.querySelector(`button[data-semana="${recordado.semana}"]`);
-    // Cada enlace "Pedir" lleva su propia fecha y hora (y su sala, si el formulario la rellena).
-    else if (recordado.href) mismo = cont.querySelector(`a[href="${CSS.escape(recordado.href)}"]`);
-    else if (recordado.sala) mismo = cont.querySelector(`button.ag-oc[data-sala="${CSS.escape(recordado.sala)}"][data-dia="${recordado.dia}"][data-k="${recordado.k}"]`);
-    else if (recordado.recargar) mismo = cont.querySelector('button.recargar');
-    const destino = mismo || cont.querySelector(`button[data-semana="${semanaElegida}"]`);
+    const destino = cont.querySelector(recordado) || cont.querySelector('.semanas [aria-pressed="true"]') || cont.querySelector('#btn-meses');
     if (destino) destino.focus({ preventScroll: true });
   };
 
@@ -297,25 +340,45 @@ const renderDisponibilidad = () => {
     restaurar();
     return;
   }
-  // Semanas con algún día de hoy en adelante. Los datos traen la semana actual completa (también
-  // los días que ya pasaron) y las dos siguientes; los festivos van aparte.
+  // Días con datos: los hábiles y, aparte, los festivos. Van del lunes de esta semana (también
+  // los días que ya pasaron) al fin del segundo mes siguiente.
   const esFecha = (d) => /^\d{4}-\d{2}-\d{2}$/.test(d);
   const habiles = datos.dias.filter(esFecha);
   const festivos = Array.isArray(datos.festivos) ? datos.festivos.filter(esFecha) : [];
-  const semanas = [...new Set([...habiles, ...festivos].map(lunesDe))].sort().filter((l) => sumarDias(l, 4) >= hoy.fecha);
-  if (!semanas.includes(semanaElegida)) { semanaElegida = semanas[0]; irAHoy = true; }
+  const conDatos = [...habiles, ...festivos].sort();
+  // La lista de meses: los que tienen días de hoy en adelante.
+  const meses = [...new Set(conDatos.filter((d) => d >= hoy.fecha).map((d) => d.slice(0, 7)))];
+  if (!meses.includes(mesElegido)) { mesElegido = meses[0]; vista = 'semana'; semanaElegida = null; irA = 'hoy'; }
+  // Semanas del mes con datos y con algún día de hoy en adelante. Si esta semana es la última del
+  // mes, va también la próxima, para que siga a un clic.
+  const lunesConDatos = new Set(conDatos.map(lunesDe));
+  const vigente = (l) => lunesConDatos.has(l) && sumarDias(l, 4) >= hoy.fecha;
+  const semanas = semanasDelMes(mesElegido).filter(vigente);
+  const proxima = sumarDias(lunesDe(hoy.fecha), 7);
+  if (semanas.includes(lunesDe(hoy.fecha)) && !semanas.includes(proxima) && vigente(proxima)) semanas.push(proxima);
+  if (!semanas.includes(semanaElegida)) { semanaElegida = semanas[0]; if (vista === 'semana') irA = 'hoy'; }
   claveRender = claveDe(hoy, datos);
   const sinLeerHoy = datos.verificado !== hoy.fecha && hoy.habil && hoy.minutos >= HORA_AVISO;
   const diasSemana = [0, 1, 2, 3, 4].map((i) => sumarDias(semanaElegida, i));
   const leidas = salas.filter((s) => esUrl(s.calendario) && datos.ocupado[s.nombre]);
   const libreEn = (franjas, m) => !franjas.some((f) => f.ini < m + BLOQUE && f.fin > m);
+  // Reservas de una sala leída en un día, dentro de la franja del calendario (k es su índice en el día).
+  const franjasDe = (s, dia) => (datos.ocupado[s.nombre][dia] || [])
+    .map(([a, b, info], k) => ({ ini: aMinutos(a), fin: aMinutos(b), info: info || null, k }))
+    .filter((f) => f.fin > INICIO_DIA && f.ini < FIN_DIA);
 
-  const chips = semanas.map((l) => {
+  // Botón de meses con su lista y, al lado, la tira con el mes completo y sus semanas. En las
+  // semanas se ve el rango corto; el largo es el que oyen los lectores de pantalla.
+  const opcionesMes = meses.map((m) => `<li><button class="mes-op" type="button" data-mes="${m}"${m === mesElegido ? ' aria-current="true"' : ''}>${nombreMes(m)}${m === hoy.fecha.slice(0, 7) ? '<small><span class="sr">, </span>Este mes</small>' : ''}</button></li>`).join('');
+  const selectorMes = `<div class="mes-sel">
+      <button class="mes-btn" id="btn-meses" type="button" aria-expanded="${listaMesesAbierta}" aria-controls="lista-meses">${ICONO_MES}<span>${nombreMes(mesElegido)}</span><span class="sr">, elegir otro mes</span>${ICONO_ABRIR}</button>
+      <div class="mes-pop" id="lista-meses"${listaMesesAbierta ? '' : ' hidden'}><ul class="mes-lista">${opcionesMes}</ul><p class="mes-nota">Hay datos hasta el ${fechaLarga(conDatos[conDatos.length - 1])}.</p></div>
+    </div>`;
+  const chips = `<button class="semana" type="button" data-vista="mes" aria-pressed="${vista === 'mes'}">Todo el mes<span class="sr">, ${mesLargo(mesElegido)}</span></button>${semanas.map((l) => {
     const nombre = nombreSemana(l, hoy.fecha);
-    // El rango corto se ve; el largo es el que oyen los lectores de pantalla.
     const visible = `${nombre ? `${nombre}<span aria-hidden="true"> · </span>` : ''}<span aria-hidden="true">${rangoCorto(l)}</span>`;
-    return `<button class="semana" type="button" data-semana="${l}" aria-pressed="${l === semanaElegida}">${visible}<span class="sr">${nombre ? ', ' : 'Semana '}${rangoLargo(l)}</span></button>`;
-  }).join('');
+    return `<button class="semana" type="button" data-semana="${l}" aria-pressed="${vista === 'semana' && l === semanaElegida}">${visible}<span class="sr">${nombre ? ', ' : 'Semana '}${rangoLargo(l)}</span></button>`;
+  }).join('')}`;
 
   const salasLeyenda = salas.map((s) => {
     const estado = !esUrl(s.calendario) ? ': calendario pendiente' : !datos.ocupado[s.nombre] ? ': sin datos' : '';
@@ -351,13 +414,11 @@ const renderDisponibilidad = () => {
     const clases = `ag-dia${esHoy ? ' hoy' : ''}${pasado ? ' pasado' : ''}`;
     const nombre = `${fechaLarga(dia)}${esHoy ? ' (hoy)' : ''}`;
     const capaPasado = (alto) => `<div class="ag-pasado" style="height:${alto}%"></div>`;
-    if (festivos.includes(dia)) return `<div class="${clases} festivo" role="group" aria-label="${escapar(nombre)}"><span class="sr">Festivo.</span></div>`;
+    if (festivos.includes(dia)) return `<div class="${clases} festivo" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">Festivo.</span></div>`;
     // Día que no está en los datos: uno pasado que la tarea ya no leyó, o uno futuro sin leer.
-    if (!habiles.includes(dia)) return `<div class="${clases} sin-dia" role="group" aria-label="${escapar(nombre)}"><span class="sr">Sin datos.</span>${pasado ? capaPasado(100) : ''}</div>`;
+    if (!habiles.includes(dia)) return `<div class="${clases} sin-dia" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">Sin datos.</span>${pasado ? capaPasado(100) : ''}</div>`;
 
-    const porSala = new Map(leidas.map((s) => [s, (datos.ocupado[s.nombre][dia] || [])
-      .map(([a, b, info], k) => ({ ini: aMinutos(a), fin: aMinutos(b), info: info || null, k }))
-      .filter((f) => f.fin > INICIO_DIA && f.ini < FIN_DIA)]));
+    const porSala = new Map(leidas.map((s) => [s, franjasDe(s, dia)]));
     // Medias horas que todavía se pueden pedir: las de hoy desde ahora y las de los días que vienen.
     const pedibles = [];
     if (prefill && !pasado) for (let m = INICIO_DIA; m < FIN_DIA; m += BLOQUE) if (!esHoy || m >= hoy.minutos) pedibles.push(m);
@@ -390,7 +451,52 @@ const renderDisponibilidad = () => {
 
     const capas = pasado ? capaPasado(100)
       : esHoy ? `${capaPasado(pct(hoy.minutos))}${hoy.minutos >= INICIO_DIA && hoy.minutos <= FIN_DIA ? `<div class="ag-ahora" style="top:${pct(hoy.minutos)}%"></div>` : ''}` : '';
-    return `<div class="${clases}" role="group" aria-label="${escapar(nombre)}"><span class="sr">${escapar(partes.join(' '))}</span><div class="ag-carriles">${carriles}</div>${pedirDia}${capas}</div>`;
+    return `<div class="${clases}" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">${escapar(partes.join(' '))}</span><div class="ag-carriles">${carriles}</div>${pedirDia}${capas}</div>`;
+  };
+
+  // Un día del mes: una barra por sala de 07:00 a 18:00 con lo reservado en su color. Si tiene
+  // datos es un botón que abre su semana, y su nombre accesible dice las horas ocupadas de cada
+  // sala. oculta: no tiene nada que leer (un día pasado sin datos o de otro mes).
+  const celdaMes = (dia) => {
+    const esHoy = dia === hoy.fecha;
+    const pasado = dia < hoy.fecha;
+    const num = `<span class="mes-num">${fechaLocal(dia).getDate()}${esHoy ? '<em>Hoy</em>' : ''}</span>`;
+    // Días de los meses vecinos en la primera y la última semana: solo el número.
+    if (dia.slice(0, 7) !== mesElegido) return { oculta: true, html: `<div class="mes-dia otro" aria-hidden="true">${num}</div>` };
+    const clases = `mes-dia${esHoy ? ' hoy' : ''}${pasado ? ' pasado' : ''}`;
+    const nombre = `${fechaLarga(dia)}${esHoy ? ' (hoy)' : ''}`;
+    if (festivos.includes(dia)) return { html: `<div class="${clases} festivo"><span aria-hidden="true">${num}<small>Festivo</small></span><span class="sr">${escapar(nombre)}: festivo.</span></div>` };
+    if (!habiles.includes(dia) || !vigente(lunesDe(dia))) {
+      // Los días de antes de esta semana no se leen: quedan en blanco.
+      if (pasado) return { oculta: true, html: `<div class="${clases} sin-dia" aria-hidden="true">${num}</div>` };
+      return { html: `<div class="${clases} sin-dia"><span aria-hidden="true">${num}<small>Sin datos</small></span><span class="sr">${escapar(nombre)}: sin datos.</span></div>` };
+    }
+    const partes = [];
+    const libres = [];
+    const barras = salas.map((s) => {
+      const codigo = `<b>${escapar(codigoSala(s))}</b>`;
+      if (!leidas.includes(s)) return `<span class="mes-fila sin" style="--c:${s.color}">${codigo}<span class="mes-barra"></span></span>`;
+      const franjas = franjasDe(s, dia);
+      if (franjas.length) partes.push(`${s.nombre}, ocupada ${enumerar(franjas.map((f) => `de ${hhmm(Math.max(f.ini, INICIO_DIA))} a ${hhmm(Math.min(f.fin, FIN_DIA))}`))}.`);
+      else libres.push(s.nombre);
+      return `<span class="mes-fila" style="--c:${s.color}">${codigo}<span class="mes-barra">${franjas.map((f) => `<i style="left:${pct(f.ini)}%;width:${pct(f.fin) - pct(f.ini)}%"></i>`).join('')}</span></span>`;
+    }).join('');
+    if (libres.length) partes.push(libres.length === salas.length ? 'Todas las salas, libres todo el día.' : `Libres todo el día: ${enumerar(libres)}.`);
+    const sinLeer = salas.filter((s) => !leidas.includes(s));
+    if (sinLeer.length) partes.push(`Sin datos: ${enumerar(sinLeer.map((s) => s.nombre))}.`);
+    const etiqueta = `${nombre}. ${partes.join(' ')} Ver la semana.`;
+    return { html: `<button class="${clases}" type="button" data-ir="${dia}" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}">${num}<span class="mes-barras" aria-hidden="true">${barras}</span></button>` };
+  };
+  const rejillaMes = () => {
+    const filas = semanasDelMes(mesElegido).map((l) => {
+      const celdas = [0, 1, 2, 3, 4].map((i) => celdaMes(sumarDias(l, i)));
+      // Una semana sin nada que leer (días pasados o de otro mes) la saltan los lectores de pantalla.
+      const atributos = celdas.every((c) => c.oculta) ? 'aria-hidden="true"' : `role="group" aria-label="${escapar(`Semana ${rangoLargo(l)}`)}"`;
+      return `<div class="mes-sem" ${atributos}>${celdas.map((c) => c.html).join('')}</div>`;
+    }).join('');
+    return `<div class="mes" role="group" aria-label="${escapar(`Disponibilidad de ${mesLargo(mesElegido)}`)}">
+      <div class="mes-cab" aria-hidden="true">${[1, 2, 3, 4, 5].map((d) => `<span>${DIAS_CORTOS[d]}</span>`).join('')}</div>${filas}
+    </div>`;
   };
 
   // Estado de los datos: cuándo se leyeron los calendarios y si alguno falló.
@@ -424,18 +530,23 @@ const renderDisponibilidad = () => {
   const comoPedir = !prefill ? 'Lo que está en blanco está libre.'
     : prefill.conSala ? 'Toque una hora libre en la columna de una sala para pedirla con la sala, la fecha y la hora ya puestas.'
       : 'Toque una hora libre para pedirla con la fecha y la hora ya puestas; la sala se elige al final del formulario, según cuántas personas asisten.';
-  const leyenda = `Cada día tiene una columna por sala. Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. ${comoPedir}<span class="movil"> Deslice el calendario de lado para ver toda la semana.</span>`;
+  const leyenda = vista === 'mes'
+    ? `Cada día tiene una barra por sala, de 07:00 a 18:00; lo de color ya está reservado. Toque un día para ver su semana con el detalle de las reservas${prefill ? ' y pedir una hora libre' : ''}.`
+    : `Cada día tiene una columna por sala. Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. ${comoPedir}<span class="movil"> Deslice el calendario de lado para ver toda la semana.</span>`;
 
-  cont.innerHTML = `<p class="disp-ley">${leyenda}</p>
-    <div class="semanas" role="group" aria-label="Semana">${chips}</div>
-    <ul class="ag-salas">${salasLeyenda}</ul>
-    <a class="saltar" href="#como-funciona">Saltar el calendario</a>
-    <div class="ag" style="--n:${Math.max(salas.length, 1)};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad de la semana ${rangoLargo(semanaElegida)}`)}">
+  const calendario = vista === 'mes' ? rejillaMes()
+    : `<div class="ag" style="--n:${Math.max(salas.length, 1)};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad de la semana ${rangoLargo(semanaElegida)}`)}">
       <div class="ag-in">
         <div class="ag-cab" aria-hidden="true"><span></span>${cabecera}</div>
         <div class="ag-cuerpo"><div class="ag-eje" aria-hidden="true">${horas.join('')}</div>${diasSemana.map(columna).join('')}</div>
       </div>
-    </div>
+    </div>`;
+
+  cont.innerHTML = `<p class="disp-ley">${leyenda}</p>
+    <div class="vista-ctl">${selectorMes}<div class="semanas" role="group" aria-label="Mes completo o semana">${chips}</div></div>
+    <ul class="ag-salas">${salasLeyenda}</ul>
+    <a class="saltar" href="#como-funciona">Saltar el calendario</a>
+    ${calendario}
     ${notas.join('')}
     <p class="disp-outlook">Calendarios en Outlook: ${enlacesOutlook()}</p>`;
 
@@ -497,11 +608,29 @@ const recargarPagina = (boton) => {
   Promise.all(ARCHIVOS_PAGINA.map((u) => window.fetch(u, { cache: 'reload' }).catch(() => null))).then(recargar);
 };
 
+// Abre o cierra la lista de meses sin repintar el calendario.
+const pintarListaMeses = (enfocarBoton) => {
+  const boton = $('#btn-meses');
+  const lista = $('#lista-meses');
+  if (!boton || !lista) return;
+  boton.setAttribute('aria-expanded', String(listaMesesAbierta));
+  lista.hidden = !listaMesesAbierta;
+  if (enfocarBoton) boton.focus();
+};
+const cerrarListaMeses = (enfocarBoton) => { listaMesesAbierta = false; pintarListaMeses(enfocarBoton); };
+
 const iniciarDisponibilidad = () => {
   prefill = plantillaPrefill();
   renderDisponibilidad();
   iniciarDetalle();
-  $('#disponibilidad').addEventListener('click', (ev) => {
+  const cont = $('#disponibilidad');
+  // Repinta con la vista nueva y pone el foco en el botón que la eligió (el tocado ya no existe).
+  const mostrar = (selector) => {
+    renderDisponibilidad();
+    const elegido = cont.querySelector(selector);
+    if (elegido) elegido.focus();
+  };
+  cont.addEventListener('click', (ev) => {
     const boton = ev.target.closest('button.recargar');
     if (boton) { recargarPagina(boton); return; }
     const franja = ev.target.closest('button.ag-oc');
@@ -510,13 +639,55 @@ const iniciarDisponibilidad = () => {
       if (sala) abrirDetalle(sala, franja.dataset.dia, Number(franja.dataset.k));
       return;
     }
-    const chip = ev.target.closest('button[data-semana]');
+    if (ev.target.closest('#btn-meses')) { listaMesesAbierta = !listaMesesAbierta; pintarListaMeses(false); return; }
+    // El mes elegido en la lista se ve completo.
+    const opcion = ev.target.closest('button[data-mes]');
+    if (opcion) {
+      mesElegido = opcion.dataset.mes;
+      vista = 'mes';
+      listaMesesAbierta = false;
+      irA = 'hoy';
+      mostrar('#btn-meses');
+      return;
+    }
+    // Un día del mes abre su semana, deslizada hasta ese día en el celular.
+    const dia = ev.target.closest('button[data-ir]');
+    if (dia) {
+      vista = 'semana';
+      semanaElegida = lunesDe(dia.dataset.ir);
+      irA = dia.dataset.ir;
+      mostrar(`button[data-semana="${semanaElegida}"]`);
+      return;
+    }
+    const chip = ev.target.closest('button[data-semana], button[data-vista]');
     if (!chip) return;
-    semanaElegida = chip.dataset.semana;
-    irAHoy = true;
-    renderDisponibilidad();
-    const elegido = $(`#disponibilidad button[data-semana="${semanaElegida}"]`);
-    if (elegido) elegido.focus();
+    if (chip.dataset.vista) vista = 'mes';
+    else { vista = 'semana'; semanaElegida = chip.dataset.semana; }
+    irA = 'hoy';
+    mostrar(chip.dataset.vista ? 'button[data-vista="mes"]' : `button[data-semana="${semanaElegida}"]`);
+  });
+  // Lista de meses con el teclado: las flechas la abren y recorren los meses; Escape la cierra y
+  // devuelve el foco al botón. Salir de ella con Tab o hacer clic afuera también la cierra.
+  cont.addEventListener('keydown', (ev) => {
+    if ((ev.key !== 'ArrowDown' && ev.key !== 'ArrowUp') || !ev.target.closest('.mes-sel')) return;
+    const opciones = [...cont.querySelectorAll('#lista-meses button[data-mes]')];
+    if (!opciones.length) return;
+    ev.preventDefault();
+    if (!listaMesesAbierta) { listaMesesAbierta = true; pintarListaMeses(false); }
+    const i = opciones.indexOf(ev.target);
+    const paso = ev.key === 'ArrowDown' ? 1 : opciones.length - 1;
+    opciones[i < 0 ? Math.max(0, opciones.findIndex((b) => b.hasAttribute('aria-current'))) : (i + paso) % opciones.length].focus();
+  });
+  cont.addEventListener('focusout', (ev) => {
+    const hacia = ev.relatedTarget;
+    if (listaMesesAbierta && hacia instanceof Element && ev.target.closest('.mes-sel') && !hacia.closest('.mes-sel')) cerrarListaMeses(false);
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape' && listaMesesAbierta) cerrarListaMeses(Boolean(document.activeElement && document.activeElement.closest('.mes-sel')));
+  });
+  // pointerdown y no click: en el iPhone, tocar un texto que no es botón ni enlace no produce clic.
+  document.addEventListener('pointerdown', (ev) => {
+    if (listaMesesAbierta && !(ev.target instanceof Element && ev.target.closest('.mes-sel'))) cerrarListaMeses(false);
   });
   setInterval(refrescar, 60000);
   setInterval(recargarDatos, RECARGA_MS);
@@ -562,7 +733,6 @@ const iniciarTema = () => {
 
 // Aforos, salas que se piden juntas y salas deshabilitadas salen de config.js, para que las
 // reglas cambien solas cuando cambie una sala.
-const mayuscula = (t) => t.charAt(0).toUpperCase() + t.slice(1);
 const reglasDeSalas = () => {
   const activas = salasActivas();
   const conCupo = activas.filter((s) => Number(s.aforo) > 0);
