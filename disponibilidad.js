@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-22",
- "actualizado": "2026-10-22T06:00:32-05:00",
+ "actualizado": "2026-10-22T16:54:15-05:00",
  "avisado": null,
  "dias": [
   "2026-10-19",
@@ -117,6 +117,14 @@ window.DISPONIBILIDAD = {
      "09:00",
      {
       "t": "Vhgghjfhh · Vane",
+      "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "10:00",
+     "14:00",
+     {
+      "t": "Prueba 5 · Víctor Daniel Lezcano Quintero",
       "l": "Salas 1 y 2"
      }
     ]
@@ -426,6 +434,14 @@ window.DISPONIBILIDAD = {
      "09:00",
      {
       "t": "Vhgghjfhh · Vane",
+      "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "10:00",
+     "14:00",
+     {
+      "t": "Prueba 5 · Víctor Daniel Lezcano Quintero",
       "l": "Salas 1 y 2"
      }
     ]
