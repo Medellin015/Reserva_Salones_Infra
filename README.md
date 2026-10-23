@@ -156,7 +156,7 @@ que el calendario de esa sala tenga publicado:
 | --- | --- |
 | Puede ver cuando estoy ocupado | Solo la hora. El cuadro dice que los detalles no están publicados. |
 | Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"). |
-| Puede ver todos los detalles | Además, la descripción: teléfono, unidad o equipo, correo de quien pidió y número de personas. |
+| Puede ver todos los detalles | Además, la descripción: teléfono, dependencia (y unidad o equipo, si es de la Secretaría de Infraestructura Física), correo de quien pidió y número de personas. |
 
 El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
 Calendarios compartidos → "Publicar un calendario" → elegir la sala y el nivel →
