@@ -9,15 +9,10 @@
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
- "verificado": "2026-10-23",
- "actualizado": "2026-10-23T06:00:35-05:00",
+ "verificado": "2026-10-24",
+ "actualizado": "2026-10-24T13:59:48-05:00",
  "avisado": null,
  "dias": [
-  "2026-10-19",
-  "2026-10-20",
-  "2026-10-21",
-  "2026-10-22",
-  "2026-10-23",
   "2026-10-26",
   "2026-10-27",
   "2026-10-28",
@@ -72,63 +67,6 @@ window.DISPONIBILIDAD = {
  ],
  "ocupado": {
   "Sala 1": {
-   "2026-10-19": [
-    [
-     "08:15",
-     "10:00",
-     {
-      "t": "Reserva · Jorge Iván Jaramillo López",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-20": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Lina Maria Murillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-21": [],
-   "2026-10-22": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Claudia Maritza Velasquez Higuita",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-23": [
-    [
-     "08:00",
-     "09:00",
-     {
-      "t": "Vhgghjfhh · Vane",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "10:00",
-     "14:00",
-     {
-      "t": "Prueba 5 · Víctor Daniel Lezcano Quintero",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
    "2026-10-26": [
     [
      "08:15",
@@ -372,80 +310,6 @@ window.DISPONIBILIDAD = {
    "2026-12-31": []
   },
   "Sala 2": {
-   "2026-10-19": [
-    [
-     "08:15",
-     "10:00",
-     {
-      "t": "Reserva · Jorge Iván Jaramillo López",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-20": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Lina Maria Murillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-21": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "Reserva · Wilfrido Jose Ascendra",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "14:00",
-     "15:00",
-     {
-      "t": "Prueba · Vanesa",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-10-22": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Claudia Maritza Velasquez Higuita",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-10-23": [
-    [
-     "08:00",
-     "09:00",
-     {
-      "t": "Vhgghjfhh · Vane",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "10:00",
-     "14:00",
-     {
-      "t": "Prueba 5 · Víctor Daniel Lezcano Quintero",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
    "2026-10-26": [
     [
      "08:15",
@@ -653,55 +517,16 @@ window.DISPONIBILIDAD = {
    "2026-12-31": []
   },
   "Sala 3": {
-   "2026-10-19": [],
-   "2026-10-20": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Reserva · Juan Fernando Vargas",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "13:00",
-     "16:30",
-     {
-      "t": "Reserva · Monica Yanet Montoya",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-10-21": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "Reserva · María José Mosquera Martínez",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-10-22": [
+   "2026-10-26": [
     [
      "08:00",
-     "12:00",
+     "10:00",
      {
-      "t": "Reserva · Carlos Arturo Tobón Marín",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "13:00",
-     "16:30",
-     {
-      "t": "Reserva · Monica Yanet Montoya",
+      "t": "Prueba · Víctor Lezcano",
       "l": "Sala 3"
      }
     ]
    ],
-   "2026-10-23": [],
-   "2026-10-26": [],
    "2026-10-27": [
     [
      "10:00",
@@ -783,47 +608,6 @@ window.DISPONIBILIDAD = {
    "2026-12-31": []
   },
   "Sala 5": {
-   "2026-10-19": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Angela Maria Mosquera",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-20": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Maria Elena Morales",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-21": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Juan Fernando Rivera Garcés",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-22": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-10-23": [],
    "2026-10-26": [],
    "2026-10-27": [
     [
