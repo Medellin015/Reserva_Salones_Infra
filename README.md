@@ -22,6 +22,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
 | `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` si cambió. |
 | `.github/workflows/disponibilidad.yml` | Tarea programada de GitHub que corre ese script. |
+| `docs/correo-anuncio.html` | Correo que anuncia la página, con formato. No hace parte de la página: se abre en el navegador, se copia todo y se pega en un mensaje nuevo de Outlook. |
 
 ## Cómo se actualiza la disponibilidad
 
