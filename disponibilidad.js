@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-26",
- "actualizado": "2026-10-26T06:00:41-05:00",
+ "actualizado": "2026-10-26T11:37:26-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -101,6 +101,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Ana Carolina Gonzalez Montoya",
+      "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "14:00",
+     "17:30",
+     {
+      "t": "prueba enercis  ·  Enercis cuesta",
       "l": "Salas 1 y 2"
      }
     ]
@@ -344,6 +352,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Ana Carolina Gonzalez Montoya",
+      "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "14:00",
+     "17:30",
+     {
+      "t": "prueba enercis  ·  Enercis cuesta",
       "l": "Salas 1 y 2"
      }
     ]
