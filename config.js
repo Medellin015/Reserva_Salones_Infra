@@ -16,8 +16,9 @@ const FORM_URL = 'https://forms.cloud.microsoft/r/xmAtdmU7sg';
 
 /* ===== 2. Contacto ===== */
 
-// Persona a la que se escribe para dudas o para liberar una sala.
-const CONTACTO = { nombre: 'Victor Lezcano', correo: 'victor.lezcano@medellin.gov.co' };
+// Correo al que se escribe para dudas o para liberar una sala; la página lo muestra con el
+// botón Copiar correo.
+const CONTACTO = { correo: 'enercis.cuesta@medellin.gov.co' };
 
 /* ===== 3. Salas ===== */
 
