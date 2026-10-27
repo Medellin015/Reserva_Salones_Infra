@@ -16,7 +16,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `index.html` | Contenido de la página: encabezado, calendario, pasos, reglas y contacto. |
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
-| `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y enlace rellenado de Forms. |
+| `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
 | `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses), maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
@@ -193,6 +193,36 @@ La página busca esos valores en el enlace para saber qué parámetro es cada pr
 Si alguno no aparece, no genera enlaces y lo avisa en la consola del navegador, para
 no pedir una fecha u hora equivocadas. Mientras el enlace esté vacío, el
 calendario no ofrece pedir desde una hora y queda el botón "Pedir una sala".
+
+## Cancelar una reserva
+
+Al tocar una reserva del calendario, el cuadro de detalle tiene el botón "Cancelar esta
+reserva", que abre el formulario "Cancelar reserva de sala · Piso 9 CAM" con la sala, la fecha
+y la hora de inicio ya puestas. Solo aparece en reservas que no han empezado. Si la reserva
+empieza a una hora intermedia (08:15), va con la media hora anterior (08:00), que es donde la
+busca el flujo; una reserva de dos salas juntas va como "Salas 1 y 2".
+
+El formulario lo recibe el flujo "Cancelar reserva sala Piso 9 CAM" (Power Automate, con la
+cuenta dueña del formulario de reservas y la conexión de sal9):
+
+1. Busca en el calendario de la sala la reserva que empieza en esa media hora.
+2. Revisa quién cancela: la descripción de cada reserva dice "Solicitó: Nombre (correo)", y
+   ese correo debe ser el de quien responde el formulario (Forms registra el nombre). Enercis
+   Cuesta y Victor Lezcano pueden cancelar cualquier reserva.
+3. Borra la reserva (en los dos calendarios si es de "Salas 1 y 2"), envía el correo "Reserva
+   cancelada" con copia a enercis.cuesta@medellin.gov.co y avisa a la tarea de GitHub con
+   `actualizar-disponibilidad`, igual que el flujo de reservas: la sala aparece libre en uno a
+   tres minutos.
+4. Si no encuentra la reserva, si ya empezó o si no está a nombre de quien cancela, no borra
+   nada y responde por correo diciendo por qué.
+
+Las reservas cargadas desde la planilla no tienen el correo de quien las pidió: solo las
+pueden cancelar Enercis o Victor, o se borran a mano en Outlook entrando como sal9.
+
+Para activar el botón, en `CANCELAR_PREFILL` de `config.js` va el enlace rellenado
+previamente del formulario de cancelación, generado igual que el de pedir (ver "Pedir desde
+el calendario") con Sala = Sala 1, Fecha = 15/10/2026 y Hora de inicio = 07:00. Está activo
+desde el 27/10/2026. Mientras el enlace esté vacío, el detalle no ofrece cancelar.
 
 ## Cómo publicar el calendario de una sala
 

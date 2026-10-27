@@ -43,7 +43,7 @@
     <ol class="pasos">
       <li><b>Revise la disponibilidad</b><p>El calendario de arriba muestra la semana de lunes a viernes, con las horas ya reservadas en cada sala. Con el botón del mes puede ver el mes completo o elegir otro mes. Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer.</p></li>
       <li><b>Pida el horario</b><p>En el formulario ponga el responsable, su teléfono, su secretaría o dependencia (si es de Infraestructura Física, también su unidad o equipo), la fecha, las horas, el motivo y cuántas personas asisten. Al final elija la sala entre las que tienen cupo para el grupo.</p></li>
-      <li><b>Espere el correo</b><p>Le llega desde sal9@medellin.gov.co: confirmada, no aprobada o sala ocupada. Solo con la confirmación la sala es suya.</p></li>
+      <li><b>Espere el correo</b><p>Le llega desde sal9@medellin.gov.co: confirmada, no aprobada o no disponible (la sala ya estaba ocupada). Solo con la confirmación la sala es suya.</p></li>
     </ol>
   </section>
 
@@ -53,7 +53,7 @@
       <li>Horario de 07:00 a 18:00, en bloques de media hora.</li>
       <li>Las reservas pasan por aprobación de la Unidad Administrativa; la respuesta suele llegar el mismo día.</li>
       <li>Si la sala ya está tomada a esa hora, el sistema responde de inmediato y la solicitud no se registra.</li>
-      <li>Si ya no necesita la sala, avise para liberarla.</li>
+      <li>Si ya no necesita la sala, cancélela: toque la reserva en el calendario y elija «Cancelar esta reserva». Solo puede hacerlo quien la pidió.</li>
     </ul>
     <div class="contacto">
       <span>Dudas y cancelaciones:</span>
@@ -71,7 +71,12 @@
     <p class="det-hora" id="det-hora"></p>
     <dl class="det-lista" id="det-lista"></dl>
     <p class="det-nota" id="det-nota"></p>
-    <button class="btn btn-s det-cerrar" id="det-cerrar" type="button">Cerrar</button>
+    <!-- "Cancelar esta reserva" solo se ve en reservas por empezar y si CANCELAR_PREFILL está configurado -->
+    <div class="det-acciones">
+      <a class="btn btn-s det-cancelar" id="det-cancelar" hidden>Cancelar esta reserva</a>
+      <button class="btn btn-s det-cerrar" id="det-cerrar" type="button">Cerrar</button>
+    </div>
+    <p class="det-nota-cancelar" id="det-cancelar-nota" hidden>Solo quien pidió la sala puede cancelarla. El formulario se abre con la reserva ya puesta y la respuesta llega por correo.</p>
   </div>
 </dialog>
 

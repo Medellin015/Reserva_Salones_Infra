@@ -1,8 +1,8 @@
 'use strict';
 /* ============================================================================
    Salas Piso 9 CAM — página de disponibilidad y acceso al formulario
-   Lee FORM_URL, CONTACTO, SALAS, SALAS_JUNTAS y FORM_PREFILL de config.js, y las horas
-   ocupadas de disponibilidad.js; los dos se cargan antes que este archivo.
+   Lee FORM_URL, CONTACTO, SALAS, SALAS_JUNTAS, FORM_PREFILL y CANCELAR_PREFILL de config.js, y
+   las horas ocupadas de disponibilidad.js; los dos se cargan antes que este archivo.
    Estructura del archivo:
      1. Utilidades
      2. Calendario de disponibilidad (y enlace de Forms con respuestas rellenadas)
@@ -112,6 +112,10 @@ const enumerar = (lista) => (lista.length > 1 ? `${lista.slice(0, -1).join(', ')
 
 // Salas que muestra la página: las que config.js marca con activa: false no aparecen.
 const salasActivas = () => SALAS.filter((s) => s.activa !== false);
+// Salas que se piden juntas, según config.js, y el nombre con que el formulario y el flujo las
+// manejan: ['Sala 1', 'Sala 2'] → "Salas 1 y 2".
+const gruposJuntos = () => (typeof SALAS_JUNTAS !== 'undefined' && Array.isArray(SALAS_JUNTAS) ? SALAS_JUNTAS : []).filter(Array.isArray);
+const nombreJuntas = (grupo) => `Salas ${grupo.map((n) => String(n).replace(/^sala\s+/i, '')).join(' y ')}`;
 // Código de la columna de cada sala dentro de un día: "Sala 1" → "S1".
 const codigoSala = (s) => { const m = /^sala\s+(\S{1,3})$/i.exec(s.nombre.trim()); return m ? `S${m[1]}` : s.nombre.trim().slice(0, 3); };
 
@@ -136,12 +140,13 @@ const formatosFecha = (iso) => {
   ].map((f) => ({ f, ejemplo: f(iso) }));
 };
 
-// Lee el enlace de ejemplo de config.js y descubre qué parámetro lleva cada respuesta.
-// Devuelve null si no está configurado o si algún valor de ejemplo no aparece en el enlace:
-// en ese caso no se generan enlaces, porque llevarían el valor de ejemplo fijo.
-const plantillaPrefill = () => {
-  const cfg = typeof FORM_PREFILL === 'object' && FORM_PREFILL;
-  if (!cfg || !esUrl(cfg.enlace)) return null;
+// Lee un enlace de ejemplo de config.js (FORM_PREFILL para pedir, CANCELAR_PREFILL para cancelar)
+// y descubre qué parámetro lleva cada respuesta. Devuelve null si no está configurado o si algún
+// valor de ejemplo no aparece en el enlace: en ese caso no se generan enlaces, porque llevarían el
+// valor de ejemplo fijo. nombre es el de la constante, para los avisos de la consola, y
+// consecuencia dice qué deja de ofrecer la página.
+const plantillaPrefill = (cfg, nombre, consecuencia) => {
+  if (!cfg || typeof cfg !== 'object' || !esUrl(cfg.enlace)) return null;
   let url;
   try { url = new URL(cfg.enlace.trim()); } catch (e) { return null; }
   const ej = cfg.ejemplo || {};
@@ -173,13 +178,13 @@ const plantillaPrefill = () => {
   const faltan = [['sala', ej.sala, campos.sala], ['fecha', ej.fecha, campos.fecha], ['horaInicio', ej.horaInicio, campos.hora]]
     .filter(([, valor, clave]) => valor && !clave).map(([nombre, valor]) => `${nombre} = "${valor}"`);
   if (faltan.length) {
-    console.warn(`FORM_PREFILL: en el enlace no ${faltan.length > 1 ? 'aparecen' : 'aparece'} ${enumerar(faltan)}; revise FORM_PREFILL.ejemplo en config.js. El calendario no ofrece pedir desde una hora.`);
+    console.warn(`${nombre}: en el enlace no ${faltan.length > 1 ? 'aparecen' : 'aparece'} ${enumerar(faltan)}; revise ${nombre}.ejemplo en config.js. ${consecuencia}`);
     return null;
   }
   if (!campos.sala && !campos.hora && !campos.fecha) return null;
   // Cualquier otra respuesta rellenada en el enlace de ejemplo viajará fija en todos los enlaces.
   const extras = pares.filter((p) => !['id', 'lang'].includes(p.clave) && !Object.values(campos).includes(p.clave) && p.decodificado !== '');
-  if (extras.length) console.info(`FORM_PREFILL: el enlace trae además ${enumerar(extras.map((p) => `${p.clave} = "${p.decodificado}"`))}; ese valor irá fijo en todas las solicitudes.`);
+  if (extras.length) console.info(`${nombre}: el enlace trae además ${enumerar(extras.map((p) => `${p.clave} = "${p.decodificado}"`))}; ese valor irá fijo en todas las solicitudes.`);
   // La sala solo se rellena si el enlace de ejemplo la trae (el formulario actual la pregunta
   // al final, según el número de personas).
   const enlace = (sala, fechaIso, hora) => {
@@ -209,6 +214,8 @@ let mesPintado = null;
 // conserva el desplazamiento. Vale 'hoy', una fecha AAAA-MM-DD o null.
 let irA = 'hoy';
 let prefill = null;
+// Enlace del formulario de cancelación con la reserva ya puesta; null si no está configurado.
+let cancelar = null;
 let claveRender = null;
 
 // --- Detalle de una reserva ---
@@ -217,6 +224,30 @@ const resumenReserva = (info) => {
   if (!info || !info.t) return { titulo: '', motivo: '', responsable: '' };
   const m = /^(.+?)\s+·\s+(.+)$/.exec(info.t);
   return m ? { titulo: info.t, motivo: m[1].trim(), responsable: m[2].trim() } : { titulo: info.t, motivo: '', responsable: '' };
+};
+
+// Botón "Cancelar esta reserva" del detalle: abre el formulario de cancelación con la sala, la
+// fecha y la hora de inicio ya puestas. Solo para reservas que no han empezado y cuya hora cabe en
+// la lista del formulario (de 07:00 a 17:30, cada media hora): una que empieza a una hora
+// intermedia, como 08:15, va con la media hora anterior, que es donde la busca el flujo. Una
+// reserva de dos salas juntas se cancela como "Salas 1 y 2", y el flujo la borra en las dos.
+const pintarCancelar = (sala, dia, inicio, info) => {
+  const enlace = $('#det-cancelar');
+  const nota = $('#det-cancelar-nota');
+  if (!enlace || !nota) return;
+  const ahora = ahoraBogota();
+  const minutos = aMinutos(inicio);
+  const bloque = Math.floor(minutos / BLOQUE) * BLOQUE;
+  const porEmpezar = dia > ahora.fecha || (dia === ahora.fecha && minutos > ahora.minutos);
+  const mostrar = Boolean(cancelar && porEmpezar && bloque >= INICIO_DIA && bloque < FIN_DIA);
+  enlace.hidden = !mostrar;
+  nota.hidden = !mostrar;
+  if (!mostrar) { enlace.removeAttribute('href'); return; }
+  const lugar = info && info.l ? info.l.trim() : '';
+  const grupo = gruposJuntos().find((g) => g.includes(sala.nombre) && nombreJuntas(g) === lugar);
+  enlace.href = cancelar.enlace(grupo ? nombreJuntas(grupo) : sala.nombre, dia, hhmm(bloque));
+  enlace.target = '_blank';
+  enlace.rel = 'noopener';
 };
 
 const abrirDetalle = (sala, dia, k) => {
@@ -246,8 +277,11 @@ const abrirDetalle = (sala, dia, k) => {
   }
   $('#det-lista').innerHTML = filas.map(([k2, v]) => `<dt>${escapar(k2)}</dt><dd>${escapar(v)}</dd>`).join('');
   $('#det-nota').textContent = info ? '' : 'Los detalles de esta reserva no están publicados en el calendario de la sala.';
+  pintarCancelar(sala, dia, a, info);
   if (typeof dialogo.showModal === 'function') dialogo.showModal();
   else dialogo.setAttribute('open', '');
+  // El foco empieza en Cerrar, no en el enlace de cancelar.
+  $('#det-cerrar').focus();
 };
 
 const iniciarDetalle = () => {
@@ -620,7 +654,8 @@ const pintarListaMeses = (enfocarBoton) => {
 const cerrarListaMeses = (enfocarBoton) => { listaMesesAbierta = false; pintarListaMeses(enfocarBoton); };
 
 const iniciarDisponibilidad = () => {
-  prefill = plantillaPrefill();
+  prefill = plantillaPrefill(typeof FORM_PREFILL === 'undefined' ? null : FORM_PREFILL, 'FORM_PREFILL', 'El calendario no ofrece pedir desde una hora.');
+  cancelar = plantillaPrefill(typeof CANCELAR_PREFILL === 'undefined' ? null : CANCELAR_PREFILL, 'CANCELAR_PREFILL', 'El detalle de una reserva no ofrece cancelarla.');
   renderDisponibilidad();
   iniciarDetalle();
   const cont = $('#disponibilidad');
@@ -738,7 +773,7 @@ const reglasDeSalas = () => {
   const conCupo = activas.filter((s) => Number(s.aforo) > 0);
   const reglas = [];
   if (conCupo.length) reglas.push(`Aforo: ${conCupo.map((s, i) => `${s.nombre}, ${s.aforo}${i === 0 ? ' personas' : ''}`).join('; ')}.`);
-  const grupos = (typeof SALAS_JUNTAS !== 'undefined' && Array.isArray(SALAS_JUNTAS) ? SALAS_JUNTAS : [])
+  const grupos = gruposJuntos()
     .map((nombres) => nombres.map((n) => conCupo.find((s) => s.nombre === n)))
     .filter((grupo) => grupo.length > 1 && grupo.every(Boolean));
   if (grupos.length) {
