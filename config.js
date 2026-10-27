@@ -6,6 +6,7 @@
      2. Contacto
      3. Salas: aforo, estado y enlaces de sus calendarios publicados
      4. Pedir desde el calendario (enlace de Forms con respuestas rellenadas)
+     5. Cancelar desde el calendario (enlace del formulario de cancelación)
    Las constantes quedan en el ámbito global de la página; app.js las lee tal cual.
    ============================================================================ */
 
@@ -73,4 +74,17 @@ const SALAS_JUNTAS = [['Sala 1', 'Sala 2']];
 const FORM_PREFILL = {
   enlace: 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=iOBInEReDUuToO6yxhJ8PTm750YXtsNCt97tmedyDMZUMUY1NVRRNVVPMUVBTzFOSU9FM0NSRUM3Uy4u&rc76460fd33de46e3ae24d0a4a4b4b45c=%222026-10-15%22&rad426ff4b2ee4107a398a77ca3c6eecb=%2207%3A00%22',
   ejemplo: { fecha: '2026-10-15', horaInicio: '07:00' },
+};
+
+/* ===== 5. Cancelar desde el calendario ===== */
+
+// Al tocar una reserva, el cuadro de detalle ofrece "Cancelar esta reserva": abre el formulario
+// de cancelación con la sala, la fecha y la hora de inicio ya puestas. Lo recibe el flujo
+// "Cancelar reserva sala Piso 9 CAM", que solo cancela si quien responde es quien pidió la sala
+// (o la Unidad Administrativa) y contesta por correo. Se configura igual que FORM_PREFILL, con
+// el enlace rellenado previamente de ese formulario: Sala = Sala 1, Fecha = 15/10/2026 y Hora
+// de inicio = 07:00. Mientras `enlace` esté vacío, el detalle no ofrece cancelar.
+const CANCELAR_PREFILL = {
+  enlace: 'https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=iOBInEReDUuToO6yxhJ8PTm750YXtsNCt97tmedyDMZUMEhaOTU4Q0MyRTROUjNJSlExNUw3RkdZTi4u&r111b801e18e6488c8d1805bfcb1c7ace=%22Sala%201%22&r75482769984b48e2b2965706e22997cd=%222026-10-15%22&r4b46b974930f49c4b4c4805b61f876b3=%2207%3A00%22',
+  ejemplo: { sala: 'Sala 1', fecha: '2026-10-15', horaInicio: '07:00' },
 };
