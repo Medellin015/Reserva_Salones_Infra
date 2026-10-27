@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-27",
- "actualizado": "2026-10-27T06:01:12-05:00",
+ "actualizado": "2026-10-27T18:41:01-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -95,24 +95,7 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-28": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Ana Carolina Gonzalez Montoya",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "17:30",
-     {
-      "t": "prueba enercis  ·  Enercis cuesta",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
+   "2026-10-28": [],
    "2026-10-29": [
     [
      "10:00",
@@ -346,24 +329,7 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-28": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Ana Carolina Gonzalez Montoya",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "17:30",
-     {
-      "t": "prueba enercis  ·  Enercis cuesta",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
+   "2026-10-28": [],
    "2026-10-29": [
     [
      "10:00",
@@ -644,16 +610,7 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-10-28": [],
-   "2026-10-29": [
-    [
-     "11:00",
-     "12:30",
-     {
-      "t": "Reserva · Monica Yanet Montoya",
-      "l": "Sala 5"
-     }
-    ]
-   ],
+   "2026-10-29": [],
    "2026-10-30": [],
    "2026-11-03": [],
    "2026-11-04": [],
