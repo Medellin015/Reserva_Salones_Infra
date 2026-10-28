@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-28",
- "actualizado": "2026-10-28T15:03:29-05:00",
+ "actualizado": "2026-10-28T15:03:40-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -776,11 +776,72 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-28": [],
-   "2026-10-29": [],
-   "2026-10-30": [],
-   "2026-11-03": [],
-   "2026-11-04": [],
+   "2026-10-28": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Reserva · Juan Fernando Rivera Garcés",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · Dina Mileidy Ramirez Otalvaro",
+      "l": "Sala 5"
+     }
+    ]
+   ],
+   "2026-10-29": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
+      "l": "Sala 5"
+     }
+    ]
+   ],
+   "2026-10-30": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Reserva · Juan Fernando Rivera Garcés",
+      "l": "Sala 5"
+     }
+    ]
+   ],
+   "2026-11-03": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Reserva · Maria Elena Morales",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · Rocio Elena Rendon Diaz",
+      "l": "Sala 5"
+     }
+    ]
+   ],
+   "2026-11-04": [
+    [
+     "08:00",
+     "11:00",
+     {
+      "t": "Reserva · Juan Fernando Rivera Garcés",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-05": [
     [
      "08:00",
@@ -791,7 +852,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-06": [],
+   "2026-11-06": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Reserva · Juan Fernando Rivera Garcés",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-09": [],
    "2026-11-10": [],
    "2026-11-11": [],
