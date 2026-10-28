@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-28",
- "actualizado": "2026-10-28T16:49:14-05:00",
+ "actualizado": "2026-10-28T17:08:24-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -167,7 +167,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-04": [],
+   "2026-11-04": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Mesa Distrital de Vivienda de Medellín · Juan Felipe Sanguino Puerta",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-05": [],
    "2026-11-06": [],
    "2026-11-09": [
@@ -435,7 +444,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-04": [],
+   "2026-11-04": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Mesa Distrital de Vivienda de Medellín · Juan Felipe Sanguino Puerta",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-05": [
     [
      "09:00",
