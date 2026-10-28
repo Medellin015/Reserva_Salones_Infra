@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-28",
- "actualizado": "2026-10-28T06:01:02-05:00",
+ "actualizado": "2026-10-28T15:01:24-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -95,7 +95,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-28": [],
+   "2026-10-28": [
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · José Anderson Castañeda Zamora",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-10-29": [
     [
      "10:00",
@@ -104,9 +113,25 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Ruben Darío Serna Gómez",
       "l": "Salas 1 y 2"
      }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · María José Mosquera Martínez",
+      "l": "Salas 1 y 2"
+     }
     ]
    ],
    "2026-10-30": [
+    [
+     "11:00",
+     "12:30",
+     {
+      "t": "Reserva · María Guidet Gómez",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "16:00",
@@ -189,7 +214,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-19": [],
+   "2026-11-19": [
+    [
+     "08:00",
+     "17:00",
+     {
+      "t": "Reserva · Deiby Valencia Salgado",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-20": [
     [
      "08:15",
@@ -555,7 +589,16 @@ window.DISPONIBILIDAD = {
    "2026-11-09": [],
    "2026-11-10": [],
    "2026-11-11": [],
-   "2026-11-12": [],
+   "2026-11-12": [
+    [
+     "13:30",
+     "16:30",
+     {
+      "t": "Reunión Equipo Apoyo Al Despacho · Monica Yanet Montoya",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-13": [],
    "2026-11-17": [],
    "2026-11-18": [],
