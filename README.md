@@ -17,10 +17,11 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
 | `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
-| `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses), maneja el tema claro/oscuro y el botón Copiar correo. |
+| `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses) y la pestaña de indicadores, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
+| `uso.js` | Historial de lo reservado cada día en cada sala, para la pestaña de indicadores. **Lo genera la tarea programada; no se edita a mano.** |
 | `scripts/actualizar-disponibilidad.js` | Lee los calendarios publicados (ICS) y escribe `disponibilidad.js`. |
-| `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` si cambió. |
+| `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` y `uso.js` si cambiaron. |
 | `.github/workflows/disponibilidad.yml` | Tarea programada de GitHub que corre ese script. |
 | `docs/correo-anuncio.html` | Correo que anuncia la página, con formato. No hace parte de la página: se abre en el navegador, se copia todo y se pega en un mensaje nuevo de Outlook. |
 
@@ -51,7 +52,8 @@ misma las horas ocupadas.
    (también los días que ya pasaron) hasta el fin del segundo mes siguiente, y anota
    cuáles de esos días son festivos en Colombia. Un sábado o un domingo empieza en la
    semana que viene. Solo si algo cambió, hace commit de `disponibilidad.js` en `main`.
-   GitHub Pages publica el cambio en un minuto.
+   GitHub Pages publica el cambio en un minuto. En la misma lectura actualiza el historial
+   de uso (`uso.js`; ver "Indicadores de uso").
 3. La página abre en la semana actual, de lunes a viernes. Cada día tiene una columna
    angosta por sala (S1, S2, …) con sus horas ocupadas, y arriba está la lista de salas
    con el código de cada columna y su aforo. Los días que ya pasaron y lo que va corrido
@@ -110,6 +112,35 @@ Para ver más meses:
    `Get-MailboxFolderStatistics sal9@medellin.gov.co -FolderScope Calendar` la muestra.
 2. Después se sube `MESES` en el script. La página no necesita cambios: la lista de meses
    sale de los datos.
+
+## Indicadores de uso
+
+La pestaña "Indicadores" (al lado de "Calendario"; también se abre con
+https://medellin015.github.io/Reserva_Salones_Infra/#indicadores) resume cuánto se usa
+cada sala en el mes elegido:
+
+- Cifras del mes: horas reservadas sobre las disponibles, ocupación, número de reservas (y
+  qué parte se pidió por la página) y la sala más usada.
+- Una barra por sala con las horas usadas (días que ya pasaron), las programadas (de hoy en
+  adelante) y lo que queda disponible.
+- Horas por día de la semana y qué parte de las salas está ocupada en cada media hora.
+- Una tabla con todas las cifras por sala.
+
+Las horas se cuentan dentro de la franja del calendario (07:00 a 18:00) y la ocupación es
+sobre los días hábiles del mes (lunes a viernes sin festivos) por el número de salas. En el
+mes en curso y los siguientes se incluye lo programado hasta ahora.
+
+Los datos salen de dos partes. Lo de hoy en adelante viene de `disponibilidad.js`. Lo de los
+días que ya pasaron viene de `uso.js`, que la misma tarea programada lleva al día: en cada
+lectura vuelve a escribir los días de la semana en curso hasta hoy (así recoge reservas
+borradas o movidas), conserva los anteriores tal como quedaron y agrega los días anteriores
+que Outlook todavía publica y no estaban. Por eso el historial sobrevive aunque Outlook deje
+de publicar las citas viejas. Empieza el 14/10/2026, cuando se cargó la planilla; se armó con
+las lecturas que la tarea había guardado en el repositorio desde entonces. La página carga
+`uso.js` solo al abrir la pestaña.
+
+Los calendarios publican el asunto y el lugar de cada reserva, pero no la dependencia ni el
+número de personas, así que los indicadores son por sala y no por dependencia.
 
 ## Salas y aforos
 

@@ -8,7 +8,8 @@
    calendar.ics en vez de calendar.html), calcula las horas ocupadas de lunes a viernes
    (sin festivos de Colombia) desde la semana actual hasta el fin del segundo mes
    siguiente, con el asunto y la descripción de cada reserva si el calendario los
-   publica, y escribe disponibilidad.js solo si algo cambió.
+   publica, y escribe disponibilidad.js solo si algo cambió. También lleva en uso.js el
+   historial de lo reservado cada día, para la pestaña de indicadores de la página.
    Estructura del archivo:
      1. Configuración
      2. Fechas en Bogotá y festivos de Colombia
@@ -16,7 +17,8 @@
      4. Lectura del ICS (líneas, componentes, propiedades)
      5. Eventos y repeticiones (RRULE, EXDATE, RECURRENCE-ID)
      6. Ocupación por sala y por día
-     7. Descarga y escritura del archivo
+     7. Historial de uso (uso.js)
+     8. Descarga y escritura del archivo
    ============================================================================ */
 
 const fs = require('fs');
@@ -27,6 +29,10 @@ const path = require('path');
 const RAIZ = path.join(__dirname, '..');
 const ARCHIVO_CONFIG = path.join(RAIZ, 'config.js');
 const ARCHIVO_SALIDA = path.join(RAIZ, 'disponibilidad.js');
+const ARCHIVO_USO = path.join(RAIZ, 'uso.js');
+// Hasta cuántos días atrás se leen las citas del ICS para el historial de uso. Outlook solo
+// publica cierto rango hacia atrás; lo que ya no publica se conserva en uso.js.
+const DIAS_HISTORIAL = 400;
 // Meses que muestra la página: el mes en curso y los dos siguientes. Outlook solo publica las
 // citas de cierto rango de fechas hacia adelante; antes de subir este número hay que ampliar ese
 // rango en el calendario publicado de cada sala (ver README, "Meses que se pueden ver").
@@ -501,7 +507,87 @@ const ocupacionPorDia = (intervalos, dias) => {
   return salida;
 };
 
-/* ===== 7. Descarga y escritura del archivo ===== */
+/* ===== 7. Historial de uso (uso.js) ===== */
+
+// uso.js guarda, por día y por sala, las franjas reservadas en minutos del día: [inicio, fin,
+// origen], con origen "f" (pedida por el formulario: asunto "Motivo · Responsable"), "p"
+// (cargada de la planilla: asunto "Reserva · Nombre") u "o" (otra o sin asunto publicado).
+// Los días de esta semana hasta hoy se vuelven a escribir en cada lectura (recogen borrados y
+// cambios); los anteriores quedan como estaban, y si Outlook todavía publica un día que no
+// está en el historial, se agrega. Así el historial sobrevive a lo que Outlook deja de publicar.
+const minutosDe = (texto) => { const [h, m] = texto.split(':').map(Number); return h * 60 + m; };
+const origenDe = (info) => {
+  if (!info || !info.t) return 'o';
+  return /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o';
+};
+const franjasCompactas = (franjas) => franjas.map(([a, b, info]) => [minutosDe(a), minutosDe(b), origenDe(info)]);
+// Todos los días (también fines de semana) entre dos instantes, en AAAA-MM-DD.
+const diasEntre = (inicio, fin) => {
+  const salida = [];
+  for (let e = inicio; e < fin; e += MS_DIA) salida.push(isoDe(camposBogota(e)));
+  return salida;
+};
+
+const leerUso = () => {
+  try {
+    const m = /window\.USO\s*=\s*(\{[\s\S]*\});\s*$/.exec(fs.readFileSync(ARCHIVO_USO, 'utf8'));
+    return m ? JSON.parse(m[1]) : null;
+  } catch (e) { return null; }
+};
+const usoVacio = () => ({ actualizado: null, desde: null, festivos: [], dias: {} });
+
+// lecturas: { 'Sala 1': textoIcs, ... } de las salas que se pudieron leer en esta ejecución.
+const actualizarUso = (anterior, lecturas, ahora, ventana) => {
+  const hoy = camposBogota(ahora);
+  const finHoy = epochBogota(hoy.a, hoy.m, hoy.d) + MS_DIA;
+  const inicio = finHoy - DIAS_HISTORIAL * MS_DIA;
+  const nuevo = { ...usoVacio(), actualizado: anterior.actualizado || null, dias: JSON.parse(JSON.stringify(anterior.dias || {})) };
+  const refrescar = new Set(diasEntre(ventana.inicio, finHoy));
+  const todos = diasEntre(inicio, finHoy);
+  for (const [sala, texto] of Object.entries(lecturas)) {
+    const porDia = ocupacionPorDia(intervalosOcupados(texto, inicio, finHoy), todos);
+    for (const [dia, franjas] of Object.entries(porDia)) {
+      const entrada = nuevo.dias[dia] || {};
+      if (refrescar.has(dia)) {
+        if (franjas.length) entrada[sala] = franjasCompactas(franjas); else delete entrada[sala];
+      } else if (!(sala in entrada) && franjas.length) {
+        entrada[sala] = franjasCompactas(franjas);
+      }
+      if (Object.keys(entrada).length) nuevo.dias[dia] = entrada; else delete nuevo.dias[dia];
+    }
+  }
+  const fechas = Object.keys(nuevo.dias).sort();
+  nuevo.desde = fechas[0] || null;
+  // Festivos de los años del historial y del siguiente, para contar los días hábiles en la página.
+  const desdeAno = fechas.length ? Number(fechas[0].slice(0, 4)) : hoy.a;
+  for (let a = desdeAno; a <= hoy.a + 1; a += 1) nuevo.festivos.push(...festivosColombia(a));
+  nuevo.festivos.sort();
+  return nuevo;
+};
+
+const escribirUso = (uso) => {
+  const dias = Object.keys(uso.dias).sort().map((d) => `  ${JSON.stringify(d)}: ${JSON.stringify(uso.dias[d])}`).join(',\n');
+  const contenido = `'use strict';
+/* Archivo generado por scripts/actualizar-disponibilidad.js; no editarlo a mano.
+   Historial de lo reservado en cada sala, para la pestaña de indicadores de la página.
+   actualizado: última vez que cambió algo de este archivo. desde: primer día con datos.
+   festivos: los de Colombia en los años del historial, para contar los días hábiles.
+   dias: por día (AAAA-MM-DD) y por sala, las franjas reservadas en minutos del día
+   [inicio, fin, origen]; origen "f" es una reserva pedida por el formulario, "p" una cargada
+   de la planilla y "o" otra. Los días sin reservas no aparecen. */
+window.USO = {
+ "actualizado": ${JSON.stringify(uso.actualizado)},
+ "desde": ${JSON.stringify(uso.desde)},
+ "festivos": ${JSON.stringify(uso.festivos)},
+ "dias": {
+${dias}
+ }
+};
+`;
+  fs.writeFileSync(ARCHIVO_USO, contenido, 'utf8');
+};
+
+/* ===== 8. Descarga y escritura del archivo ===== */
 
 const urlIcs = (urlHtml) => urlHtml.trim().replace(/calendar\.html(\?.*)?$/i, 'calendar.ics');
 const esperar = (ms) => new Promise((resolver) => { setTimeout(resolver, ms); });
@@ -570,6 +656,7 @@ const principal = async () => {
 
   const ocupado = {};
   const errores = {};
+  const lecturas = {};
   let leidas = 0;
   for (const sala of SALAS) {
     // Las salas deshabilitadas no se muestran en la página, y una sala sin enlace todavía no
@@ -580,6 +667,7 @@ const principal = async () => {
       const texto = await descargar(urlIcs(sala.calendario));
       const intervalos = intervalosOcupados(texto, inicioVentana, finVentana);
       ocupado[sala.nombre] = ocupacionPorDia(intervalos, dias);
+      lecturas[sala.nombre] = texto;
       leidas += 1;
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
       const conTitulo = intervalos.filter((x) => x[2] && x[2].t).length;
@@ -616,6 +704,16 @@ const principal = async () => {
     escribir(nuevo);
     console.log('disponibilidad.js actualizado');
   }
+  // Historial de uso: solo con las salas que se leyeron; una sala que falló conserva lo que tenía.
+  const usoAnterior = leerUso() || usoVacio();
+  const usoNuevo = actualizarUso(usoAnterior, lecturas, ahora, ventana);
+  if (sinFecha(usoNuevo) === sinFecha(usoAnterior)) {
+    console.log('Sin cambios en uso.js');
+  } else {
+    usoNuevo.actualizado = isoBogota(ahora);
+    escribirUso(usoNuevo);
+    console.log(`uso.js actualizado: ${Object.keys(usoNuevo.dias).length} días con reservas desde el ${usoNuevo.desde}`);
+  }
   if (process.env.GITHUB_OUTPUT) fs.appendFileSync(process.env.GITHUB_OUTPUT, `todas_fallaron=${todasFallaron}\navisar_fallo=${avisarFallo}\n`);
   if (todasFallaron) console.error('No se pudo leer ningún calendario.');
 };
@@ -624,4 +722,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes, actualizarUso, franjasCompactas, origenDe, usoVacio, escribirUso, leerUso };
