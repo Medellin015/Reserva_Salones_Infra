@@ -176,7 +176,7 @@ const plantillaPrefill = (cfg, nombre, consecuencia) => {
     }
   }
   const faltan = [['sala', ej.sala, campos.sala], ['fecha', ej.fecha, campos.fecha], ['horaInicio', ej.horaInicio, campos.hora]]
-    .filter(([, valor, clave]) => valor && !clave).map(([nombre, valor]) => `${nombre} = "${valor}"`);
+    .filter(([, valor, clave]) => valor && !clave).map(([campo, valor]) => `${campo} = "${valor}"`);
   if (faltan.length) {
     console.warn(`${nombre}: en el enlace no ${faltan.length > 1 ? 'aparecen' : 'aparece'} ${enumerar(faltan)}; revise ${nombre}.ejemplo en config.js. ${consecuencia}`);
     return null;
@@ -619,7 +619,10 @@ const recargarDatos = () => {
   const terminar = () => { recargando = false; script.remove(); };
   script.onload = () => {
     terminar();
-    if (JSON.stringify(window.DISPONIBILIDAD || null) !== antes) renderDisponibilidad();
+    if (JSON.stringify(window.DISPONIBILIDAD || null) !== antes) {
+      renderDisponibilidad();
+      if (indicadoresVisibles()) renderIndicadores();
+    }
   };
   script.onerror = terminar;
   document.head.appendChild(script);
@@ -731,6 +734,226 @@ const iniciarDisponibilidad = () => {
   window.addEventListener('online', recargarDatos);
 };
 
+/* ===== 2b. Indicadores de uso ===== */
+
+// La pestaña "Indicadores" resume cuánto se usa cada sala en un mes. Las horas de los días que ya
+// pasaron salen del historial (uso.js, que se carga al abrir la pestaña); las de hoy en adelante,
+// de los datos del calendario (disponibilidad.js). Horas y ocupación se cuentan dentro de la
+// franja del calendario (07:00 a 18:00) y la ocupación es sobre los días hábiles (lunes a
+// viernes sin festivos) del mes.
+let uso = null; // window.USO, ya cargado
+let estadoUso = 'sin-cargar'; // 'sin-cargar', 'cargando', 'ok' o 'error'
+let mesIndicadores = null;
+const HORAS_HABILES = (FIN_DIA - INICIO_DIA) / 60;
+const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
+const fechaConAno = (iso) => fechaLocal(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+const horasTexto = (h) => `${h.toLocaleString('es-CO', { maximumFractionDigits: 1 })} h`;
+const pctTexto = (p) => `${Math.round(p * 100)} %`;
+const mesDe = (iso) => iso.slice(0, 7);
+const sumarMeses = (mes, n) => { const [a, m] = mes.split('-').map(Number); const f = new Date(a, m - 1 + n, 1); return `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`; };
+
+// Mismo criterio que el script: "Reserva · Nombre" viene de la planilla y "Motivo · Responsable"
+// del formulario; lo demás no se sabe.
+const origenDe = (info) => (!info || !info.t ? 'o' : /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o');
+// Franjas [inicio, fin, origen] (minutos del día) de una sala en un día: del historial si el día
+// ya pasó y de los datos del calendario si es hoy o después.
+const franjasDeDia = (datos, sala, dia, hoyIso) => {
+  if (dia < hoyIso) { const d = uso && uso.dias && uso.dias[dia]; return d && Array.isArray(d[sala]) ? d[sala] : []; }
+  const oc = datos && datos.ocupado && datos.ocupado[sala];
+  return oc && Array.isArray(oc[dia]) ? oc[dia].map(([a, b, info]) => [aMinutos(a), aMinutos(b), origenDe(info)]) : [];
+};
+const horasDe = (franjas) => franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, FIN_DIA) - Math.max(a, INICIO_DIA)), 0) / 60;
+
+// Meses que se pueden elegir: del primero con historial (o el actual) al último con datos del calendario.
+const mesesIndicadores = (datos, hoyIso) => {
+  const primero = uso && uso.desde && uso.desde < hoyIso ? mesDe(uso.desde) : mesDe(hoyIso);
+  const ultimoDia = datos && Array.isArray(datos.dias) && datos.dias.length ? datos.dias[datos.dias.length - 1] : hoyIso;
+  const ultimo = mesDe(ultimoDia > hoyIso ? ultimoDia : hoyIso);
+  const meses = [];
+  for (let m = primero; m <= ultimo && meses.length < 36; m = sumarMeses(m, 1)) meses.push(m);
+  return meses;
+};
+
+const calcularIndicadores = (datos, mes, hoyIso) => {
+  const salas = salasActivas();
+  const [a, m] = mes.split('-').map(Number);
+  const ultimoDia = new Date(a, m, 0).getDate();
+  const festivos = new Set([...((uso && uso.festivos) || []), ...((datos && datos.festivos) || [])]);
+  // Un mes anterior al historial cuenta solo desde el primer día con datos.
+  const desde = uso && uso.desde ? uso.desde : hoyIso;
+  const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0 }));
+  const porDiaSemana = [0, 0, 0, 0, 0];
+  const bloques = (FIN_DIA - INICIO_DIA) / BLOQUE;
+  const porBloque = new Array(bloques).fill(0);
+  let habiles = 0;
+  let sinDatos = 0; // días hábiles del mes anteriores al historial
+  let diasConReserva = 0;
+  for (let d = 1; d <= ultimoDia; d += 1) {
+    const dia = `${mes}-${String(d).padStart(2, '0')}`;
+    const ds = fechaLocal(dia).getDay();
+    const habil = ds >= 1 && ds <= 5 && !festivos.has(dia);
+    if (dia < desde && dia < hoyIso) { if (habil) sinDatos += 1; continue; }
+    if (habil) habiles += 1;
+    let conReserva = false;
+    porSala.forEach((r) => {
+      const fr = franjasDeDia(datos, r.sala.nombre, dia, hoyIso);
+      if (!fr.length) return;
+      conReserva = true;
+      const h = horasDe(fr);
+      if (dia < hoyIso) r.usadas += h; else r.programadas += h;
+      r.reservas += fr.length;
+      r.formulario += fr.filter((x) => x[2] === 'f').length;
+      r.dias += 1;
+      if (!habil) return;
+      porDiaSemana[ds - 1] += h;
+      for (let k = 0; k < bloques; k += 1) {
+        const m0 = INICIO_DIA + k * BLOQUE;
+        if (fr.some(([x, y]) => x < m0 + BLOQUE && y > m0)) porBloque[k] += 1;
+      }
+    });
+    if (conReserva) diasConReserva += 1;
+  }
+  const disponiblesSala = habiles * HORAS_HABILES;
+  porSala.forEach((r) => { r.horas = r.usadas + r.programadas; r.ocupacion = disponiblesSala ? r.horas / disponiblesSala : 0; });
+  const total = porSala.reduce((t, r) => ({ usadas: t.usadas + r.usadas, programadas: t.programadas + r.programadas, reservas: t.reservas + r.reservas, formulario: t.formulario + r.formulario }), { usadas: 0, programadas: 0, reservas: 0, formulario: 0 });
+  total.horas = total.usadas + total.programadas;
+  total.disponibles = disponiblesSala * salas.length;
+  total.ocupacion = total.disponibles ? total.horas / total.disponibles : 0;
+  total.dias = diasConReserva;
+  const masUsada = porSala.reduce((mejor, r) => (r.horas > (mejor ? mejor.horas : 0) ? r : mejor), null);
+  return { mes, salas, porSala, total, masUsada, habiles, sinDatos, porDiaSemana, porBloque: porBloque.map((n) => (habiles && salas.length ? n / (habiles * salas.length) : 0)) };
+};
+
+const renderIndicadores = () => {
+  const cont = $('#indicadores');
+  if (!cont) return;
+  if (estadoUso === 'sin-cargar' || estadoUso === 'cargando') { cont.innerHTML = '<p class="disp-nota">Cargando el historial de uso…</p>'; return; }
+  const datos = window.DISPONIBILIDAD;
+  const hoy = ahoraBogota();
+  const meses = mesesIndicadores(datos, hoy.fecha);
+  if (!meses.includes(mesIndicadores)) mesIndicadores = meses.includes(mesDe(hoy.fecha)) ? mesDe(hoy.fecha) : meses[meses.length - 1];
+  const r = calcularIndicadores(datos, mesIndicadores, hoy.fecha);
+  const opciones = meses.map((m) => `<option value="${m}"${m === mesIndicadores ? ' selected' : ''}>${nombreMes(m)}${m === mesDe(hoy.fecha) ? ' (actual)' : ''}</option>`).join('');
+  const notas = [];
+  if (estadoUso === 'error') notas.push('<p class="disp-nota aviso">No se pudo cargar el historial de uso: se muestra solo lo programado de hoy en adelante. <button class="recargar" type="button" data-reintentar>Reintentar</button></p>');
+  else if (r.sinDatos) notas.push(`<p class="disp-nota">Este mes solo tiene datos desde el ${fechaConAno(uso.desde)}.</p>`);
+  if (mesIndicadores >= mesDe(hoy.fecha)) notas.push('<p class="disp-nota">Incluye lo programado hasta ahora; el mes puede seguir cambiando.</p>');
+
+  const kpi = (etiqueta, valor, detalle) => `<div class="kpi"><span class="kpi-l">${etiqueta}</span><b class="kpi-v">${valor}</b><span class="kpi-d">${detalle}</span></div>`;
+  const kpis = [
+    kpi('Horas reservadas', horasTexto(r.total.horas), `de ${horasTexto(r.total.disponibles)} disponibles`),
+    kpi('Ocupación', pctTexto(r.total.ocupacion), `${r.habiles} ${r.habiles === 1 ? 'día hábil' : 'días hábiles'}, de 07:00 a 18:00`),
+    kpi('Reservas', String(r.total.reservas), r.total.reservas ? `${pctTexto(r.total.formulario / r.total.reservas)} pedidas por la página` : 'ninguna'),
+    kpi('Sala más usada', r.masUsada && r.masUsada.horas ? escapar(r.masUsada.sala.nombre) : '—', r.masUsada && r.masUsada.horas ? `${horasTexto(r.masUsada.horas)} · ${pctTexto(r.masUsada.ocupacion)} de ocupación` : 'sin reservas'),
+  ].join('');
+
+  // Una barra por sala sobre las horas disponibles del mes: lo usado, lo programado y lo libre.
+  const ancho = (h) => (r.habiles ? Math.min(100, (h / (r.habiles * HORAS_HABILES)) * 100) : 0).toFixed(2);
+  const barras = r.porSala.map(({ sala, usadas, programadas, horas, ocupacion }) => {
+    const etiqueta = `${sala.nombre}: ${horasTexto(usadas)} usadas y ${horasTexto(programadas)} programadas, ${pctTexto(ocupacion)} de ocupación`;
+    return `<li style="--c:${sala.color}"><span class="ind-sala"><i aria-hidden="true">${escapar(codigoSala(sala))}</i>${escapar(sala.nombre)}</span><span class="ind-barra" role="img" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"><i class="usada" style="width:${ancho(usadas)}%"></i><i class="prog" style="left:${ancho(usadas)}%;width:${ancho(programadas)}%"></i></span><span class="ind-val">${horasTexto(horas)} <small>· ${pctTexto(ocupacion)}</small></span></li>`;
+  }).join('');
+
+  const maxDia = Math.max(0, ...r.porDiaSemana);
+  const columnas = r.porDiaSemana.map((h, i) => `<span class="ind-col"><span class="ind-col-v">${h ? horasTexto(h) : ''}</span><span class="ind-col-b"><i style="height:${maxDia ? ((h / maxDia) * 100).toFixed(1) : 0}%"></i></span><span class="ind-col-l">${DIAS_SEMANA[i]}</span></span>`).join('');
+  const resumenDias = r.porDiaSemana.map((h, i) => `${DIAS_SEMANA[i]} ${horasTexto(h)}`).join(', ');
+
+  const celdas = r.porBloque.map((p, k) => { const m0 = INICIO_DIA + k * BLOQUE; return `<span class="ind-celda" style="--p:${p.toFixed(3)}" title="${hhmm(m0)} a ${hhmm(m0 + BLOQUE)}: ${pctTexto(p)} de las salas ocupadas"></span>`; }).join('');
+  const marcas = [INICIO_DIA, INICIO_DIA + 180, INICIO_DIA + 360, INICIO_DIA + 540, FIN_DIA].map((m0) => `<span style="left:${pct(m0)}%">${hhmm(m0)}</span>`).join('');
+  const picos = r.porBloque.map((p, k) => ({ p, k })).filter((x) => x.p > 0).sort((x, y) => y.p - x.p).slice(0, 2)
+    .map(({ p, k }) => { const m0 = INICIO_DIA + k * BLOQUE; return `de ${hhmm(m0)} a ${hhmm(m0 + BLOQUE)} (${pctTexto(p)} de las salas ocupadas)`; });
+  const resumenHoras = picos.length ? `Horas más ocupadas: ${enumerar(picos)}.` : 'Sin reservas en días hábiles.';
+
+  const fila = (nombre, x, total) => `<tr${total ? ' class="ind-total"' : ''}><th scope="row">${escapar(nombre)}</th><td>${horasTexto(x.usadas)}</td><td>${horasTexto(x.programadas)}</td><td>${pctTexto(x.ocupacion)}</td><td>${x.reservas}</td><td>${x.reservas ? horasTexto(x.horas / x.reservas) : '—'}</td><td>${x.dias}</td></tr>`;
+  const tabla = `<table class="ind-tabla"><caption class="sr">Detalle por sala en ${mesLargo(mesIndicadores)}</caption><thead><tr><th scope="col">Sala</th><th scope="col">Usadas</th><th scope="col">Programadas</th><th scope="col">Ocupación</th><th scope="col">Reservas</th><th scope="col">Por reserva</th><th scope="col">Días con reserva</th></tr></thead><tbody>${r.porSala.map((x) => fila(x.sala.nombre, x, false)).join('')}${fila('Todas', r.total, true)}</tbody></table>`;
+
+  cont.innerHTML = `<div class="ind">
+    <div class="ind-filtros"><label for="ind-mes">Mes</label><select id="ind-mes">${opciones}</select><span class="ind-nota">Usadas: días que ya pasaron. Programadas: de hoy en adelante.${uso && uso.desde ? ` Historial desde el ${fechaConAno(uso.desde)}.` : ''}</span></div>
+    ${notas.join('')}
+    <div class="ind-kpis">${kpis}</div>
+    <h3>Horas por sala</h3>
+    <ol class="ind-salas">${barras}</ol>
+    <p class="ind-leyenda"><span><i class="usada"></i>Usadas</span><span><i class="prog"></i>Programadas</span><span><i class="libre"></i>Disponibles</span></p>
+    <div class="ind-dos">
+      <div><h3>Por día de la semana</h3><div class="ind-dias" role="img" aria-label="${escapar(`Horas reservadas por día de la semana: ${resumenDias}.`)}">${columnas}</div></div>
+      <div><h3>Horas más ocupadas</h3><div class="ind-horas" role="img" aria-label="${escapar(resumenHoras)}"><span class="ind-celdas">${celdas}</span><span class="ind-marcas">${marcas}</span></div><p class="ind-nota">Qué parte de las salas está ocupada en cada media hora de los días hábiles.</p></div>
+    </div>
+    <h3>Detalle por sala</h3>
+    <div class="ind-tabla-wrap">${tabla}</div>
+  </div>`;
+};
+
+// uso.js se carga solo al abrir la pestaña: la página no lo necesita para el calendario.
+const cargarUso = () => new Promise((resolver) => {
+  const script = document.createElement('script');
+  script.src = `uso.js?v=${Math.floor(Date.now() / 60000)}`;
+  script.onload = () => { script.remove(); resolver(window.USO || null); };
+  script.onerror = () => { script.remove(); resolver(null); };
+  document.head.appendChild(script);
+});
+const abrirIndicadores = (forzar) => {
+  if (estadoUso === 'cargando') return;
+  if (estadoUso === 'ok' && !forzar) { renderIndicadores(); return; }
+  estadoUso = 'cargando';
+  renderIndicadores();
+  cargarUso().then((u) => {
+    uso = u;
+    estadoUso = u ? 'ok' : 'error';
+    renderIndicadores();
+  });
+};
+const indicadoresVisibles = () => { const p = $('#indicadores'); return Boolean(p && !p.hidden && estadoUso !== 'sin-cargar'); };
+const iniciarIndicadores = () => {
+  const cont = $('#indicadores');
+  if (!cont) return;
+  cont.addEventListener('change', (ev) => {
+    if (ev.target.id !== 'ind-mes') return;
+    mesIndicadores = ev.target.value;
+    renderIndicadores();
+    const sel = $('#ind-mes');
+    if (sel) sel.focus();
+  });
+  cont.addEventListener('click', (ev) => { if (ev.target.closest('button[data-reintentar]')) abrirIndicadores(true); });
+};
+
+// --- Pestañas Calendario e Indicadores ---
+// La dirección con #indicadores abre esa pestaña, para poder enlazarla.
+const PESTANAS = [['pest-calendario', 'disponibilidad'], ['pest-indicadores', 'indicadores']];
+const mostrarPestana = (id, enfocar) => {
+  PESTANAS.forEach(([idPestana, idPanel]) => {
+    const pestana = document.getElementById(idPestana);
+    const panel = document.getElementById(idPanel);
+    if (!pestana || !panel) return;
+    const activa = idPestana === id;
+    pestana.setAttribute('aria-selected', String(activa));
+    pestana.tabIndex = activa ? 0 : -1;
+    panel.hidden = !activa;
+    if (activa && enfocar) pestana.focus();
+  });
+  if (id === 'pest-indicadores') abrirIndicadores(false);
+  const hash = id === 'pest-indicadores' ? '#indicadores' : '';
+  if (window.location.hash !== hash && (hash || window.location.hash === '#indicadores')) {
+    window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}${hash}`);
+  }
+};
+const iniciarPestanas = () => {
+  const lista = $('.pestanas');
+  if (!lista) return;
+  lista.addEventListener('click', (ev) => { const t = ev.target.closest('[role="tab"]'); if (t) mostrarPestana(t.id, false); });
+  lista.addEventListener('keydown', (ev) => {
+    const pestanas = [...lista.querySelectorAll('[role="tab"]')];
+    const i = pestanas.indexOf(document.activeElement);
+    if (i < 0) return;
+    const j = ev.key === 'ArrowRight' ? (i + 1) % pestanas.length : ev.key === 'ArrowLeft' ? (i + pestanas.length - 1) % pestanas.length : ev.key === 'Home' ? 0 : ev.key === 'End' ? pestanas.length - 1 : -1;
+    if (j < 0) return;
+    ev.preventDefault();
+    mostrarPestana(pestanas[j].id, true);
+  });
+  const porHash = () => { if (window.location.hash === '#indicadores') mostrarPestana('pest-indicadores', false); };
+  window.addEventListener('hashchange', porHash);
+  porHash();
+};
+
 /* ===== 3. Tema claro/oscuro ===== */
 
 const CLAVE_TEMA = 'salas9-tema';
@@ -824,6 +1047,8 @@ const iniciarContacto = () => {
 
 /* ===== 5. Arranque ===== */
 iniciarDisponibilidad();
+iniciarIndicadores();
+iniciarPestanas();
 iniciarTema();
 iniciarReglas();
 iniciarContacto();

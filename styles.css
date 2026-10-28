@@ -250,6 +250,67 @@ button.mes-dia:focus-visible{outline:2px solid var(--accent);outline-offset:-3px
   .mes-barra{height:6px}
 }
 
+/* ===== 3b. Pestañas e indicadores de uso ===== */
+.sec-cab{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;margin:0 0 12px}
+.sec-cab h2{margin:0}
+.pestanas{display:inline-flex;gap:4px;padding:3px;background:var(--surface);border-radius:999px;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.pestana{font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);background:transparent;border:0;border-radius:999px;padding:6px 14px;cursor:pointer;transition:background .15s,color .15s}
+.pestana:hover{color:var(--ink)}
+.pestana[aria-selected="true"]{background:var(--marca);color:var(--marca-ink)}
+.ind-filtros{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin:0 0 12px;font-size:14px}
+.ind-filtros select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:6px 10px}
+.ind-nota{font-size:13px;color:var(--muted);margin:6px 0 0}
+.ind-filtros .ind-nota{margin:0}
+/* Cifras del mes */
+.ind-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(10rem,1fr));gap:10px;margin:12px 0 6px}
+.kpi{min-width:0;background:var(--surface);border-radius:14px;padding:14px 16px;box-shadow:0 2px 4px rgba(0,0,0,.03),0 22px 44px -30px var(--sombra)}
+.kpi-l{display:block;font-size:12.5px;color:var(--muted)}
+.kpi-v{display:block;font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15;margin:2px 0;overflow-wrap:anywhere}
+.kpi-d{display:block;font-size:12.5px;color:var(--muted)}
+.ind h3{font-size:15px;margin:20px 0 8px}
+/* Una barra por sala: lo usado y lo programado sobre las horas disponibles del mes */
+.ind-salas{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ind-salas li{display:grid;grid-template-columns:minmax(6rem,9rem) minmax(0,1fr) auto;align-items:center;gap:10px;font-size:14px}
+.ind-sala{display:flex;align-items:center;gap:6px;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ind-sala i{font-style:normal;font-weight:700;font-size:11.5px;color:var(--ink);background:var(--accent-soft);background:color-mix(in srgb,var(--c) 22%,var(--surface));border-radius:999px;padding:1px 8px}
+.ind-barra{position:relative;display:block;height:14px;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:4px}
+.ind-barra i{position:absolute;top:0;bottom:0;left:0;background:var(--c);border-radius:0 4px 4px 0}
+.ind-barra i.prog{background:color-mix(in srgb,var(--c) 45%,var(--surface));border-left:2px solid var(--surface)}
+.ind-val{font-variant-numeric:tabular-nums;white-space:nowrap}
+.ind-val small{font-size:12.5px;color:var(--muted)}
+.ind-leyenda{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;font-size:12.5px;color:var(--muted)}
+.ind-leyenda i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-2px;background:var(--accent)}
+.ind-leyenda i.prog{background:color-mix(in srgb,var(--accent) 45%,var(--surface))}
+.ind-leyenda i.libre{background:color-mix(in srgb,var(--accent) 14%,var(--surface))}
+.ind-dos{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(18rem,100%),1fr));gap:4px 32px}
+/* Columnas por día de la semana */
+.ind-dias{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;height:150px;padding:0 4px}
+.ind-col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.ind-col-b{flex:1;display:flex;align-items:flex-end;justify-content:center;width:100%}
+.ind-col-b i{display:block;width:24px;background:var(--accent);border-radius:4px 4px 0 0}
+.ind-col-v,.ind-col-l{font-size:11.5px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.ind-col-v{min-height:1.4em}
+/* Tira de medias horas: más oscura cuanto más ocupada */
+.ind-horas{position:relative;padding:0 0 22px}
+.ind-celdas{display:grid;grid-template-columns:repeat(22,minmax(0,1fr));gap:2px;height:30px}
+.ind-celda{background:var(--accent);opacity:calc(.07 + var(--p) * .93);border-radius:3px}
+.ind-marcas{position:absolute;left:0;right:0;bottom:0;height:16px;font-family:var(--m);font-size:11px;color:var(--muted)}
+.ind-marcas span{position:absolute;transform:translateX(-50%)}
+.ind-marcas span:first-child{transform:none}
+.ind-marcas span:last-child{transform:translateX(-100%)}
+/* Tabla con todas las cifras */
+.ind-tabla-wrap{overflow-x:auto}
+.ind-tabla{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--surface);border-radius:12px;overflow:hidden}
+.ind-tabla th,.ind-tabla td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+.ind-tabla th:first-child,.ind-tabla td:first-child{text-align:left}
+.ind-tabla thead th{font-size:12px;font-weight:600;color:var(--muted)}
+.ind-tabla td{font-variant-numeric:tabular-nums}
+.ind-tabla .ind-total th,.ind-tabla .ind-total td{font-weight:700;border-bottom:0}
+@media (max-width:560px){
+  .ind-salas li{grid-template-columns:5.5rem minmax(0,1fr) auto;gap:8px;font-size:13px}
+  .kpi-v{font-size:24px}
+}
+
 /* ===== 4. Pasos, reglas y contacto ===== */
 .sec{padding:30px 0 8px}
 .sec h2{font-size:1.4rem;letter-spacing:-.02em;margin:0 0 12px}

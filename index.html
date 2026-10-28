@@ -34,8 +34,17 @@
   </section>
 
   <section class="sec disp" aria-labelledby="disp-titulo">
-    <h2 id="disp-titulo">Disponibilidad</h2>
-    <div id="disponibilidad"><noscript><p>Active JavaScript para ver la disponibilidad, el enlace al formulario y el correo de contacto.</p></noscript></div>
+    <div class="sec-cab">
+      <h2 id="disp-titulo">Disponibilidad</h2>
+      <!-- Pestañas: el calendario y los indicadores de uso por sala (app.js las conecta; la
+           dirección con #indicadores abre la segunda) -->
+      <div class="pestanas" role="tablist" aria-label="Vista">
+        <button class="pestana" id="pest-calendario" type="button" role="tab" aria-selected="true" aria-controls="disponibilidad">Calendario</button>
+        <button class="pestana" id="pest-indicadores" type="button" role="tab" aria-selected="false" aria-controls="indicadores" tabindex="-1">Indicadores</button>
+      </div>
+    </div>
+    <div id="disponibilidad" role="tabpanel" aria-labelledby="pest-calendario"><noscript><p>Active JavaScript para ver la disponibilidad, el enlace al formulario y el correo de contacto.</p></noscript></div>
+    <div id="indicadores" role="tabpanel" aria-labelledby="pest-indicadores" hidden></div>
   </section>
 
   <section class="sec" id="como-funciona">
