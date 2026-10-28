@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-28",
- "actualizado": "2026-10-28T15:01:24-05:00",
+ "actualizado": "2026-10-28T15:03:29-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -363,8 +363,25 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-28": [],
+   "2026-10-28": [
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · José Anderson Castañeda Zamora",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-10-29": [
+    [
+     "09:00",
+     "10:00",
+     {
+      "t": "Reserva · Catalina Chica",
+      "l": "Sala 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
@@ -372,9 +389,26 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Ruben Darío Serna Gómez",
       "l": "Salas 1 y 2"
      }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · María José Mosquera Martínez",
+      "l": "Salas 1 y 2"
+     }
     ]
    ],
-   "2026-10-30": [],
+   "2026-10-30": [
+    [
+     "11:00",
+     "12:30",
+     {
+      "t": "Reserva · María Guidet Gómez",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-03": [
     [
      "08:00",
@@ -394,7 +428,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-04": [],
-   "2026-11-05": [],
+   "2026-11-05": [
+    [
+     "09:00",
+     "12:00",
+     {
+      "t": "Reserva · Clara Luz Hoyos Gómez",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-06": [],
    "2026-11-09": [
     [
@@ -416,7 +459,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-11": [],
+   "2026-11-11": [
+    [
+     "09:00",
+     "11:30",
+     {
+      "t": "Reserva · Sandra Usuga",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-12": [
     [
      "14:00",
@@ -438,7 +490,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-18": [],
+   "2026-11-18": [
+    [
+     "09:00",
+     "11:30",
+     {
+      "t": "Reserva · Sandra Usuga",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-19": [],
    "2026-11-20": [],
    "2026-11-23": [
@@ -461,7 +522,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-25": [],
+   "2026-11-25": [
+    [
+     "09:00",
+     "11:30",
+     {
+      "t": "Reserva · Sandra Usuga",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-26": [],
    "2026-11-27": [],
    "2026-11-30": [
@@ -581,14 +651,50 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-10-30": [],
-   "2026-11-03": [],
+   "2026-10-30": [
+    [
+     "08:30",
+     "10:00",
+     {
+      "t": "Reserva · Doris Valencia Jaramillo",
+      "l": "Sala 3"
+     }
+    ]
+   ],
+   "2026-11-03": [
+    [
+     "08:30",
+     "09:30",
+     {
+      "t": "Reserva · Daniela Arbeláez Duque",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-04": [],
    "2026-11-05": [],
    "2026-11-06": [],
    "2026-11-09": [],
-   "2026-11-10": [],
-   "2026-11-11": [],
+   "2026-11-10": [
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · Juan Fernando Vargas Vélez",
+      "l": "Sala 3"
+     }
+    ]
+   ],
+   "2026-11-11": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Reserva · Juan Fernando Vargas Vélez",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-12": [
     [
      "13:30",
@@ -605,8 +711,26 @@ window.DISPONIBILIDAD = {
    "2026-11-19": [],
    "2026-11-20": [],
    "2026-11-23": [],
-   "2026-11-24": [],
-   "2026-11-25": [],
+   "2026-11-24": [
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reserva · Juan Fernando Vargas Vélez",
+      "l": "Sala 3"
+     }
+    ]
+   ],
+   "2026-11-25": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Reserva · Juan Fernando Vargas Vélez",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-26": [],
    "2026-11-27": [],
    "2026-11-30": [],
