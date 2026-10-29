@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T11:14:57-05:00",
+ "actualizado": "2026-10-29T13:49:44-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -168,6 +168,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-04": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Capacitación equipo de Gestión de la Información - Proceso de PQRSD · Ana Cristina Alzate Serna",
+      "l": "Sala 1"
+     }
+    ],
     [
      "10:00",
      "12:00",
