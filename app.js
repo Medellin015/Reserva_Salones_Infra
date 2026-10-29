@@ -241,13 +241,15 @@ const resumenReserva = (info) => {
 };
 
 // Botón "Cancelar esta reserva" del detalle: abre el formulario de cancelación con la sala, la
-// fecha y la hora de inicio ya puestas. Solo para reservas que no han empezado y cuya hora cabe en
+// fecha y la hora de inicio ya puestas. Solo para reservas que no han terminado y cuya hora cabe en
 // la lista del formulario de cancelación (de 07:00 a 17:30, cada media hora, como la franja del
 // calendario; así también se cancelan las reservas de antes del horario de 07:30 a 17:30): una
 // que empieza a una hora intermedia, como 08:15, va con la media hora anterior, que es donde la
 // busca el flujo. Una reserva de dos salas juntas se cancela como "Salas 1 y 2", y el flujo la
-// borra en las dos.
-const pintarCancelar = (sala, dia, inicio, info) => {
+// borra en las dos. Una que ya empezó solo la puede cancelar la Unidad Administrativa (el flujo
+// se la deja solo a ella): la nota lo dice.
+const NOTA_EN_CURSO = 'Esta reserva ya empezó: solo la Unidad Administrativa puede cancelarla, para liberar lo que falta. El formulario se abre con la reserva ya puesta y la respuesta llega por correo.';
+const pintarCancelar = (sala, dia, inicio, fin, info) => {
   const enlace = $('#det-cancelar');
   const nota = $('#det-cancelar-nota');
   if (!enlace || !nota) return;
@@ -255,10 +257,14 @@ const pintarCancelar = (sala, dia, inicio, info) => {
   const minutos = aMinutos(inicio);
   const bloque = Math.floor(minutos / BLOQUE) * BLOQUE;
   const porEmpezar = dia > ahora.fecha || (dia === ahora.fecha && minutos > ahora.minutos);
-  const mostrar = Boolean(cancelar && porEmpezar && bloque >= INICIO_DIA && bloque < FIN_DIA);
+  const enCurso = !porEmpezar && dia === ahora.fecha && aMinutos(fin) > ahora.minutos;
+  const mostrar = Boolean(cancelar && (porEmpezar || enCurso) && bloque >= INICIO_DIA && bloque < FIN_DIA);
   enlace.hidden = !mostrar;
   nota.hidden = !mostrar;
   if (!mostrar) { enlace.removeAttribute('href'); return; }
+  // La nota de index.html es la de una reserva por empezar; se guarda para volver a ella.
+  if (!nota.dataset.porEmpezar) nota.dataset.porEmpezar = nota.textContent;
+  nota.textContent = porEmpezar ? nota.dataset.porEmpezar : NOTA_EN_CURSO;
   const lugar = info && info.l ? info.l.trim() : '';
   const grupo = gruposJuntos().find((g) => g.includes(sala.nombre) && nombreJuntas(g) === lugar);
   enlace.href = cancelar.enlace(grupo ? nombreJuntas(grupo) : sala.nombre, dia, hhmm(bloque));
@@ -293,7 +299,7 @@ const abrirDetalle = (sala, dia, k) => {
   }
   $('#det-lista').innerHTML = filas.map(([k2, v]) => `<dt>${escapar(k2)}</dt><dd>${escapar(v)}</dd>`).join('');
   $('#det-nota').textContent = info ? '' : 'Los detalles de esta reserva no están publicados en el calendario de la sala.';
-  pintarCancelar(sala, dia, a, info);
+  pintarCancelar(sala, dia, a, b, info);
   if (typeof dialogo.showModal === 'function') dialogo.showModal();
   else dialogo.setAttribute('open', '');
   // El foco empieza en Cerrar, no en el enlace de cancelar.

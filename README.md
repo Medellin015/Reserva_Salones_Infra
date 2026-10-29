@@ -258,7 +258,8 @@ calendario no ofrece pedir desde una hora y queda el botón "Pedir una sala".
 
 Al tocar una reserva del calendario, el cuadro de detalle tiene el botón "Cancelar esta
 reserva", que abre el formulario "Cancelar reserva de sala · Piso 9 CAM" con la sala, la fecha
-y la hora de inicio ya puestas. Solo aparece en reservas que no han empezado. Si la reserva
+y la hora de inicio ya puestas. Aparece en las reservas que no han terminado; en una que ya
+empezó, la nota avisa que solo la Unidad Administrativa puede cancelarla. Si la reserva
 empieza a una hora intermedia (08:15), va con la media hora anterior (08:00), que es donde la
 busca el flujo; una reserva de dos salas juntas va como "Salas 1 y 2".
 
@@ -269,17 +270,25 @@ cuenta dueña del formulario de reservas y la conexión de sal9):
 2. Revisa quién cancela: la descripción de cada reserva dice "Solicitó: Nombre (correo)", y
    ese correo debe ser el de quien responde el formulario (Forms registra el nombre). Es la
    cuenta que envió la solicitud, que no siempre es la del responsable: si alguien pidió la
-   sala para otra persona, solo quien la pidió puede cancelarla. Enercis Cuesta y Victor
-   Lezcano pueden cancelar cualquier reserva.
+   sala para otra persona, solo quien la pidió puede cancelarla.
+   La Unidad Administrativa (Enercis Cuesta y Victor Lezcano) puede cancelar siempre: cualquier
+   reserva, de cualquier persona o de la planilla, y también una que ya empezó (libera lo que
+   falta). El flujo la reconoce por la lista `Administradores`, que tiene cada dirección con la
+   que puede llegar su cuenta (la de Forms y la de su perfil), así que no depende de una sola.
 3. Borra la reserva (en los dos calendarios si es de "Salas 1 y 2"), envía el correo "Reserva
    cancelada" con copia a enercis.cuesta@medellin.gov.co y avisa a la tarea de GitHub con
    `actualizar-disponibilidad`, igual que el flujo de reservas: la sala aparece libre en uno a
    tres minutos.
-4. Si no encuentra la reserva, si ya empezó o si no está a nombre de quien cancela, no borra
-   nada y responde por correo diciendo por qué.
+4. Si no encuentra la reserva, si ya terminó, si ya empezó y quien cancela no es de la Unidad
+   Administrativa, o si no está a nombre de quien cancela, no borra nada y responde por correo
+   diciendo por qué. Las que ya terminaron no las cancela nadie: no hay nada que liberar y se
+   conservan para los indicadores.
 
 Las reservas cargadas desde la planilla no tienen el correo de quien las pidió: solo las
 pueden cancelar Enercis o Victor, o se borran a mano en Outlook entrando como sal9.
+
+Cuando Enercis o Victor cancelan una reserva de otra persona, el correo "Reserva cancelada" les
+llega a ellos, no a quien la pidió: hay que avisarle.
 
 Para activar el botón, en `CANCELAR_PREFILL` de `config.js` va el enlace rellenado
 previamente del formulario de cancelación, generado igual que el de pedir (ver "Pedir desde
