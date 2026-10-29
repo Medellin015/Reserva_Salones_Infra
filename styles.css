@@ -140,6 +140,9 @@ h1{font-size:clamp(2.2rem,5.5vw,3.4rem);font-weight:800;line-height:1.02;letter-
   background-size:100% calc(100% / var(--horas)),100% calc(100% / (var(--horas) * 2))}
 .ag-dia.hoy{background-color:var(--accent-soft);background-color:color-mix(in srgb,var(--accent-soft) 40%,var(--surface))}
 .ag-dia.festivo,.ag-dia.sin-dia:not(.pasado){background-image:repeating-linear-gradient(135deg,transparent 0 7px,var(--line) 7px 8px);background-size:auto}
+/* Fuera del horario de reservas (antes de 07:30 y después de 17:30): rayado como un festivo,
+   debajo de las reservas */
+.ag-fuera{position:absolute;left:0;right:0;z-index:0;pointer-events:none;background-image:repeating-linear-gradient(135deg,transparent 0 7px,var(--line) 7px 8px)}
 .ag-carriles{position:absolute;inset:0;z-index:1;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));pointer-events:none}
 .ag-carril{position:relative;min-width:0;container-type:inline-size}
 .ag-carril + .ag-carril{border-left:1px dotted var(--line)}
@@ -292,7 +295,7 @@ button.mes-dia:focus-visible{outline:2px solid var(--accent);outline-offset:-3px
 .ind-col-v{min-height:1.4em}
 /* Tira de medias horas: más oscura cuanto más ocupada */
 .ind-horas{position:relative;padding:0 0 22px}
-.ind-celdas{display:grid;grid-template-columns:repeat(22,minmax(0,1fr));gap:2px;height:30px}
+.ind-celdas{display:grid;grid-template-columns:repeat(var(--bloques,20),minmax(0,1fr));gap:2px;height:30px}
 .ind-celda{background:var(--accent);opacity:calc(.07 + var(--p) * .93);border-radius:3px}
 .ind-marcas{position:absolute;left:0;right:0;bottom:0;height:16px;font-family:var(--m);font-size:11px;color:var(--muted)}
 .ind-marcas span{position:absolute;transform:translateX(-50%)}

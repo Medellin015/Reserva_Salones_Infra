@@ -1,7 +1,7 @@
 'use strict';
 /* ============================================================================
    Salas Piso 9 CAM — página de disponibilidad y acceso al formulario
-   Lee FORM_URL, CONTACTO, SALAS, SALAS_JUNTAS, FORM_PREFILL y CANCELAR_PREFILL de config.js, y
+   Lee FORM_URL, HORARIO, CONTACTO, SALAS, SALAS_JUNTAS, FORM_PREFILL y CANCELAR_PREFILL de config.js, y
    las horas ocupadas de disponibilidad.js; los dos se cargan antes que este archivo.
    Estructura del archivo:
      1. Utilidades
@@ -39,12 +39,26 @@ const copiarConTextarea = (texto) => {
 
 /* ===== 2. Calendario de disponibilidad ===== */
 
-// Franja que muestra el calendario, igual al horario de reservas, en bloques de media hora.
+// Horario de reservas (HORARIO en config.js), en bloques de media hora. El calendario muestra las
+// horas completas que lo contienen (07:00 a 18:00 con el horario de 07:30 a 17:30): lo que queda
+// por fuera se ve rayado y no se ofrece para pedir. Si HORARIO falta (un config.js viejo guardado
+// en el navegador) o no sirve, va de 07:30 a 17:30; si no sirve, además avisa en la consola.
 const aMinutos = (hhmm) => { const [h, m] = hhmm.split(':').map(Number); return h * 60 + m; };
 const hhmm = (minutos) => `${String(Math.floor(minutos / 60)).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`;
-const INICIO_DIA = aMinutos('07:00');
-const FIN_DIA = aMinutos('18:00');
 const BLOQUE = 30;
+const esMediaHora = (h) => typeof h === 'string' && /^([01]\d|2[0-3]):[03]0$/.test(h.trim());
+const horario = (() => {
+  const base = { inicio: '07:30', fin: '17:30' };
+  if (typeof HORARIO === 'undefined') return base;
+  const h = HORARIO && typeof HORARIO === 'object' ? HORARIO : {};
+  if (esMediaHora(h.inicio) && esMediaHora(h.fin) && aMinutos(h.inicio.trim()) < aMinutos(h.fin.trim())) return { inicio: h.inicio.trim(), fin: h.fin.trim() };
+  console.warn('HORARIO de config.js no es válido (use { inicio: \'07:30\', fin: \'17:30\' }, en medias horas); se usa de 07:30 a 17:30.');
+  return base;
+})();
+const INICIO_RESERVAS = aMinutos(horario.inicio);
+const FIN_RESERVAS = aMinutos(horario.fin);
+const INICIO_DIA = Math.floor(INICIO_RESERVAS / 60) * 60;
+const FIN_DIA = Math.ceil(FIN_RESERVAS / 60) * 60;
 const pct = (min) => ((Math.min(Math.max(min, INICIO_DIA), FIN_DIA) - INICIO_DIA) / (FIN_DIA - INICIO_DIA)) * 100;
 // La tarea programada lee los calendarios desde las 06:00; si a esta hora aún no ha
 // podido leerlos hoy, se avisa que la información puede estar vieja.
@@ -228,9 +242,11 @@ const resumenReserva = (info) => {
 
 // Botón "Cancelar esta reserva" del detalle: abre el formulario de cancelación con la sala, la
 // fecha y la hora de inicio ya puestas. Solo para reservas que no han empezado y cuya hora cabe en
-// la lista del formulario (de 07:00 a 17:30, cada media hora): una que empieza a una hora
-// intermedia, como 08:15, va con la media hora anterior, que es donde la busca el flujo. Una
-// reserva de dos salas juntas se cancela como "Salas 1 y 2", y el flujo la borra en las dos.
+// la lista del formulario de cancelación (de 07:00 a 17:30, cada media hora, como la franja del
+// calendario; así también se cancelan las reservas de antes del horario de 07:30 a 17:30): una
+// que empieza a una hora intermedia, como 08:15, va con la media hora anterior, que es donde la
+// busca el flujo. Una reserva de dos salas juntas se cancela como "Salas 1 y 2", y el flujo la
+// borra en las dos.
 const pintarCancelar = (sala, dia, inicio, info) => {
   const enlace = $('#det-cancelar');
   const nota = $('#det-cancelar-nota');
@@ -441,6 +457,8 @@ const renderDisponibilidad = () => {
     return `<button type="button" class="ag-oc${hasta - desde < 60 ? ' corta' : ''}" style="top:${pct(desde)}%;height:${pct(hasta) - pct(desde)}%" data-sala="${escapar(s.nombre)}" data-dia="${dia}" data-k="${f.k}" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"><span class="ag-oc-h" aria-hidden="true">${hhmm(desde)}</span><span class="ag-oc-f" aria-hidden="true">–${hhmm(hasta)}</span>${titulo}</button>`;
   };
   const pedirEn = (m) => `top:${pct(m)}%;height:${pct(m + BLOQUE) - pct(m)}%`;
+  // Lo que queda fuera del horario de reservas va rayado, debajo de las reservas.
+  const fueraHorario = `${INICIO_RESERVAS > INICIO_DIA ? `<div class="ag-fuera" style="top:0;height:${pct(INICIO_RESERVAS)}%"></div>` : ''}${FIN_RESERVAS < FIN_DIA ? `<div class="ag-fuera" style="top:${pct(FIN_RESERVAS)}%;bottom:0"></div>` : ''}`;
 
   const columna = (dia) => {
     const esHoy = dia === hoy.fecha;
@@ -453,9 +471,10 @@ const renderDisponibilidad = () => {
     if (!habiles.includes(dia)) return `<div class="${clases} sin-dia" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">Sin datos.</span>${pasado ? capaPasado(100) : ''}</div>`;
 
     const porSala = new Map(leidas.map((s) => [s, franjasDe(s, dia)]));
-    // Medias horas que todavía se pueden pedir: las de hoy desde ahora y las de los días que vienen.
+    // Medias horas que todavía se pueden pedir, dentro del horario: las de hoy desde ahora y las de
+    // los días que vienen.
     const pedibles = [];
-    if (prefill && !pasado) for (let m = INICIO_DIA; m < FIN_DIA; m += BLOQUE) if (!esHoy || m >= hoy.minutos) pedibles.push(m);
+    if (prefill && !pasado) for (let m = INICIO_RESERVAS; m + BLOQUE <= FIN_RESERVAS; m += BLOQUE) if (!esHoy || m >= hoy.minutos) pedibles.push(m);
 
     const carriles = salas.map((s) => {
       const franjas = porSala.get(s);
@@ -485,12 +504,13 @@ const renderDisponibilidad = () => {
 
     const capas = pasado ? capaPasado(100)
       : esHoy ? `${capaPasado(pct(hoy.minutos))}${hoy.minutos >= INICIO_DIA && hoy.minutos <= FIN_DIA ? `<div class="ag-ahora" style="top:${pct(hoy.minutos)}%"></div>` : ''}` : '';
-    return `<div class="${clases}" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">${escapar(partes.join(' '))}</span><div class="ag-carriles">${carriles}</div>${pedirDia}${capas}</div>`;
+    return `<div class="${clases}" data-dia="${dia}" role="group" aria-label="${escapar(nombre)}"><span class="sr">${escapar(partes.join(' '))}</span>${fueraHorario}<div class="ag-carriles">${carriles}</div>${pedirDia}${capas}</div>`;
   };
 
-  // Un día del mes: una barra por sala de 07:00 a 18:00 con lo reservado en su color. Si tiene
-  // datos es un botón que abre su semana, y su nombre accesible dice las horas ocupadas de cada
-  // sala. oculta: no tiene nada que leer (un día pasado sin datos o de otro mes).
+  // Un día del mes: una barra por sala de la franja del calendario (07:00 a 18:00) con lo
+  // reservado en su color. Si tiene datos es un botón que abre su semana, y su nombre accesible
+  // dice las horas ocupadas de cada sala. oculta: no tiene nada que leer (un día pasado sin datos
+  // o de otro mes).
   const celdaMes = (dia) => {
     const esHoy = dia === hoy.fecha;
     const pasado = dia < hoy.fecha;
@@ -564,9 +584,10 @@ const renderDisponibilidad = () => {
   const comoPedir = !prefill ? 'Lo que está en blanco está libre.'
     : prefill.conSala ? 'Toque una hora libre en la columna de una sala para pedirla con la sala, la fecha y la hora ya puestas.'
       : 'Toque una hora libre para pedirla con la fecha y la hora ya puestas; la sala se elige al final del formulario, según cuántas personas asisten.';
+  const rayado = INICIO_RESERVAS > INICIO_DIA || FIN_RESERVAS < FIN_DIA ? ` Se reserva de ${horario.inicio} a ${horario.fin}; lo rayado queda fuera de ese horario.` : '';
   const leyenda = vista === 'mes'
-    ? `Cada día tiene una barra por sala, de 07:00 a 18:00; lo de color ya está reservado. Toque un día para ver su semana con el detalle de las reservas${prefill ? ' y pedir una hora libre' : ''}.`
-    : `Cada día tiene una columna por sala. Las franjas de color son horas ya reservadas; tóquelas para ver el detalle. ${comoPedir}<span class="movil"> Deslice el calendario de lado para ver toda la semana.</span>`;
+    ? `Cada día tiene una barra por sala, de ${hhmm(INICIO_DIA)} a ${hhmm(FIN_DIA)}; lo de color ya está reservado. Toque un día para ver su semana con el detalle de las reservas${prefill ? ' y pedir una hora libre' : ''}.`
+    : `Cada día tiene una columna por sala. Las franjas de color son horas ya reservadas; tóquelas para ver el detalle.${rayado} ${comoPedir}<span class="movil"> Deslice el calendario de lado para ver toda la semana.</span>`;
 
   const calendario = vista === 'mes' ? rejillaMes()
     : `<div class="ag" style="--n:${Math.max(salas.length, 1)};--horas:${(FIN_DIA - INICIO_DIA) / 60}" role="group" aria-label="${escapar(`Disponibilidad de la semana ${rangoLargo(semanaElegida)}`)}">
@@ -738,13 +759,13 @@ const iniciarDisponibilidad = () => {
 
 // La pestaña "Indicadores" resume cuánto se usa cada sala en un mes. Las horas de los días que ya
 // pasaron salen del historial (uso.js, que se carga al abrir la pestaña); las de hoy en adelante,
-// de los datos del calendario (disponibilidad.js). Horas y ocupación se cuentan dentro de la
-// franja del calendario (07:00 a 18:00) y la ocupación es sobre los días hábiles (lunes a
-// viernes sin festivos) del mes.
+// de los datos del calendario (disponibilidad.js). Horas y ocupación se cuentan dentro del
+// horario de reservas (07:30 a 17:30), también en los meses de antes de ese horario, y la
+// ocupación es sobre los días hábiles (lunes a viernes sin festivos) del mes.
 let uso = null; // window.USO, ya cargado
 let estadoUso = 'sin-cargar'; // 'sin-cargar', 'cargando', 'ok' o 'error'
 let mesIndicadores = null;
-const HORAS_HABILES = (FIN_DIA - INICIO_DIA) / 60;
+const HORAS_HABILES = (FIN_RESERVAS - INICIO_RESERVAS) / 60;
 const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
 const fechaConAno = (iso) => fechaLocal(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 const horasTexto = (h) => `${h.toLocaleString('es-CO', { maximumFractionDigits: 1 })} h`;
@@ -762,7 +783,7 @@ const franjasDeDia = (datos, sala, dia, hoyIso) => {
   const oc = datos && datos.ocupado && datos.ocupado[sala];
   return oc && Array.isArray(oc[dia]) ? oc[dia].map(([a, b, info]) => [aMinutos(a), aMinutos(b), origenDe(info)]) : [];
 };
-const horasDe = (franjas) => franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, FIN_DIA) - Math.max(a, INICIO_DIA)), 0) / 60;
+const horasDe = (franjas) => franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, FIN_RESERVAS) - Math.max(a, INICIO_RESERVAS)), 0) / 60;
 
 // Meses que se pueden elegir: del primero con historial (o el actual) al último con datos del calendario.
 const mesesIndicadores = (datos, hoyIso) => {
@@ -783,7 +804,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
   const desde = uso && uso.desde ? uso.desde : hoyIso;
   const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0 }));
   const porDiaSemana = [0, 0, 0, 0, 0];
-  const bloques = (FIN_DIA - INICIO_DIA) / BLOQUE;
+  const bloques = (FIN_RESERVAS - INICIO_RESERVAS) / BLOQUE;
   const porBloque = new Array(bloques).fill(0);
   let habiles = 0;
   let sinDatos = 0; // días hábiles del mes anteriores al historial
@@ -807,7 +828,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
       if (!habil) return;
       porDiaSemana[ds - 1] += h;
       for (let k = 0; k < bloques; k += 1) {
-        const m0 = INICIO_DIA + k * BLOQUE;
+        const m0 = INICIO_RESERVAS + k * BLOQUE;
         if (fr.some(([x, y]) => x < m0 + BLOQUE && y > m0)) porBloque[k] += 1;
       }
     });
@@ -842,7 +863,7 @@ const renderIndicadores = () => {
   const kpi = (etiqueta, valor, detalle) => `<div class="kpi"><span class="kpi-l">${etiqueta}</span><b class="kpi-v">${valor}</b><span class="kpi-d">${detalle}</span></div>`;
   const kpis = [
     kpi('Horas reservadas', horasTexto(r.total.horas), `de ${horasTexto(r.total.disponibles)} disponibles`),
-    kpi('Ocupación', pctTexto(r.total.ocupacion), `${r.habiles} ${r.habiles === 1 ? 'día hábil' : 'días hábiles'}, de 07:00 a 18:00`),
+    kpi('Ocupación', pctTexto(r.total.ocupacion), `${r.habiles} ${r.habiles === 1 ? 'día hábil' : 'días hábiles'}, de ${horario.inicio} a ${horario.fin}`),
     kpi('Reservas', String(r.total.reservas), r.total.reservas ? `${pctTexto(r.total.formulario / r.total.reservas)} pedidas por la página` : 'ninguna'),
     kpi('Sala más usada', r.masUsada && r.masUsada.horas ? escapar(r.masUsada.sala.nombre) : '—', r.masUsada && r.masUsada.horas ? `${horasTexto(r.masUsada.horas)} · ${pctTexto(r.masUsada.ocupacion)} de ocupación` : 'sin reservas'),
   ].join('');
@@ -858,10 +879,13 @@ const renderIndicadores = () => {
   const columnas = r.porDiaSemana.map((h, i) => `<span class="ind-col"><span class="ind-col-v">${h ? horasTexto(h) : ''}</span><span class="ind-col-b"><i style="height:${maxDia ? ((h / maxDia) * 100).toFixed(1) : 0}%"></i></span><span class="ind-col-l">${DIAS_SEMANA[i]}</span></span>`).join('');
   const resumenDias = r.porDiaSemana.map((h, i) => `${DIAS_SEMANA[i]} ${horasTexto(h)}`).join(', ');
 
-  const celdas = r.porBloque.map((p, k) => { const m0 = INICIO_DIA + k * BLOQUE; return `<span class="ind-celda" style="--p:${p.toFixed(3)}" title="${hhmm(m0)} a ${hhmm(m0 + BLOQUE)}: ${pctTexto(p)} de las salas ocupadas"></span>`; }).join('');
-  const marcas = [INICIO_DIA, INICIO_DIA + 180, INICIO_DIA + 360, INICIO_DIA + 540, FIN_DIA].map((m0) => `<span style="left:${pct(m0)}%">${hhmm(m0)}</span>`).join('');
+  // Tira de medias horas del horario de reservas, con cinco marcas repartidas (en medias horas).
+  const celdas = r.porBloque.map((p, k) => { const m0 = INICIO_RESERVAS + k * BLOQUE; return `<span class="ind-celda" style="--p:${p.toFixed(3)}" title="${hhmm(m0)} a ${hhmm(m0 + BLOQUE)}: ${pctTexto(p)} de las salas ocupadas"></span>`; }).join('');
+  const largo = FIN_RESERVAS - INICIO_RESERVAS;
+  const marcas = [...new Set([0, 1, 2, 3, 4].map((i) => INICIO_RESERVAS + Math.round((largo * i) / 4 / BLOQUE) * BLOQUE))]
+    .map((m0) => `<span style="left:${((m0 - INICIO_RESERVAS) / largo) * 100}%">${hhmm(m0)}</span>`).join('');
   const picos = r.porBloque.map((p, k) => ({ p, k })).filter((x) => x.p > 0).sort((x, y) => y.p - x.p).slice(0, 2)
-    .map(({ p, k }) => { const m0 = INICIO_DIA + k * BLOQUE; return `de ${hhmm(m0)} a ${hhmm(m0 + BLOQUE)} (${pctTexto(p)} de las salas ocupadas)`; });
+    .map(({ p, k }) => { const m0 = INICIO_RESERVAS + k * BLOQUE; return `de ${hhmm(m0)} a ${hhmm(m0 + BLOQUE)} (${pctTexto(p)} de las salas ocupadas)`; });
   const resumenHoras = picos.length ? `Horas más ocupadas: ${enumerar(picos)}.` : 'Sin reservas en días hábiles.';
 
   const fila = (nombre, x, total) => `<tr${total ? ' class="ind-total"' : ''}><th scope="row">${escapar(nombre)}</th><td>${horasTexto(x.usadas)}</td><td>${horasTexto(x.programadas)}</td><td>${pctTexto(x.ocupacion)}</td><td>${x.reservas}</td><td>${x.reservas ? horasTexto(x.horas / x.reservas) : '—'}</td><td>${x.dias}</td></tr>`;
@@ -876,7 +900,7 @@ const renderIndicadores = () => {
     <p class="ind-leyenda"><span><i class="usada"></i>Usadas</span><span><i class="prog"></i>Programadas</span><span><i class="libre"></i>Disponibles</span></p>
     <div class="ind-dos">
       <div><h3>Por día de la semana</h3><div class="ind-dias" role="img" aria-label="${escapar(`Horas reservadas por día de la semana: ${resumenDias}.`)}">${columnas}</div></div>
-      <div><h3>Horas más ocupadas</h3><div class="ind-horas" role="img" aria-label="${escapar(resumenHoras)}"><span class="ind-celdas">${celdas}</span><span class="ind-marcas">${marcas}</span></div><p class="ind-nota">Qué parte de las salas está ocupada en cada media hora de los días hábiles.</p></div>
+      <div><h3>Horas más ocupadas</h3><div class="ind-horas" role="img" aria-label="${escapar(resumenHoras)}"><span class="ind-celdas" style="--bloques:${r.porBloque.length}">${celdas}</span><span class="ind-marcas">${marcas}</span></div><p class="ind-nota">Qué parte de las salas está ocupada en cada media hora de los días hábiles.</p></div>
     </div>
     <h3>Detalle por sala</h3>
     <div class="ind-tabla-wrap">${tabla}</div>
@@ -1014,10 +1038,12 @@ const reglasDeSalas = () => {
   }
   return reglas;
 };
-// Van después de la primera regla (el horario).
+// La primera regla es el horario (sale de HORARIO); las de las salas van después.
 const iniciarReglas = () => {
   const lista = $('.reglas');
   if (!lista) return;
+  const reglaHorario = $('#regla-horario');
+  if (reglaHorario) reglaHorario.textContent = `Horario de ${horario.inicio} a ${horario.fin}, en bloques de media hora.`;
   let ancla = lista.querySelector('li');
   for (const texto of reglasDeSalas()) {
     const li = document.createElement('li');
