@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T14:36:11-05:00",
+ "actualizado": "2026-10-29T14:48:37-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -832,6 +832,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-25": [
+    [
+     "08:30",
+     "10:00",
+     {
+      "t": "Espacio de atención y consulta  · María José Mosquera Martínez",
+      "l": "Sala 3"
+     }
+    ],
     [
      "10:00",
      "12:00",
