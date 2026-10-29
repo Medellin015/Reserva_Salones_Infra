@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T14:48:37-05:00",
+ "actualizado": "2026-10-29T15:24:16-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -470,6 +470,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-04": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "COMITE SEGUIMIENTO GESTION PREDIAL CONTRATO 4600103271 DE 2024 · Kenny Juliet Sánchez Jaller",
+      "l": "Sala 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
