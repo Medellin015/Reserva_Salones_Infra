@@ -2,7 +2,7 @@
 /* ============================================================================
    Salas Piso 9 CAM — configuración (lo único que hay que editar)
    Estructura del archivo:
-     1. Formulario de reservas
+     1. Formulario de reservas y horario
      2. Contacto
      3. Salas: aforo, estado y enlaces de sus calendarios publicados
      4. Pedir desde el calendario (enlace de Forms con respuestas rellenadas)
@@ -10,10 +10,17 @@
    Las constantes quedan en el ámbito global de la página; app.js las lee tal cual.
    ============================================================================ */
 
-/* ===== 1. Formulario ===== */
+/* ===== 1. Formulario y horario ===== */
 
 // Formulario de Microsoft Forms que dispara el flujo de reservas.
 const FORM_URL = 'https://forms.cloud.microsoft/r/xmAtdmU7sg';
+
+// Horario en que se pueden reservar las salas, en bloques de media hora (HH:MM, en :00 o :30).
+// Tiene que coincidir con las listas del formulario (Hora de inicio de 07:30 a 17:00 y Hora de
+// fin de 08:00 a 17:30) y con la revisión de horario del flujo de reservas (ver README,
+// "Horario de reservas"). El calendario muestra las horas completas que lo contienen (07:00 a
+// 18:00): lo que queda por fuera se ve rayado y no se ofrece para pedir.
+const HORARIO = { inicio: '07:30', fin: '17:30' };
 
 /* ===== 2. Contacto ===== */
 
@@ -62,9 +69,10 @@ const SALAS_JUNTAS = [['Sala 1', 'Sala 2']];
 // formulario:
 //   1. En Forms, menú ⋯ (arriba a la derecha) → "Obtener dirección URL rellenada
 //      previamente" y active las respuestas rellenadas.
-//   2. Rellene solo Fecha = 15/10/2026 y Hora de inicio = "07:00"; copie el enlace que
+//   2. Rellene solo Fecha = 15/10/2026 y Hora de inicio = "07:30"; copie el enlace que
 //      genera Forms y péguelo en `enlace`.
-//   3. Si usó otros valores de ejemplo, escríbalos en `ejemplo` tal cual.
+//   3. Escriba en `ejemplo` los valores que usó, tal cual. El enlace actual se generó con
+//      07:00, cuando esa hora todavía estaba en el formulario; sigue sirviendo igual.
 // La página busca en ese enlace los valores de ejemplo para saber qué parámetro es cada
 // pregunta. Si alguno no aparece, no genera enlaces (avisa en la consola del navegador)
 // para no pedir una fecha u hora equivocadas. Mientras `enlace` esté vacío, el calendario

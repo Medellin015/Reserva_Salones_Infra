@@ -16,7 +16,7 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `index.html` | Contenido de la página: encabezado, calendario, pasos, reglas y contacto. |
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
-| `config.js` | **Lo único que hay que editar**: enlace del formulario, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
+| `config.js` | **Lo único que hay que editar**: enlace del formulario, horario de reservas, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
 | `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses) y la pestaña de indicadores, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `uso.js` | Historial de lo reservado cada día en cada sala, para la pestaña de indicadores. **Lo genera la tarea programada; no se edita a mano.** |
@@ -58,7 +58,9 @@ misma las horas ocupadas.
    angosta por sala (S1, S2, …) con sus horas ocupadas, y arriba está la lista de salas
    con el código de cada columna y su aforo. Los días que ya pasaron y lo que va corrido
    de hoy se ven desvaídos, la línea roja marca la hora actual y los festivos van
-   rayados. En el celular el calendario se desliza de lado y abre en el día de hoy.
+   rayados. El calendario va de 07:00 a 18:00; la media hora del principio y la del final
+   van rayadas porque están fuera del horario de reservas (ver "Horario de reservas").
+   En el celular el calendario se desliza de lado y abre en el día de hoy.
    El botón del mes ("Octubre 2026") abre la lista de los meses con datos: el mes en
    curso y los dos siguientes (ver "Meses que se pueden ver"). Al elegir uno se ve el mes
    completo, una fila por semana, con una barra por sala en cada día que va de 07:00 a
@@ -126,9 +128,10 @@ cada sala en el mes elegido:
 - Horas por día de la semana y qué parte de las salas está ocupada en cada media hora.
 - Una tabla con todas las cifras por sala.
 
-Las horas se cuentan dentro de la franja del calendario (07:00 a 18:00) y la ocupación es
-sobre los días hábiles del mes (lunes a viernes sin festivos) por el número de salas. En el
-mes en curso y los siguientes se incluye lo programado hasta ahora.
+Las horas se cuentan dentro del horario de reservas (07:30 a 17:30, 10 horas por sala y por
+día), también en los meses de antes de ese horario, y la ocupación es sobre los días hábiles
+del mes (lunes a viernes sin festivos) por el número de salas. En el mes en curso y los
+siguientes se incluye lo programado hasta ahora.
 
 Los datos salen de dos partes. Lo de hoy en adelante viene de `disponibilidad.js`. Lo de los
 días que ya pasaron viene de `uso.js`, que la misma tarea programada lleva al día: en cada
@@ -141,6 +144,29 @@ las lecturas que la tarea había guardado en el repositorio desde entonces. La p
 
 Los calendarios publican el asunto y el lugar de cada reserva, pero no la dependencia ni el
 número de personas, así que los indicadores son por sala y no por dependencia.
+
+## Horario de reservas
+
+Las salas se reservan de 07:30 a 17:30, en bloques de media hora (desde el 29/10/2026; antes
+era de 07:00 a 18:00). El horario se controla en tres partes, que tienen que coincidir:
+
+1. **El formulario de reservas**, que es el control principal: la lista de "Hora de inicio" va
+   de 07:30 a 17:00 y la de "Hora de fin", de 08:00 a 17:30. Esas preguntas no se borran ni se
+   vuelven a crear (el flujo y la página usan sus identificadores): solo se cambian sus opciones.
+2. **El flujo de reservas**, que revisa el horario apenas llega la solicitud: si empieza antes de
+   las 07:30, termina después de las 17:30 o la hora de fin no es posterior a la de inicio,
+   responde por correo y no registra nada. Así el horario se cumple aunque alguien cambie las
+   listas del formulario o arme una respuesta a mano.
+3. **La página**: `HORARIO` en `config.js`. No ofrece horas fuera del horario, raya en el
+   calendario lo que queda por fuera, la regla de la página dice el horario y los indicadores
+   cuentan las horas dentro de él.
+
+El formulario de cancelación conserva la lista de 07:00 a 17:30, para poder cancelar las
+reservas que se hicieron con el horario anterior. Las de la planilla que terminan a las 18:00
+(los martes de la Sala 1 y la Sala 2) se ven completas en el calendario, sobre lo rayado.
+
+Para cambiar el horario hay que cambiar las tres partes: las listas del formulario, la revisión
+del flujo y `HORARIO`.
 
 ## Salas y aforos
 
@@ -204,15 +230,18 @@ Al tocar una hora libre del calendario, el formulario se abre con la fecha y la 
 inicio ya escogidas. La sala no se rellena: el formulario la pregunta al final, según
 cuántas personas asisten. Por eso cada media hora se pide para el día entero: se ofrece
 si al menos una sala está libre a esa hora (al pasar el ratón se ve "Pedir 10:30") y el
-lector de pantalla dice cuáles salas lo están. Las horas que ya pasaron no se ofrecen.
+lector de pantalla dice cuáles salas lo están. Las horas que ya pasaron y las que quedan
+fuera del horario de reservas no se ofrecen.
 Para activarlo, con la cuenta dueña del formulario:
 
 1. En Forms, menú ⋯ (arriba a la derecha) → "Obtener dirección URL rellenada
    previamente" y active las respuestas rellenadas.
-2. Rellene solo Fecha = 15/10/2026 y Hora de inicio = "07:00"; copie el enlace que
+2. Rellene solo Fecha = 15/10/2026 y Hora de inicio = "07:30"; copie el enlace que
    genera Forms.
-3. Péguelo en `FORM_PREFILL.enlace` de `config.js`. Si usó otros valores de
-   ejemplo, escríbalos tal cual en `FORM_PREFILL.ejemplo`.
+3. Péguelo en `FORM_PREFILL.enlace` de `config.js`. Escriba los valores de ejemplo que
+   usó, tal cual, en `FORM_PREFILL.ejemplo`. El enlace actual se generó con 07:00, cuando
+   esa hora todavía estaba en el formulario, y sigue sirviendo: la página solo lo usa de
+   molde y nunca pide las 07:00.
 
 Está activo desde el 07/10/2026, y desde el 08/10/2026 ya no rellena la sala. Forms
 escribe cada respuesta entre comillas en el enlace (`%222026-10-15%22`); la página las
@@ -238,8 +267,10 @@ cuenta dueña del formulario de reservas y la conexión de sal9):
 
 1. Busca en el calendario de la sala la reserva que empieza en esa media hora.
 2. Revisa quién cancela: la descripción de cada reserva dice "Solicitó: Nombre (correo)", y
-   ese correo debe ser el de quien responde el formulario (Forms registra el nombre). Enercis
-   Cuesta y Victor Lezcano pueden cancelar cualquier reserva.
+   ese correo debe ser el de quien responde el formulario (Forms registra el nombre). Es la
+   cuenta que envió la solicitud, que no siempre es la del responsable: si alguien pidió la
+   sala para otra persona, solo quien la pidió puede cancelarla. Enercis Cuesta y Victor
+   Lezcano pueden cancelar cualquier reserva.
 3. Borra la reserva (en los dos calendarios si es de "Salas 1 y 2"), envía el correo "Reserva
    cancelada" con copia a enercis.cuesta@medellin.gov.co y avisa a la tarea de GitHub con
    `actualizar-disponibilidad`, igual que el flujo de reservas: la sala aparece libre en uno a
