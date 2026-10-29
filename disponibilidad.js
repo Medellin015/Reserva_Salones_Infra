@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T14:25:07-05:00",
+ "actualizado": "2026-10-29T14:36:11-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -808,7 +808,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-13": [],
    "2026-11-17": [],
-   "2026-11-18": [],
+   "2026-11-18": [
+    [
+     "08:30",
+     "10:00",
+     {
+      "t": "infraestructura@enfoquejuridico.com · María José Mosquera Martínez",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-19": [],
    "2026-11-20": [],
    "2026-11-23": [],
