@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T15:24:16-05:00",
+ "actualizado": "2026-10-29T16:05:17-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -207,6 +207,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-10": [
+    [
+     "08:00",
+     "11:00",
+     {
+      "t": "Curso Politicas Públicas · Mónica Sánchez García",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "18:00",
@@ -509,6 +517,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-10": [
+    [
+     "08:00",
+     "11:00",
+     {
+      "t": "Curso Politicas Públicas · Mónica Sánchez García",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "18:00",
