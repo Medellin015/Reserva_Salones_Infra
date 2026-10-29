@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-29",
- "actualizado": "2026-10-29T11:12:53-05:00",
+ "actualizado": "2026-10-29T11:14:57-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -177,7 +177,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-05": [],
+   "2026-11-05": [
+    [
+     "14:30",
+     "16:00",
+     {
+      "t": "Reunión Comisión de Regulación de Comunicaciones con personal proveedores servicios ISP. · Jaime Oswaldo Sierra Piedrahita",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-06": [],
    "2026-11-09": [
     [
@@ -417,6 +426,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-10-30": [
+    [
+     "08:00",
+     "11:00",
+     {
+      "t": "Reunión: Cable San Antonio · Sebastián Arboleda Alzate",
+      "l": "Sala 2"
+     }
+    ],
     [
      "11:00",
      "12:30",
