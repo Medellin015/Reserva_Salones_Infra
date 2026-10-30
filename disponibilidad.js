@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-10-30",
- "actualizado": "2026-10-30T06:00:17-05:00",
+ "actualizado": "2026-10-30T18:45:52-05:00",
  "avisado": null,
  "dias": [
   "2026-10-26",
@@ -187,6 +187,14 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-05": [
     [
+     "10:00",
+     "12:00",
+     {
+      "t": "Sesión Análisis de Causas-Devoluciones · Monica Alejandra Espinosa Guzman",
+      "l": "Sala 1"
+     }
+    ],
+    [
      "14:30",
      "16:00",
      {
@@ -224,7 +232,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-11": [],
+   "2026-11-11": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Análisis de Causas- Expediente Secretaría de Hacienda · Monica Alejandra Espinosa Guzmán",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-12": [
     [
      "14:00",
