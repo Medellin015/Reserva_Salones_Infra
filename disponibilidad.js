@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T14:14:37-05:00",
+ "actualizado": "2026-11-03T14:16:40-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -845,6 +845,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Hiller Correa - Laura Aguila",
       "l": "Sala 5"
      }
+    ],
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "Equipo Ambiental · Maria Fernanda Uribe Perez",
+      "l": "Sala 5"
+     }
     ]
    ],
    "2026-11-06": [
@@ -860,7 +868,16 @@ window.DISPONIBILIDAD = {
    "2026-11-09": [],
    "2026-11-10": [],
    "2026-11-11": [],
-   "2026-11-12": [],
+   "2026-11-12": [
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "Reunion Equipo Ambiental · Maria Fernanda Uribe Perez",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-13": [],
    "2026-11-17": [
     [
