@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T14:16:40-05:00",
+ "actualizado": "2026-11-03T14:17:33-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -264,7 +264,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-25": [],
-   "2026-11-26": [],
+   "2026-11-26": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "CTI de Cambio Climático · Marisol Suárez Roldán",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-27": [],
    "2026-11-30": [
     [
