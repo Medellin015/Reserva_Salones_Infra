@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T14:28:19-05:00",
+ "actualizado": "2026-11-03T14:49:18-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -884,7 +884,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-09": [],
    "2026-11-10": [],
-   "2026-11-11": [],
+   "2026-11-11": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comité Técnico 90098 · Manuela Ciro Palacio",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-12": [
     [
      "14:00",
