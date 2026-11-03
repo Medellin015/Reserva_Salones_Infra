@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T14:10:54-05:00",
+ "actualizado": "2026-11-03T14:14:37-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -162,6 +162,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Mesa tecnica · Monica Espinosa",
+      "l": "Sala 1"
      }
     ]
    ],
@@ -406,6 +414,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Clara Luz Hoyos Gómez",
+      "l": "Sala 2"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Revision bahias contrato 4600103253 de 2024 · Laura Lopez",
       "l": "Sala 2"
      }
     ]
