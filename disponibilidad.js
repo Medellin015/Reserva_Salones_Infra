@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T12:06:52-05:00",
+ "actualizado": "2026-11-03T14:10:54-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -145,7 +145,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-06": [],
+   "2026-11-06": [
+    [
+     "09:00",
+     "12:00",
+     {
+      "t": "Encuentro Equipos adscritos a la Subsecretaría Técnica de la SISF · Sandra Milena Aristizábal",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-09": [
     [
      "08:15",
@@ -401,7 +410,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-06": [],
+   "2026-11-06": [
+    [
+     "09:00",
+     "12:00",
+     {
+      "t": "Encuentro Equipos adscritos a la Subsecretaría Técnica de la SISF · Sandra Milena Aristizábal",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-09": [
     [
      "08:15",
