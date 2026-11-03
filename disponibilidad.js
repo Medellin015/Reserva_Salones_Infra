@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T15:07:01-05:00",
+ "actualizado": "2026-11-03T15:14:48-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -252,7 +252,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-23": [],
+   "2026-11-23": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "n/a · Jorge Iván Jaramillo López",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-24": [
     [
      "14:00",
@@ -747,7 +756,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-13": [],
-   "2026-11-17": [],
+   "2026-11-17": [
+    [
+     "08:30",
+     "10:30",
+     {
+      "t": "comité de liquidaciones · Daniela Arbeláez Duque",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-18": [
     [
      "08:30",
