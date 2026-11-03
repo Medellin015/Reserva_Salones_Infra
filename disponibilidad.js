@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-03",
- "actualizado": "2026-11-03T15:19:55-05:00",
+ "actualizado": "2026-11-03T15:54:42-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -202,6 +202,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-12": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Mesa distrital de vivienda  ·  juan Felipe Sanguíneo puerta",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "16:00",
@@ -510,6 +518,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-12": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Mesa distrital de vivienda  ·  juan Felipe Sanguíneo puerta",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "16:00",
