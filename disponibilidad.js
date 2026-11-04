@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T09:37:14-05:00",
+ "actualizado": "2026-11-04T09:43:48-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -749,7 +749,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-06": [],
-   "2026-11-09": [],
+   "2026-11-09": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-10": [
     [
      "14:00",
