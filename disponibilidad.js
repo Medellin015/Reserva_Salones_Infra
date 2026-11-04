@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T10:58:45-05:00",
+ "actualizado": "2026-11-04T11:52:09-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -1004,6 +1004,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-12": [
+    [
+     "09:00",
+     "11:00",
+     {
+      "t": "capacitación  ·  manuela Ossorio naranjo",
+      "l": "Sala 5"
+     }
+    ],
     [
      "14:00",
      "17:00",
