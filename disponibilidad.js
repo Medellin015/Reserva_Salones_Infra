@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T09:56:22-05:00",
+ "actualizado": "2026-11-04T10:58:45-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -116,6 +116,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Mesa Distrital de Vivienda de Medellín · Juan Felipe Sanguino Puerta",
       "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "14:00",
+     "17:30",
+     {
+      "t": "Reunión de comité de obra  · Monica Montoya",
+      "l": "Sala 1"
      }
     ]
    ],
