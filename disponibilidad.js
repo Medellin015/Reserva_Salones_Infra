@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T11:52:09-05:00",
+ "actualizado": "2026-11-04T13:47:18-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -764,7 +764,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-06": [],
+   "2026-11-06": [
+    [
+     "10:00",
+     "11:30",
+     {
+      "t": "comite navidad · Sandra Usuga Echeverri",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-09": [
     [
      "08:00",
@@ -978,6 +987,14 @@ window.DISPONIBILIDAD = {
      "10:00",
      {
       "t": "Reserva · Juan Fernando Rivera Garcés",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "10:00",
+     "11:30",
+     {
+      "t": "comite Navidad · Sandra Usuga Echeverri",
       "l": "Sala 5"
      }
     ]
