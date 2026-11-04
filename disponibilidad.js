@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T15:44:40-05:00",
+ "actualizado": "2026-11-04T16:03:59-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -324,7 +324,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-27": [],
+   "2026-11-27": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comité del Centro · Ruben Dario Serna Gomez",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-30": [
     [
      "08:15",
@@ -511,6 +520,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Salas 1 y 2"
      }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Capacitación equipo de comunicaciones · JONATHAN VALLEJO RIVERA",
+      "l": "Sala 2"
+     }
     ]
    ],
    "2026-11-10": [
@@ -629,7 +646,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [],
-   "2026-11-27": [],
+   "2026-11-27": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comité del Centro · Ruben Dario Serna Gomez",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-30": [
     [
      "08:15",
@@ -1096,7 +1122,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-20": [],
    "2026-11-23": [],
-   "2026-11-24": [],
+   "2026-11-24": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "comité de seguimiento · Laura Lopez",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-25": [],
    "2026-11-26": [],
    "2026-11-27": [],
