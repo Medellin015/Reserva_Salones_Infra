@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T06:00:42-05:00",
+ "actualizado": "2026-11-04T09:37:14-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -271,6 +271,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-24": [
+    [
+     "08:30",
+     "10:00",
+     {
+      "t": "Conocer en Medellín  los avances y las experiencias territoriales del programa Generaciones Saludables para Colombia  · Tatiana Valencia Cano",
+      "l": "Sala 1"
+     }
+    ],
     [
      "14:00",
      "18:00",
@@ -990,6 +998,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Hiller Correa - Laura Aguila",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "Seguimiemto GMSA · Maria Fernanda Uribe Perez",
       "l": "Sala 5"
      }
     ]
