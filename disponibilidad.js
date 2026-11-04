@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-04",
- "actualizado": "2026-11-04T09:43:48-05:00",
+ "actualizado": "2026-11-04T09:47:34-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -192,6 +192,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-11": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 1"
+     }
+    ],
     [
      "10:00",
      "12:00",
@@ -989,7 +997,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-13": [],
+   "2026-11-13": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-17": [
     [
      "08:00",
