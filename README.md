@@ -76,7 +76,10 @@ misma las horas ocupadas.
    vieja siga apareciendo.
    Una reserva recién aprobada puede tardar hasta 30 minutos en aparecer. Eso no
    causa reservas dobles: el flujo revisa cruces al recibir la solicitud y otra vez
-   al aprobarla.
+   al aprobarla. Si la aprobación llega cuando el horario pedido ya terminó, el flujo
+   no registra la reserva y se lo explica por correo a quien la pidió; si llega con la
+   reunión en curso, sí la registra (desde el 05/11/2026; antes también creaba las que
+   ya habían pasado).
 
 Si un calendario falla de forma pasajera, se intenta hasta tres veces y, si aun así
 no responde, se conservan los datos de la lectura anterior del día y la página lo avisa.
@@ -275,10 +278,13 @@ cuenta dueña del formulario de reservas y la conexión de sal9):
    reserva, de cualquier persona o de la planilla, y también una que ya empezó (libera lo que
    falta). El flujo la reconoce por la lista `Administradores`, que tiene cada dirección con la
    que puede llegar su cuenta (la de Forms y la de su perfil), así que no depende de una sola.
-3. Borra la reserva (en los dos calendarios si es de "Salas 1 y 2"), envía el correo "Reserva
-   cancelada" con copia a enercis.cuesta@medellin.gov.co y avisa a la tarea de GitHub con
-   `actualizar-disponibilidad`, igual que el flujo de reservas: la sala aparece libre en uno a
-   tres minutos.
+3. Borra la reserva, envía el correo "Reserva cancelada" con copia a
+   enercis.cuesta@medellin.gov.co y avisa a la tarea de GitHub con `actualizar-disponibilidad`,
+   igual que el flujo de reservas: la sala aparece libre en uno a tres minutos. Si es de
+   "Salas 1 y 2", también borra su gemela en la otra sala: la que empieza a la misma hora con
+   el mismo asunto y el mismo lugar (desde el 05/11/2026). Así no toca la reserva de otra
+   persona que empiece a esa hora en la otra sala, por ejemplo si alguien cancela como
+   "Salas 1 y 2" una reserva que era solo de la Sala 1.
 4. Si no encuentra la reserva, si ya terminó, si ya empezó y quien cancela no es de la Unidad
    Administrativa, o si no está a nombre de quien cancela, no borra nada y responde por correo
    diciendo por qué. Las que ya terminaron no las cancela nadie: no hay nada que liberar y se
@@ -310,3 +316,17 @@ pasos sirven para publicar el de una sala nueva o para volver a publicar alguno.
 
 Si una sala activa no tiene enlace, su columna del calendario va rayada y la lista de salas
 dice "calendario pendiente".
+
+## Actualizar los flujos de Power Automate
+
+Los flujos "Reservas Salas Piso 9 CAM" y "Cancelar reserva sala Piso 9 CAM" se pueden
+cambiar en el diseñador o importando un paquete: Mis flujos → Importar → "Importar paquete
+(heredado)", con "Actualizar" sobre el flujo (nunca sobre "Reservas Salas Piso 9 CAM
+(respaldo)") y, en cada conexión, la que ya existe con el mismo nombre. Las dos conexiones de
+Office 365 Outlook no se pueden cruzar: la de sal9 lee los calendarios de las salas y envía
+los correos a quienes piden; la otra solo envía la alerta de error del flujo de reservas.
+
+La importación deja el flujo apagado y hay que encenderlo enseguida: el desencadenador de
+Forms no recupera las respuestas que llegan mientras está apagado, así que quien envió el
+formulario en ese rato tiene que volver a enviarlo. Las ejecuciones que ya estaban en curso,
+como las que esperan aprobación, siguen con la versión anterior hasta terminar.
