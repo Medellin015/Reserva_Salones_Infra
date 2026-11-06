@@ -763,11 +763,12 @@ const iniciarDisponibilidad = () => {
 
 /* ===== 2b. Indicadores de uso ===== */
 
-// La pestaña "Indicadores" resume cuánto se usa cada sala en un mes. Las horas de los días que ya
-// pasaron salen del historial (uso.js, que se carga al abrir la pestaña); las de hoy en adelante,
-// de los datos del calendario (disponibilidad.js). Horas y ocupación se cuentan dentro del
-// horario de reservas (07:30 a 17:30), también en los meses de antes de ese horario, y la
-// ocupación es sobre los días hábiles (lunes a viernes sin festivos) del mes.
+// La pestaña "Indicadores" resume cuánto se usa cada sala en un mes y, al final, mes a mes. Las
+// horas de los días que ya pasaron salen del historial (uso.js, que se carga al abrir la
+// pestaña); las de hoy en adelante, de los datos del calendario (disponibilidad.js). Horas y
+// ocupación se cuentan dentro del horario de reservas (07:30 a 17:30), también en los meses de
+// antes de ese horario, y la ocupación es sobre los días hábiles (lunes a viernes sin festivos)
+// del mes.
 let uso = null; // window.USO, ya cargado
 let estadoUso = 'sin-cargar'; // 'sin-cargar', 'cargando', 'ok' o 'error'
 let mesIndicadores = null;
@@ -859,7 +860,8 @@ const renderIndicadores = () => {
   const hoy = ahoraBogota();
   const meses = mesesIndicadores(datos, hoy.fecha);
   if (!meses.includes(mesIndicadores)) mesIndicadores = meses.includes(mesDe(hoy.fecha)) ? mesDe(hoy.fecha) : meses[meses.length - 1];
-  const r = calcularIndicadores(datos, mesIndicadores, hoy.fecha);
+  const porMes = meses.map((m) => calcularIndicadores(datos, m, hoy.fecha));
+  const r = porMes[meses.indexOf(mesIndicadores)];
   const opciones = meses.map((m) => `<option value="${m}"${m === mesIndicadores ? ' selected' : ''}>${nombreMes(m)}${m === mesDe(hoy.fecha) ? ' (actual)' : ''}</option>`).join('');
   const notas = [];
   if (estadoUso === 'error') notas.push('<p class="disp-nota aviso">No se pudo cargar el historial de uso: se muestra solo lo programado de hoy en adelante. <button class="recargar" type="button" data-reintentar>Reintentar</button></p>');
@@ -897,6 +899,24 @@ const renderIndicadores = () => {
   const fila = (nombre, x, total) => `<tr${total ? ' class="ind-total"' : ''}><th scope="row">${escapar(nombre)}</th><td>${horasTexto(x.usadas)}</td><td>${horasTexto(x.programadas)}</td><td>${pctTexto(x.ocupacion)}</td><td>${x.reservas}</td><td>${x.reservas ? horasTexto(x.horas / x.reservas) : '—'}</td><td>${x.dias}</td></tr>`;
   const tabla = `<table class="ind-tabla"><caption class="sr">Detalle por sala en ${mesLargo(mesIndicadores)}</caption><thead><tr><th scope="col">Sala</th><th scope="col">Usadas</th><th scope="col">Programadas</th><th scope="col">Ocupación</th><th scope="col">Reservas</th><th scope="col">Por reserva</th><th scope="col">Días con reserva</th></tr></thead><tbody>${r.porSala.map((x) => fila(x.sala.nombre, x, false)).join('')}${fila('Todas', r.total, true)}</tbody></table>`;
 
+  // Uso por mes: una fila por cada mes que se puede elegir y una columna por sala, con las horas,
+  // la ocupación y una barra de lo usado y lo programado sobre las horas disponibles de ese mes.
+  const mesActual = mesDe(hoy.fecha);
+  const celdaMes = (x, disponibles, color, detalle) => {
+    const w = (h) => (disponibles ? Math.min(100, (h / disponibles) * 100) : 0).toFixed(2);
+    return `<td title="${escapar(detalle)}"><span class="ind-mv">${horasTexto(x.horas)}</span> <span class="ind-mp">${pctTexto(x.ocupacion)}</span><span class="ind-mini" style="--c:${color}" aria-hidden="true"><i class="usada" style="width:${w(x.usadas)}%"></i><i class="prog" style="left:${w(x.usadas)}%;width:${w(x.programadas)}%"></i></span></td>`;
+  };
+  const detalleMes = (nombre, mes, x) => `${nombre} en ${mesLargo(mes)}: ${horasTexto(x.usadas)} usadas y ${horasTexto(x.programadas)} programadas, ${pctTexto(x.ocupacion)} de ocupación, ${x.reservas} ${x.reservas === 1 ? 'reserva' : 'reservas'}`;
+  const filasMeses = porMes.map((x) => {
+    const estado = x.mes > mesActual ? 'programado' : x.mes === mesActual ? 'en curso'
+      : x.sinDatos && uso && uso.desde ? `desde el ${fechaLocal(uso.desde).toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })}` : '';
+    const celdas = x.porSala.map((s) => celdaMes(s, x.habiles * HORAS_HABILES, s.sala.color, detalleMes(s.sala.nombre, x.mes, s))).join('')
+      + celdaMes(x.total, x.total.disponibles, 'var(--accent)', detalleMes('Todas las salas', x.mes, x.total));
+    const elegido = x.mes === mesIndicadores;
+    return `<tr${elegido ? ' class="ind-sel"' : ''}><th scope="row">${nombreMes(x.mes)}${elegido ? '<span class="sr"> (mes elegido)</span>' : ''}${estado ? `<small>${estado}</small>` : ''}</th>${celdas}</tr>`;
+  }).join('');
+  const tablaMeses = `<table class="ind-tabla ind-meses"><caption class="sr">Uso de cada sala por mes</caption><thead><tr><th scope="col">Mes</th>${r.salas.map((s) => `<th scope="col">${escapar(s.nombre)}</th>`).join('')}<th scope="col">Todas</th></tr></thead><tbody>${filasMeses}</tbody></table>`;
+
   cont.innerHTML = `<div class="ind">
     <div class="ind-filtros"><label for="ind-mes">Mes</label><select id="ind-mes">${opciones}</select><span class="ind-nota">Usadas: días que ya pasaron. Programadas: de hoy en adelante.${uso && uso.desde ? ` Historial desde el ${fechaConAno(uso.desde)}.` : ''}</span></div>
     ${notas.join('')}
@@ -910,6 +930,9 @@ const renderIndicadores = () => {
     </div>
     <h3>Detalle por sala</h3>
     <div class="ind-tabla-wrap">${tabla}</div>
+    <h3>Uso por mes</h3>
+    <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; el mes elegido arriba va resaltado.</p>
+    <div class="ind-tabla-wrap">${tablaMeses}</div>
   </div>`;
 };
 

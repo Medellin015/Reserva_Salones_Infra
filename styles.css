@@ -302,13 +302,27 @@ button.mes-dia:focus-visible{outline:2px solid var(--accent);outline-offset:-3px
 .ind-marcas span:first-child{transform:none}
 .ind-marcas span:last-child{transform:translateX(-100%)}
 /* Tabla con todas las cifras */
-.ind-tabla-wrap{overflow-x:auto}
+.ind-tabla-wrap{overflow-x:auto;border-radius:12px}
 .ind-tabla{width:100%;border-collapse:collapse;font-size:13.5px;background:var(--surface);border-radius:12px;overflow:hidden}
 .ind-tabla th,.ind-tabla td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
 .ind-tabla th:first-child,.ind-tabla td:first-child{text-align:left}
 .ind-tabla thead th{font-size:12px;font-weight:600;color:var(--muted)}
 .ind-tabla td{font-variant-numeric:tabular-nums}
 .ind-tabla .ind-total th,.ind-tabla .ind-total td{font-weight:700;border-bottom:0}
+/* Uso por mes: horas y ocupación de cada sala en cada mes, con una barra corta en cada celda */
+.ind-nota-meses{margin:0 0 10px}
+/* En el celular la tabla se desliza de lado; la columna del mes queda fija. "clip" recorta las
+   esquinas como "hidden", pero sin crear un contenedor de desplazamiento que anule el sticky. */
+.ind-meses{overflow:clip}
+.ind-meses th:first-child{position:sticky;left:0;z-index:1;background:var(--surface)}
+.ind-meses td{min-width:5.5rem}
+.ind-meses th[scope="row"] small{display:block;font-size:11.5px;font-weight:400;color:var(--muted)}
+.ind-mp{font-size:12px;color:var(--muted)}
+.ind-mini{position:relative;display:block;height:6px;margin-top:5px;overflow:hidden;background:var(--accent-soft);background:color-mix(in srgb,var(--c) 14%,var(--surface));border-radius:3px}
+.ind-mini i{position:absolute;top:0;bottom:0;left:0;background:var(--c)}
+.ind-mini i.prog{background:color-mix(in srgb,var(--c) 45%,var(--surface))}
+.ind-meses tr.ind-sel th,.ind-meses tr.ind-sel td{background:var(--accent-soft)}
+.ind-meses tbody tr:last-child th,.ind-meses tbody tr:last-child td{border-bottom:0}
 @media (max-width:560px){
   .ind-salas li{grid-template-columns:5.5rem minmax(0,1fr) auto;gap:8px;font-size:13px}
   .kpi-v{font-size:24px}
