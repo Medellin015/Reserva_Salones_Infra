@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T16:08:46-05:00",
+ "actualizado": "2026-11-06T16:12:33-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -262,6 +262,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-17": [
+    [
+     "10:00",
+     "11:30",
+     {
+      "t": "Seguimiento y gestión Equipo de Transformación de Procesos · Monica Alejandra Espinosa",
+      "l": "Sala 1"
+     }
+    ],
     [
      "14:00",
      "18:00",
