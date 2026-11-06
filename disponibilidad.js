@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T09:30:10-05:00",
+ "actualizado": "2026-11-06T09:41:01-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -629,7 +629,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-19": [],
+   "2026-11-19": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Quinta reunión del Grupo Líder del SIGAM · Sebastian Medina Quezada",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-20": [],
    "2026-11-23": [
     [
