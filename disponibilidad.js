@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T09:14:34-05:00",
+ "actualizado": "2026-11-06T09:16:37-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -215,9 +215,25 @@ window.DISPONIBILIDAD = {
       "t": "Análisis de Causas- Expediente Secretaría de Hacienda · Monica Alejandra Espinosa Guzmán",
       "l": "Sala 1"
      }
+    ],
+    [
+     "14:00",
+     "15:30",
+     {
+      "t": "Reunión socialización contrato 4600105180 de 2025 · Evelin Ortega Vargas",
+      "l": "Sala 1"
+     }
     ]
    ],
    "2026-11-12": [
+    [
+     "09:00",
+     "10:00",
+     {
+      "t": "Capacitación Informes Contraloría · Flor Marina Oquendo Castaño",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
@@ -567,6 +583,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-12": [
+    [
+     "09:00",
+     "10:00",
+     {
+      "t": "Capacitación Informes Contraloría · Flor Marina Oquendo Castaño",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
