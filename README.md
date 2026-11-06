@@ -122,7 +122,7 @@ Para ver más meses:
 
 La pestaña "Indicadores" (al lado de "Calendario"; también se abre con
 https://medellin015.github.io/Reserva_Salones_Infra/#indicadores) resume cuánto se usa
-cada sala en el mes elegido:
+cada sala en el mes elegido y mes a mes:
 
 - Cifras del mes: horas reservadas sobre las disponibles, ocupación, número de reservas (y
   qué parte se pidió por la página) y la sala más usada.
@@ -130,6 +130,11 @@ cada sala en el mes elegido:
   adelante) y lo que queda disponible.
 - Horas por día de la semana y qué parte de las salas está ocupada en cada media hora.
 - Una tabla con todas las cifras por sala.
+- "Uso por mes": las horas y la ocupación de cada sala en cada mes que se puede elegir (desde
+  el primero del historial hasta dos meses después del actual), con una barra corta de lo usado
+  y lo programado. Al pasar el ratón por una cifra se ven las horas usadas, las programadas y el
+  número de reservas. El mes elegido arriba va resaltado y, en el celular, la columna del mes
+  queda fija al deslizar la tabla.
 
 Las horas se cuentan dentro del horario de reservas (07:30 a 17:30, 10 horas por sala y por
 día), también en los meses de antes de ese horario, y la ocupación es sobre los días hábiles
