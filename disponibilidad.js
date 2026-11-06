@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T09:41:01-05:00",
+ "actualizado": "2026-11-06T09:45:53-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -160,6 +160,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Encuentro Equipos adscritos a la Subsecretaría Técnica de la SISF · Sandra Milena Aristizábal",
       "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "15:00",
+     "17:00",
+     {
+      "t": "Comite de obra contrato No 4600105044 · James Estiven Echeverri Gaviria",
+      "l": "Sala 1"
      }
     ]
    ],
@@ -1094,6 +1102,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-11": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "SIRO - Encuesta Inspectores · Alexander Vargas",
+      "l": "Sala 5"
+     }
+    ],
     [
      "10:00",
      "12:00",
