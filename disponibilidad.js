@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T10:19:34-05:00",
+ "actualizado": "2026-11-06T10:37:52-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -259,7 +259,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-13": [],
+   "2026-11-13": [
+    [
+     "08:30",
+     "10:30",
+     {
+      "t": "Seguimiento Proyectos Tranvía y San Luis · Luisa Fernanda Bedoya Rojas",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-17": [
     [
      "14:00",
@@ -1197,7 +1206,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-25": [],
-   "2026-11-26": [],
+   "2026-11-26": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Seguimiento Gerencial Proyecto Metro 80  · Luisa Fernanda Bedoya Rojas",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-27": [],
    "2026-11-30": [],
    "2026-12-01": [],
