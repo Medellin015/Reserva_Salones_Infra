@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-06",
- "actualizado": "2026-11-06T09:16:37-05:00",
+ "actualizado": "2026-11-06T09:30:10-05:00",
  "avisado": null,
  "dias": [
   "2026-11-03",
@@ -822,16 +822,7 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-06": [
-    [
-     "10:00",
-     "11:30",
-     {
-      "t": "comite navidad · Sandra Usuga Echeverri",
-      "l": "Sala 3"
-     }
-    ]
-   ],
+   "2026-11-06": [],
    "2026-11-09": [
     [
      "08:00",
