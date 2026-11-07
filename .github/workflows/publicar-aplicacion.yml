@@ -1,0 +1,160 @@
+# =============================================================================
+#  PUBLICACIÓN DE LA PÁGINA EN FIREBASE HOSTING
+#  Proyecto salas-piso9-med · sitio salas-piso9-med
+#  https://salas-piso9-med.web.app
+#
+#  Se dispara de tres formas:
+#    · al llegar a main un cambio en los archivos de la página, en la
+#      configuración de Firebase o en los scripts de publicación;
+#    · desde «Actualizar disponibilidad», cada vez que sube datos nuevos
+#      (disponibilidad.js o uso.js). Ese flujo los sube con el GITHUB_TOKEN, y
+#      GitHub no dispara otros flujos con esos push: por eso lo llama él;
+#    · a mano, desde la pestaña Actions ("Run workflow").
+#  Publica siempre la cabeza de main del momento.
+#
+#  Publica la carpeta publicar/, que arma scripts/preparar-publicacion.js con
+#  una LISTA PERMITIDA: index.html, styles.css, config.js, app.js, los datos
+#  (disponibilidad.js y uso.js) y el logo. Nada más puede colarse: ni la
+#  documentación, ni la configuración, ni scripts/, ni lo que Actions deja en
+#  la carpeta de trabajo (como el archivo de credenciales gha-creds-*.json de
+#  la autenticación de Google).
+#  Después de publicar:
+#    · compara por la API los archivos publicados con la lista permitida y
+#      borra las versiones viejas que tengan archivos ajenos;
+#    · verifica en la dirección que lo permitido abra y lo demás no se vea
+#      (scripts/verificar-publicacion.js).
+#
+#  Si el sitio se apagó, correr este flujo lo vuelve a encender.
+#
+#  Credencial: la cuenta de servicio publicar-hosting (secreto
+#  FIREBASE_SERVICE_ACCOUNT), con el rol «Administrador de Firebase Hosting».
+# =============================================================================
+name: Publicar aplicación
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'styles.css'
+      - 'config.js'
+      - 'app.js'
+      - 'disponibilidad.js'
+      - 'uso.js'
+      - 'logo-alcaldia-medellin.png'
+      - 'firebase.json'
+      - '.firebaserc'
+      - '.github/workflows/publicar-aplicacion.yml'
+      - 'scripts/preparar-publicacion.js'
+      - 'scripts/verificar-publicacion.js'
+      - 'scripts/hosting.js'
+      - 'scripts/token-google.js'
+      - 'scripts/comunes.js'
+      - 'scripts/test/publicacion.test.js'
+  workflow_call:
+    secrets:
+      FIREBASE_SERVICE_ACCOUNT:
+        required: true
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publicar:
+    name: Publicar en Firebase Hosting
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Una publicación a la vez. Va en el trabajo y no en el flujo para que valga
+    # también cuando lo llama «Actualizar disponibilidad».
+    concurrency:
+      group: publicar-aplicacion
+      cancel-in-progress: false
+
+    steps:
+      # La cabeza de main, también cuando lo llama otro flujo que acaba de subir
+      # datos. Sin dejar la credencial de GitHub en .git/config: la carpeta .git
+      # no se publica (solo sale publicar/), pero así tampoco habría qué filtrar.
+      - name: Descargar el repositorio
+        uses: actions/checkout@v5
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Preparar Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+
+      # Si la página empieza a cargar un archivo que no está en la lista
+      # permitida, las pruebas fallan aquí y sigue en línea la versión anterior.
+      - name: Probar la lista permitida y los scripts
+        run: node --test scripts/test/*.test.js
+
+      # Antes de autenticarse: la carpeta publicar/ queda con la lista permitida.
+      - name: Armar la carpeta publicar/
+        run: node scripts/preparar-publicacion.js
+
+      - name: Autenticarse en Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+
+      - name: Publicar
+        id: publicar
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          set -o pipefail
+          registro="$RUNNER_TEMP/publicacion.log"
+          npx --yes firebase-tools@15.32.1 deploy --only hosting \
+            --project salas-piso9-med --non-interactive \
+            --message "main $(git rev-parse --short HEAD)" 2>&1 | tee "$registro"
+          esperados=$(find publicar -type f | wc -l)
+          subidos=$(grep -oE 'found [0-9]+ files' "$registro" | grep -oE '[0-9]+' | tail -1)
+          if [ "$subidos" != "$esperados" ]; then
+            echo "::error title=Archivos de más::firebase-tools subió $subidos archivos y publicar/ tiene $esperados. Apago el sitio."
+            node scripts/hosting.js apagar salas-piso9-med "Publicación con archivos de más" || true
+            exit 1
+          fi
+          url=$(grep -oE 'https://[a-z0-9-]+\.web\.app' "$registro" | tail -1)
+          if [ -z "$url" ]; then
+            echo "::error title=Sin dirección::No encontré la dirección publicada en el registro de firebase-tools."
+            exit 1
+          fi
+          sitio=$(echo "$url" | sed -E 's#^https://([a-z0-9-]+)\.web\.app$#\1#')
+          if [ "$sitio" != "salas-piso9-med" ]; then
+            echo "::error title=Otro sitio::firebase-tools publicó en $sitio y debía ser salas-piso9-med. Revise «site» en firebase.json."
+            exit 1
+          fi
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "sitio=$sitio" >> "$GITHUB_OUTPUT"
+
+      # Firebase guarda cada publicación para poder volver atrás; basta con
+      # las últimas 20. Si la cuenta no tiene permiso, solo queda la advertencia.
+      - name: Guardar solo las últimas 20 versiones
+        continue-on-error: true
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node scripts/hosting.js versiones "${{ steps.publicar.outputs.sitio }}" 20
+
+      # Lo publicado debe coincidir con la lista permitida; además borra las
+      # versiones viejas que tengan algún archivo fuera de ella.
+      - name: Revisar los archivos publicados
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node scripts/hosting.js revisar "${{ steps.publicar.outputs.sitio }}"
+
+      - name: Verificar la publicación
+        run: node scripts/verificar-publicacion.js "${{ steps.publicar.outputs.url }}"
+
+      - name: Resumen
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "### Página publicada" >> $GITHUB_STEP_SUMMARY
+            echo "Dirección: ${{ steps.publicar.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### La publicación falló" >> $GITHUB_STEP_SUMMARY
+            echo "Revise el registro del paso que falló. Si dice 403 o «permission», a la cuenta de servicio le falta un rol: el registro dice cuál." >> $GITHUB_STEP_SUMMARY
+          fi
