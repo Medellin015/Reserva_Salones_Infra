@@ -1,0 +1,25 @@
+# =============================================================================
+#  GITHUB PAGES (Jekyll): la dirección anterior, medellin015.github.io
+#
+#  La página se publica en Firebase Hosting (https://salas-piso9-med.web.app)
+#  y, mientras dura el cambio, también aquí. GitHub Pages publica SOLO la
+#  página y sus datos (disponibilidad.js y uso.js): aquí se excluyen la
+#  documentación, la configuración de Firebase, los scripts y lo que no usa la
+#  página.
+#
+#  Los archivos ocultos (.github, .firebaserc, .gitignore) y este mismo
+#  _config.yml Jekyll ya los deja por fuera. Lo revisa
+#  scripts/test/publicacion.test.js: todo archivo de la raíz que no sea de la
+#  página tiene que estar en esta lista.
+# =============================================================================
+exclude:
+  # Documentación (el correo de anuncio se abre desde el repositorio)
+  - README.md
+  - docs
+  # Captura de prueba que la página no usa
+  - btn-centrado-1280.png
+  # Configuración de Firebase Hosting
+  - firebase.json
+  # Scripts de la tarea programada y de la publicación, y la carpeta que arman
+  - scripts
+  - publicar

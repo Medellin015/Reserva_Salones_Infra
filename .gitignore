@@ -1,0 +1,15 @@
+# Llaves de cuenta de servicio de Google: la de publicar-hosting puede publicar en el sitio.
+# Van solo en el secreto FIREBASE_SERVICE_ACCOUNT de GitHub; nunca en el repositorio.
+*serviceaccount*.json
+*service-account*.json
+*adminsdk*.json
+salas-piso9-med-*.json
+sa.json
+.env
+.env.*
+
+node_modules/
+
+# Carpeta que arma scripts/preparar-publicacion.js para Firebase Hosting (lista
+# permitida): se rehace en cada publicación y nunca se sube al repositorio.
+publicar/

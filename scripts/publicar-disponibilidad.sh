@@ -2,7 +2,10 @@
 # Lee los calendarios y, si disponibilidad.js o uso.js cambiaron, hace commit y push a la rama
 # actual. Lo usa .github/workflows/disponibilidad.yml; se puede llamar varias veces en la misma
 # ejecución.
+# Cuando sube algo, deja "subido=true" en la salida del paso (GITHUB_OUTPUT): con eso el flujo
+# llama a "Publicar aplicación", porque un push hecho con el GITHUB_TOKEN no dispara otros flujos.
 set -euo pipefail
+marcar_subido() { if [ -n "${GITHUB_OUTPUT:-}" ]; then echo "subido=true" >> "$GITHUB_OUTPUT"; fi; }
 node scripts/actualizar-disponibilidad.js
 if git diff --quiet -- disponibilidad.js uso.js; then
   echo "Sin cambios: no hay nada que publicar."
@@ -14,8 +17,8 @@ git add disponibilidad.js uso.js
 git commit -m "Disponibilidad: $(TZ=America/Bogota date '+%d/%m/%Y %H:%M')"
 # Si mientras tanto alguien subió algo a la rama, se trae antes de subir.
 for intento in 1 2 3; do
-  git pull --rebase origin "$RAMA" && git push origin "HEAD:$RAMA" && exit 0
-  sleep $((intento * 5))
+  git pull --rebase origin "$RAMA" && git push origin "HEAD:$RAMA" && marcar_subido && exit 0
+  sleep $((intento * ${ESPERA_REINTENTO:-5}))   # las pruebas la ponen en 0
 done
 echo "::error::No se pudieron subir disponibilidad.js y uso.js"
 exit 1
