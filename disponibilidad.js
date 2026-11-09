@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-09",
- "actualizado": "2026-11-09T15:41:18-05:00",
+ "actualizado": "2026-11-09T16:02:39-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -471,6 +471,14 @@ window.DISPONIBILIDAD = {
    "2026-11-13": [],
    "2026-11-17": [
     [
+     "10:00",
+     "12:00",
+     {
+      "t": "Contrato 4600108930 · Maria Fernanda Uribe Perez",
+      "l": "Sala 2"
+     }
+    ],
+    [
      "14:00",
      "18:00",
      {
@@ -673,6 +681,14 @@ window.DISPONIBILIDAD = {
      }
     ],
     [
+     "13:00",
+     "14:00",
+     {
+      "t": "Equipo Apoyo DEspacho: Presentación Tableros Segumiento Necesidades · Victor Ganzalo Rendón Santamaría",
+      "l": "Sala 3"
+     }
+    ],
+    [
      "14:00",
      "16:00",
      {
@@ -746,7 +762,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-19": [],
+   "2026-11-19": [
+    [
+     "13:00",
+     "16:00",
+     {
+      "t": "Reunión Equipo Apoyo Al Despacho: Verificar cumplimiento de metas, tareas, objetivos. · Victor Gonzalo Rendón Santamaría",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-20": [],
    "2026-11-23": [],
    "2026-11-24": [
@@ -777,7 +802,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-26": [],
+   "2026-11-26": [
+    [
+     "13:00",
+     "16:00",
+     {
+      "t": "Reunión Equipo Apoyo Al despacho: Evaluación de objetivos, metas. · Victor Gonzalo Rendón Santamaría",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-27": [],
    "2026-11-30": [],
    "2026-12-01": [],
