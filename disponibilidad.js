@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-09",
- "actualizado": "2026-11-09T10:51:43-05:00",
+ "actualizado": "2026-11-09T10:56:55-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -85,6 +85,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "15:00",
+     "16:00",
+     {
+      "t": "Revisión de cantidades adicionales al Contrato 4600108587 · LILIANA PATRCIA GARCIA GOMEZ",
+      "l": "Sala 1"
      }
     ]
    ],
