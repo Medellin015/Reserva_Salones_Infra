@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-09",
- "actualizado": "2026-11-09T16:02:39-05:00",
+ "actualizado": "2026-11-09T16:35:53-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -724,6 +724,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-12": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Taller educación ambiental · Erik María Zea Díaz",
+      "l": "Sala 3"
+     }
+    ],
     [
      "11:00",
      "12:00",
