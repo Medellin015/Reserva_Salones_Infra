@@ -233,6 +233,12 @@ let cancelar = null;
 let claveRender = null;
 
 // --- Detalle de una reserva ---
+// Un uso que la Unidad Administrativa registró después de que pasó: el flujo termina el lugar en
+// "(registro)". La marca no se muestra como parte del lugar.
+const MARCA_REGISTRO = /\s*\(registro\)\s*$/i;
+const esRegistro = (info) => Boolean(info && info.l && MARCA_REGISTRO.test(info.l));
+const lugarDe = (info) => (info && info.l ? info.l.replace(MARCA_REGISTRO, '').trim() : '');
+
 // El flujo pone en el asunto "Motivo · Responsable"; si viene así, se separan.
 const resumenReserva = (info) => {
   if (!info || !info.t) return { titulo: '', motivo: '', responsable: '' };
@@ -247,7 +253,7 @@ const resumenReserva = (info) => {
 // que empieza a una hora intermedia, como 08:15, va con la media hora anterior, que es donde la
 // busca el flujo. Una reserva de dos salas juntas se cancela como "Salas 1 y 2", y el flujo la
 // borra en las dos. Una que ya empezó solo la puede cancelar la Unidad Administrativa (el flujo
-// se la deja solo a ella): la nota lo dice.
+// se la deja solo a ella): la nota lo dice. Un uso registrado después no se ofrece cancelar.
 const NOTA_EN_CURSO = 'Esta reserva ya empezó: solo la Unidad Administrativa puede cancelarla, para liberar lo que falta. El formulario se abre con la reserva ya puesta y la respuesta llega por correo.';
 const pintarCancelar = (sala, dia, inicio, fin, info) => {
   const enlace = $('#det-cancelar');
@@ -258,14 +264,14 @@ const pintarCancelar = (sala, dia, inicio, fin, info) => {
   const bloque = Math.floor(minutos / BLOQUE) * BLOQUE;
   const porEmpezar = dia > ahora.fecha || (dia === ahora.fecha && minutos > ahora.minutos);
   const enCurso = !porEmpezar && dia === ahora.fecha && aMinutos(fin) > ahora.minutos;
-  const mostrar = Boolean(cancelar && (porEmpezar || enCurso) && bloque >= INICIO_DIA && bloque < FIN_DIA);
+  const mostrar = Boolean(cancelar && !esRegistro(info) && (porEmpezar || enCurso) && bloque >= INICIO_DIA && bloque < FIN_DIA);
   enlace.hidden = !mostrar;
   nota.hidden = !mostrar;
   if (!mostrar) { enlace.removeAttribute('href'); return; }
   // La nota de index.html es la de una reserva por empezar; se guarda para volver a ella.
   if (!nota.dataset.porEmpezar) nota.dataset.porEmpezar = nota.textContent;
   nota.textContent = porEmpezar ? nota.dataset.porEmpezar : NOTA_EN_CURSO;
-  const lugar = info && info.l ? info.l.trim() : '';
+  const lugar = lugarDe(info);
   const grupo = gruposJuntos().find((g) => g.includes(sala.nombre) && nombreJuntas(g) === lugar);
   enlace.href = cancelar.enlace(grupo ? nombreJuntas(grupo) : sala.nombre, dia, hhmm(bloque));
   enlace.target = '_blank';
@@ -285,7 +291,9 @@ const abrirDetalle = (sala, dia, k) => {
   const filas = [];
   if (r.responsable) filas.push(['Responsable', r.responsable]);
   // El flujo pone como lugar la sala pedida: solo dice algo nuevo si son dos salas juntas.
-  if (info && info.l && info.l.trim() !== sala.nombre) filas.push(['Lugar', info.l]);
+  const lugar = lugarDe(info);
+  if (lugar && lugar !== sala.nombre) filas.push(['Lugar', lugar]);
+  if (esRegistro(info)) filas.push(['Registro', 'Uso registrado después por la Unidad Administrativa']);
   if (info && info.d) {
     // Cada línea "Etiqueta: valor" de la descripción va como fila; el resto, como texto.
     // La línea del responsable (o del solicitante, en reservas viejas) repite el asunto.
@@ -780,9 +788,10 @@ const pctTexto = (p) => `${Math.round(p * 100)} %`;
 const mesDe = (iso) => iso.slice(0, 7);
 const sumarMeses = (mes, n) => { const [a, m] = mes.split('-').map(Number); const f = new Date(a, m - 1 + n, 1); return `${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, '0')}`; };
 
-// Mismo criterio que el script: "Reserva · Nombre" viene de la planilla y "Motivo · Responsable"
-// del formulario; lo demás no se sabe.
-const origenDe = (info) => (!info || !info.t ? 'o' : /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o');
+// Mismo criterio que el script: un lugar terminado en "(registro)" es un uso registrado después,
+// "Reserva · Nombre" viene de la planilla y "Motivo · Responsable" del formulario; lo demás no se
+// sabe. Solo lo del formulario cuenta como "pedidas por la página".
+const origenDe = (info) => (esRegistro(info) ? 'r' : !info || !info.t ? 'o' : /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o');
 // Franjas [inicio, fin, origen] (minutos del día) de una sala en un día: del historial si el día
 // ya pasó y de los datos del calendario si es hoy o después.
 const franjasDeDia = (datos, sala, dia, hoyIso) => {
