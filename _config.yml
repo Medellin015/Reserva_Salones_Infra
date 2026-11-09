@@ -1,18 +1,30 @@
 # =============================================================================
 #  GITHUB PAGES (Jekyll): la dirección anterior, medellin015.github.io
 #
-#  La página se publica en Firebase Hosting (https://salas-piso9-med.web.app)
-#  y, mientras dura el cambio, también aquí. GitHub Pages publica SOLO la
-#  página y sus datos (disponibilidad.js y uso.js): aquí se excluyen la
-#  documentación, la configuración de Firebase, los scripts y lo que no usa la
-#  página.
+#  La página se publica en Firebase Hosting (https://salas-piso9-med.web.app).
+#  GitHub Pages ya no la publica: solo muestra la página de github-pages/, con
+#  un botón hacia la dirección nueva. Esa página sale en la raíz (permalink /)
+#  y también como 404.html, así que un enlace viejo a la página muestra el
+#  botón, que lleva al mismo lugar en la dirección nueva.
+#
+#  Por eso aquí se excluyen la página, sus estilos, su configuración, su código
+#  y sus datos, además de la documentación, la configuración de Firebase y los
+#  scripts. Se publica solo el logo: lo usa la página del botón. Todo archivo
+#  nuevo de la raíz debe agregarse a esta lista: lo revisa
+#  scripts/test/github-pages.test.js.
 #
 #  Los archivos ocultos (.github, .firebaserc, .gitignore) y este mismo
-#  _config.yml Jekyll ya los deja por fuera. Lo revisa
-#  scripts/test/publicacion.test.js: todo archivo de la raíz que no sea de la
-#  página tiene que estar en esta lista.
+#  _config.yml Jekyll ya los deja por fuera.
 # =============================================================================
 exclude:
+  # Página (se publica en Firebase Hosting)
+  - index.html
+  - styles.css
+  - config.js
+  - app.js
+  # Datos que escribe la tarea programada
+  - disponibilidad.js
+  - uso.js
   # Documentación (el correo de anuncio se abre desde el repositorio)
   - README.md
   - docs

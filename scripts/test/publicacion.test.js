@@ -1,10 +1,10 @@
 'use strict';
 /* Pruebas de la publicación en Firebase Hosting: el token de Google, la API de
    Hosting, la lista permitida, la revisión de lo publicado, la verificación en
-   la dirección, el flujo «Publicar aplicación» y lo que GitHub Pages sigue
-   publicando mientras dura el cambio. No salen a internet: cada prueba usa un
-   «fetch» simulado que responde como Google. Adaptadas del kit del traspaso
-   (versión 2, ParticipacionLogistica).
+   la dirección y el flujo «Publicar aplicación». Lo que publica GitHub Pages
+   (la página del botón) lo revisa scripts/test/github-pages.test.js. No salen
+   a internet: cada prueba usa un «fetch» simulado que responde como Google.
+   Adaptadas del kit del traspaso (versión 2, ParticipacionLogistica).
 
    Uso:  node --test scripts/test/*.test.js */
 
@@ -345,22 +345,4 @@ test('«Actualizar disponibilidad» llama a «Publicar aplicación» cada vez qu
   assert.match(flujo, /outputs:\n {6}subido: \$\{\{ steps\.releer\.outputs\.subido \}\}/);
   // La segunda lectura sigue siendo solo para el aviso del flujo de reservas.
   assert.match(flujo, /releer:\n {4}needs: actualizar\n {4}if: \$\{\{ !cancelled\(\) && github\.event_name == 'repository_dispatch' && github\.event\.action == 'actualizar-disponibilidad' \}\}/);
-});
-
-/* ===== GitHub Pages mientras dura el cambio (fase C) ===== */
-
-test('GitHub Pages publica solo la página y sus datos: lo demás de la raíz está excluido en _config.yml', () => {
-  const config = leer('_config.yml');
-  const excluidos = [...config.matchAll(/^ {2}- (\S+)$/gm)].map(m => m[1]);
-  // La página sigue en github.io hasta la fase F: nada de la lista permitida se excluye.
-  for (const rel of LISTA_PERMITIDA) assert.ok(!excluidos.includes(rel), `${rel} todavía se publica en GitHub Pages`);
-  for (const rel of ['README.md', 'docs', 'btn-centrado-1280.png', 'firebase.json', 'scripts', 'publicar']) {
-    assert.ok(excluidos.includes(rel), `${rel} debe quedar fuera de GitHub Pages`);
-  }
-  // Todo lo de la raíz que no es de la página está excluido (los ocultos y los que empiezan
-  // con «_» los deja por fuera Jekyll). Así, un archivo nuevo no se publica sin querer.
-  for (const e of fs.readdirSync(RAIZ)) {
-    if (e.startsWith('.') || e.startsWith('_') || e === 'publicar' || e === 'node_modules') continue;
-    assert.ok(permitido(e) || excluidos.includes(e), `${e} no es de la página y debe estar en el exclude de _config.yml`);
-  }
 });

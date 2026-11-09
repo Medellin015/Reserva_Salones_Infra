@@ -6,8 +6,11 @@ sala y abre el formulario de Microsoft Forms que dispara el flujo de reservas de
 buzón sal9.
 
 Es una página estática sin librerías por CDN: se abre directo con `index.html`,
-también en la red institucional. Está publicada en
-https://medellin015.github.io/Reserva_Salones_Infra/
+también en la red institucional. Está publicada en Firebase Hosting:
+https://salas-piso9-med.web.app
+
+La dirección anterior, https://medellin015.github.io/Reserva_Salones_Infra/, solo muestra
+un botón hacia la nueva (ver "Dirección anterior").
 
 ## Estructura
 
@@ -24,6 +27,8 @@ https://medellin015.github.io/Reserva_Salones_Infra/
 | `scripts/publicar-disponibilidad.sh` | Corre el script anterior y hace commit de `disponibilidad.js` y `uso.js` si cambiaron. |
 | `.github/workflows/disponibilidad.yml` | Tarea programada de GitHub que corre ese script. |
 | `docs/correo-anuncio.html` | Correo que anuncia la página, con formato. No hace parte de la página: se abre en el navegador, se copia todo y se pega en un mensaje nuevo de Outlook. |
+| `github-pages/` | Página de la dirección anterior (GitHub Pages): solo un botón hacia la nueva. Sale en la raíz y como `404.html`. |
+| `_config.yml` | Lo que GitHub Pages deja por fuera: toda la página, sus datos, la documentación y los scripts. |
 
 ## Cómo se actualiza la disponibilidad
 
@@ -51,9 +56,10 @@ misma las horas ocupadas.
 2. Calcula las horas ocupadas de lunes a viernes desde el lunes de la semana actual
    (también los días que ya pasaron) hasta el fin del segundo mes siguiente, y anota
    cuáles de esos días son festivos en Colombia. Un sábado o un domingo empieza en la
-   semana que viene. Solo si algo cambió, hace commit de `disponibilidad.js` en `main`.
-   GitHub Pages publica el cambio en un minuto. En la misma lectura actualiza el historial
-   de uso (`uso.js`; ver "Indicadores de uso").
+   semana que viene. Solo si algo cambió, hace commit de `disponibilidad.js` en `main` y
+   llama al flujo "Publicar aplicación", que lo sube a Firebase Hosting en uno o dos
+   minutos. En la misma lectura actualiza el historial de uso (`uso.js`; ver "Indicadores
+   de uso").
 3. La página abre en la semana actual, de lunes a viernes. Cada día tiene una columna
    angosta por sala (S1, S2, …) con sus horas ocupadas, y arriba está la lista de salas
    con el código de cada columna y su aforo. Los días que ya pasaron y lo que va corrido
@@ -121,7 +127,7 @@ Para ver más meses:
 ## Indicadores de uso
 
 La pestaña "Indicadores" (al lado de "Calendario"; también se abre con
-https://medellin015.github.io/Reserva_Salones_Infra/#indicadores) resume cuánto se usa
+https://salas-piso9-med.web.app/#indicadores) resume cuánto se usa
 cada sala en el mes elegido y mes a mes:
 
 - Cifras del mes: horas reservadas sobre las disponibles, ocupación, número de reservas (y
@@ -358,6 +364,20 @@ pasos sirven para publicar el de una sala nueva o para volver a publicar alguno.
 
 Si una sala activa no tiene enlace, su columna del calendario va rayada y la lista de salas
 dice "calendario pendiente".
+
+## Dirección anterior
+
+Hasta el 09/11/2026 la página se publicaba en GitHub Pages, en
+https://medellin015.github.io/Reserva_Salones_Infra/. Esa dirección ahora solo muestra una
+tarjeta con el logo, el nombre de la página y el botón "Ir a la nueva dirección", con los
+colores de la página y el tema claro u oscuro que la persona tenía elegido (`github-pages/`).
+La misma tarjeta sale en cualquier ruta vieja (como `404.html`), y el botón lleva al mismo
+lugar en la dirección nueva, con su `?consulta` y su `#ancla`: un enlace viejo con
+`#indicadores` abre los indicadores en la dirección nueva.
+
+GitHub Pages ya no publica la página ni sus datos: `_config.yml` los excluye y deja solo la
+tarjeta y el logo que usa. Firebase Hosting no publica `github-pages/`, porque no está en la
+lista permitida, y la verificación de "Publicar aplicación" lo comprueba.
 
 ## Actualizar los flujos de Power Automate
 
