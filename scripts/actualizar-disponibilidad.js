@@ -474,6 +474,11 @@ const intervalosOcupados = (textoIcs, inicioVentana, finVentana) => {
   // comprobar que el enlace de cada sala en config.js es el de su calendario, aunque esté vacío.
   const vcalendar = buscar(raiz, 'VCALENDAR')[0];
   intervalos.calendario = vcalendar ? limpiarTexto((prop(vcalendar, 'X-WR-CALNAME') || {}).valor) : '';
+  // primeraCita: inicio de la cita suelta (sin repetición) más antigua del archivo, o null. Outlook
+  // publica las citas de cierto rango de fechas hacia atrás, así que los días desde esa cita siguen
+  // en el archivo. Las series no sirven para saberlo: Outlook las publica desde su primera fecha.
+  const sueltas = eventos.filter((ev) => !ev.rrule && ev.recurrenceId === null).map((ev) => ev.inicio);
+  intervalos.primeraCita = sueltas.length ? sueltas.reduce((a, b) => Math.min(a, b)) : null;
   return intervalos;
 };
 
@@ -511,12 +516,17 @@ const ocupacionPorDia = (intervalos, dias) => {
 
 // uso.js guarda, por día y por sala, las franjas reservadas en minutos del día: [inicio, fin,
 // origen], con origen "f" (pedida por el formulario: asunto "Motivo · Responsable"), "p"
-// (cargada de la planilla: asunto "Reserva · Nombre") u "o" (otra o sin asunto publicado).
+// (cargada de la planilla: asunto "Reserva · Nombre"), "r" (uso que la Unidad Administrativa
+// registró después: el flujo termina el lugar en "(registro)") u "o" (otra o sin asunto publicado).
 // Los días de esta semana hasta hoy se vuelven a escribir en cada lectura (recogen borrados y
 // cambios); los anteriores quedan como estaban, y si Outlook todavía publica un día que no
 // está en el historial, se agrega. Así el historial sobrevive a lo que Outlook deja de publicar.
+// La excepción son los usos registrados: en un día anterior que ya tiene reservas, los nuevos
+// se suman, y los que se borraron en Outlook salen mientras Outlook todavía publique ese día.
 const minutosDe = (texto) => { const [h, m] = texto.split(':').map(Number); return h * 60 + m; };
+const MARCA_REGISTRO = /\(registro\)\s*$/i;
 const origenDe = (info) => {
+  if (info && info.l && MARCA_REGISTRO.test(info.l)) return 'r';
   if (!info || !info.t) return 'o';
   return /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o';
 };
@@ -545,13 +555,28 @@ const actualizarUso = (anterior, lecturas, ahora, ventana) => {
   const refrescar = new Set(diasEntre(ventana.inicio, finHoy));
   const todos = diasEntre(inicio, finHoy);
   for (const [sala, texto] of Object.entries(lecturas)) {
-    const porDia = ocupacionPorDia(intervalosOcupados(texto, inicio, finHoy), todos);
+    const intervalos = intervalosOcupados(texto, inicio, finHoy);
+    const porDia = ocupacionPorDia(intervalos, todos);
+    const publicadoDesde = intervalos.primeraCita === null ? null : isoDe(camposBogota(intervalos.primeraCita));
     for (const [dia, franjas] of Object.entries(porDia)) {
       const entrada = nuevo.dias[dia] || {};
       if (refrescar.has(dia)) {
         if (franjas.length) entrada[sala] = franjasCompactas(franjas); else delete entrada[sala];
-      } else if (!(sala in entrada) && franjas.length) {
-        entrada[sala] = franjasCompactas(franjas);
+      } else if (!(sala in entrada)) {
+        if (franjas.length) entrada[sala] = franjasCompactas(franjas);
+      } else {
+        // Día anterior que ya está en el historial: solo cambian los usos registrados.
+        const antes = entrada[sala];
+        const registros = franjasCompactas(franjas).filter((f) => f[2] === 'r');
+        const igual = (x) => (y) => x[0] === y[0] && x[1] === y[1] && x[2] === y[2];
+        const sumar = registros.filter((r) => !antes.some(igual(r)));
+        const publicado = publicadoDesde !== null && dia >= publicadoDesde;
+        const quitar = publicado ? antes.filter((f) => f[2] === 'r' && !registros.some(igual(f))) : [];
+        if (sumar.length || quitar.length) {
+          // sort es estable: las franjas que ya estaban conservan su orden.
+          const juntas = antes.filter((f) => !quitar.includes(f)).concat(sumar).sort((x, y) => x[0] - y[0] || x[1] - y[1]);
+          if (juntas.length) entrada[sala] = juntas; else delete entrada[sala];
+        }
       }
       if (Object.keys(entrada).length) nuevo.dias[dia] = entrada; else delete nuevo.dias[dia];
     }
@@ -574,7 +599,8 @@ const escribirUso = (uso) => {
    festivos: los de Colombia en los años del historial, para contar los días hábiles.
    dias: por día (AAAA-MM-DD) y por sala, las franjas reservadas en minutos del día
    [inicio, fin, origen]; origen "f" es una reserva pedida por el formulario, "p" una cargada
-   de la planilla y "o" otra. Los días sin reservas no aparecen. */
+   de la planilla, "r" un uso que la Unidad Administrativa registró después y "o" otra. Los
+   días sin reservas no aparecen. */
 window.USO = {
  "actualizado": ${JSON.stringify(uso.actualizado)},
  "desde": ${JSON.stringify(uso.desde)},
@@ -672,7 +698,9 @@ const principal = async () => {
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
       const conTitulo = intervalos.filter((x) => x[2] && x[2].t).length;
       const calendario = intervalos.calendario ? `calendario "${intervalos.calendario}"` : 'el archivo no trae el nombre del calendario';
-      console.log(`${sala.nombre} (${calendario}): ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} entre el ${dias[0]} y el ${dias[dias.length - 1]} (${conTitulo} con asunto publicado), ${total} franjas ocupadas`);
+      // La cita suelta más antigua muestra hasta dónde publica Outlook hacia atrás (ver primeraCita).
+      const primera = intervalos.primeraCita === null ? 'sin citas sueltas' : `la cita suelta más antigua es del ${isoDe(camposBogota(intervalos.primeraCita))}`;
+      console.log(`${sala.nombre} (${calendario}): ${intervalos.citasArchivo} citas en el archivo, ${intervalos.length} entre el ${dias[0]} y el ${dias[dias.length - 1]} (${conTitulo} con asunto publicado), ${total} franjas ocupadas; ${primera}`);
     } catch (e) {
       errores[sala.nombre] = e.message;
       console.error(`${sala.nombre}: ${e.message}`);

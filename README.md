@@ -125,7 +125,8 @@ https://medellin015.github.io/Reserva_Salones_Infra/#indicadores) resume cuánto
 cada sala en el mes elegido y mes a mes:
 
 - Cifras del mes: horas reservadas sobre las disponibles, ocupación, número de reservas (y
-  qué parte se pidió por la página) y la sala más usada.
+  qué parte se pidió por la página; los usos registrados después cuentan como reservas, pero
+  no como pedidas por la página) y la sala más usada.
 - Una barra por sala con las horas usadas (días que ya pasaron), las programadas (de hoy en
   adelante) y lo que queda disponible.
 - Horas por día de la semana y qué parte de las salas está ocupada en cada media hora.
@@ -149,6 +150,14 @@ que Outlook todavía publica y no estaban. Por eso el historial sobrevive aunque
 de publicar las citas viejas. Empieza el 14/10/2026, cuando se cargó la planilla; se armó con
 las lecturas que la tarea había guardado en el repositorio desde entonces. La página carga
 `uso.js` solo al abrir la pestaña.
+
+La excepción son los usos registrados después (ver "Registrar un uso que ya pasó"): en un día
+anterior que ya está en el historial, los nuevos se suman y los que se borraron en Outlook
+salen, siempre que Outlook todavía publique ese día. La tarea lo sabe por la cita suelta (sin
+repetición) más antigua del calendario de la sala: los días desde esa cita siguen publicados.
+Outlook publica por defecto tres meses hacia atrás (`PublishDateRangeFrom`), más que los 60
+días en que se puede registrar; el registro de cada lectura dice de qué fecha es la cita
+suelta más antigua de cada sala.
 
 Los calendarios publican el asunto y el lugar de cada reserva, pero no la dependencia ni el
 número de personas, así que los indicadores son por sala y no por dependencia.
@@ -221,7 +230,7 @@ que el calendario de esa sala tenga publicado:
 | Nivel de publicación en Outlook | Qué se ve en el detalle |
 | --- | --- |
 | Puede ver cuando estoy ocupado | Solo la hora. El cuadro dice que los detalles no están publicados. |
-| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"). |
+| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"). En un uso registrado después, el lugar va sin la marca "(registro)" y el detalle agrega la fila "Registro". |
 | Puede ver todos los detalles | Además, la descripción: teléfono, dependencia (y unidad o equipo, si es de la Secretaría de Infraestructura Física), correo de quien pidió y número de personas. |
 
 El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
@@ -305,6 +314,34 @@ Para activar el botón, en `CANCELAR_PREFILL` de `config.js` va el enlace rellen
 previamente del formulario de cancelación, generado igual que el de pedir (ver "Pedir desde
 el calendario") con Sala = Sala 1, Fecha = 15/10/2026 y Hora de inicio = 07:00. Está activo
 desde el 27/10/2026. Mientras el enlace esté vacío, el detalle no ofrece cancelar.
+
+## Registrar un uso que ya pasó
+
+Algunas reuniones se acuerdan por fuera de la página. Para que cuenten en los indicadores,
+Enercis Cuesta las registra después con el mismo formulario de reservas, con la fecha y las
+horas en que se usó la sala. El flujo de reservas la reconoce por su correo,
+enercis.cuesta@medellin.gov.co, sea el de la cuenta con que responde el formulario o el de
+su perfil. Cuando ella envía una solicitud:
+
+- Si la hora de inicio ya pasó (también si la reunión está en curso) y la fecha es de los
+  últimos 60 días, el flujo la registra sin pedir aprobación. Revisa el horario de reservas
+  (07:30 a 17:30) y los cruces con lo que ya hay en el calendario de la sala, crea el evento
+  con "(registro)" al final del lugar ("Sala 3 (registro)"; en "Salas 1 y 2", en las dos
+  salas), le envía el correo "Uso registrado" y avisa a la tarea de GitHub.
+- Si la sala ya tenía algo a esa hora, no registra nada y responde "NO REGISTRADO": puede ser
+  que la reunión ya estuviera en el calendario.
+- Si la fecha es de hace más de 60 días, responde que el horario no es válido y le recuerda
+  el límite.
+- Si la fecha es futura, la solicitud sigue el camino de siempre, con aprobación.
+
+Para cualquier otra persona nada cambia: una solicitud con una hora que ya pasó no se
+registra.
+
+En la página, el detalle del uso dice "Registro: Uso registrado después por la Unidad
+Administrativa" y no ofrece cancelarlo. En los indicadores cuenta en las horas y en el número
+de reservas, pero no en las pedidas por la página. Si un uso quedó con un dato errado, se borra
+el evento del calendario de la sala en Outlook, entrando como sal9, y se registra de nuevo; el
+historial lo quita en la siguiente lectura (ver "Indicadores de uso").
 
 ## Cómo publicar el calendario de una sala
 
