@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-09",
- "actualizado": "2026-11-09T14:12:21-05:00",
+ "actualizado": "2026-11-09T14:26:52-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -695,6 +695,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Juan Fernando Vargas Vélez",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "Comité de supervisión contrato 4600108809 de 2026 · Erika María Zea Díaz",
       "l": "Sala 3"
      }
     ]
