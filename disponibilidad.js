@@ -9,14 +9,10 @@
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
- "verificado": "2026-11-06",
- "actualizado": "2026-11-06T16:12:33-05:00",
+ "verificado": "2026-11-09",
+ "actualizado": "2026-11-09T06:01:06-05:00",
  "avisado": null,
  "dias": [
-  "2026-11-03",
-  "2026-11-04",
-  "2026-11-05",
-  "2026-11-06",
   "2026-11-09",
   "2026-11-10",
   "2026-11-11",
@@ -74,7 +70,6 @@ window.DISPONIBILIDAD = {
   "2027-01-29"
  ],
  "festivos": [
-  "2026-11-02",
   "2026-11-16",
   "2026-12-08",
   "2026-12-25",
@@ -83,94 +78,6 @@ window.DISPONIBILIDAD = {
  ],
  "ocupado": {
   "Sala 1": {
-   "2026-11-03": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Lina Maria Murillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-11-04": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Capacitación equipo de Gestión de la Información - Proceso de PQRSD · Ana Cristina Alzate Serna",
-      "l": "Sala 1"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Mesa Distrital de Vivienda de Medellín · Juan Felipe Sanguino Puerta",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "17:30",
-     {
-      "t": "Reunión de comité de obra  · Monica Montoya",
-      "l": "Sala 1"
-     }
-    ]
-   ],
-   "2026-11-05": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Inicio  Contrato 4600108860 de 2026 · Doris Valencia J",
-      "l": "Sala 1"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Sesión Análisis de Causas-Devoluciones · Monica Alejandra Espinosa Guzman",
-      "l": "Sala 1"
-     }
-    ],
-    [
-     "14:30",
-     "16:00",
-     {
-      "t": "Reunión Comisión de Regulación de Comunicaciones con personal proveedores servicios ISP. · Jaime Oswaldo Sierra Piedrahita",
-      "l": "Sala 1"
-     }
-    ]
-   ],
-   "2026-11-06": [
-    [
-     "09:00",
-     "12:00",
-     {
-      "t": "Encuentro Equipos adscritos a la Subsecretaría Técnica de la SISF · Sandra Milena Aristizábal",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "15:00",
-     "17:00",
-     {
-      "t": "Comite de obra contrato No 4600105044 · James Estiven Echeverri Gaviria",
-      "l": "Sala 1"
-     }
-    ]
-   ],
    "2026-11-09": [
     [
      "08:15",
@@ -473,78 +380,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 2": {
-   "2026-11-03": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Lina Maria Murillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
-   "2026-11-04": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "COMITE SEGUIMIENTO GESTION PREDIAL CONTRATO 4600103271 DE 2024 · Kenny Juliet Sánchez Jaller",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Mesa Distrital de Vivienda de Medellín · Juan Felipe Sanguino Puerta",
-      "l": "Salas 1 y 2"
-     }
-    ],
-    [
-     "14:00",
-     "15:30",
-     {
-      "t": "Reunión SIF-APP Modificación Cto.4600105503 de 2025 · Manuela Ciro Palacio",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-11-05": [
-    [
-     "09:00",
-     "12:00",
-     {
-      "t": "Reserva · Clara Luz Hoyos Gómez",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Revision bahias contrato 4600103253 de 2024 · Laura Lopez",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-11-06": [
-    [
-     "09:00",
-     "12:00",
-     {
-      "t": "Encuentro Equipos adscritos a la Subsecretaría Técnica de la SISF · Sandra Milena Aristizábal",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
    "2026-11-09": [
     [
      "08:15",
@@ -794,61 +629,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 3": {
-   "2026-11-03": [
-    [
-     "08:30",
-     "09:30",
-     {
-      "t": "Reserva · Daniela Arbeláez Duque",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "10:30",
-     "12:30",
-     {
-      "t": "Comité seguimiento · Laura Lopez",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Comité de Seguimiento Contratos 4600108590 (Consultoria) y 4600108611 (Interventoria) · Juan Fernando Vargas Vélez",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-11-04": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "ESPACIO DE ATENCION  · Maria Jose Mosquera Martínez",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-11-05": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "COMITE DE SEGUIMIENTO CONTRATO  · Edwin Neira Romero",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "13:00",
-     "16:00",
-     {
-      "t": "Reunión Equipo Al Despacho · Victor Ganzalo Rendón Santamaría",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-11-06": [],
    "2026-11-09": [
     [
      "08:00",
@@ -1026,78 +806,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 5": {
-   "2026-11-03": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Maria Elena Morales",
-      "l": "Sala 5"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Reserva · Rocio Elena Rendon Diaz",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-11-04": [
-    [
-     "08:00",
-     "11:00",
-     {
-      "t": "Reserva · Juan Fernando Rivera Garcés",
-      "l": "Sala 5"
-     }
-    ],
-    [
-     "15:00",
-     "16:00",
-     {
-      "t": "Comité – Seguimiento financiero  · Daniela Arbeláez Duque",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-11-05": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5"
-     }
-    ],
-    [
-     "14:00",
-     "17:00",
-     {
-      "t": "Equipo Ambiental · Maria Fernanda Uribe Perez",
-      "l": "Sala 5"
-     }
-    ]
-   ],
-   "2026-11-06": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Reserva · Juan Fernando Rivera Garcés",
-      "l": "Sala 5"
-     }
-    ],
-    [
-     "10:00",
-     "11:30",
-     {
-      "t": "comite Navidad · Sandra Usuga Echeverri",
-      "l": "Sala 5"
-     }
-    ]
-   ],
    "2026-11-09": [
     [
      "08:30",
