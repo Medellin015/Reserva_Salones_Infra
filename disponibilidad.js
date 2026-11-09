@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-09",
- "actualizado": "2026-11-09T10:56:55-05:00",
+ "actualizado": "2026-11-09T14:12:21-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -900,6 +900,14 @@ window.DISPONIBILIDAD = {
      "10:00",
      {
       "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Contrato 4600108930 de 2026 · Maria Fernanda Uribe Perez",
       "l": "Sala 5"
      }
     ]
