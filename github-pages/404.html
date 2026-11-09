@@ -1,0 +1,115 @@
+---
+permalink: /404.html
+---
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="color-scheme" content="light dark">
+<title>Salas Piso 9 CAM · Nueva dirección</title>
+<meta name="description" content="La página de las salas de reunión del piso 9 del CAM La Alpujarra tiene una nueva dirección: salas-piso9-med.web.app">
+<link rel="canonical" href="https://salas-piso9-med.web.app/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%2314B8CE'/%3E%3Ctext x='50' y='70' font-size='58' font-family='sans-serif' font-weight='700' fill='%23052A33' text-anchor='middle'%3E9%3C/text%3E%3C/svg%3E">
+<!-- El mismo tema que la persona eligió en la página anterior (misma clave que app.js).
+     Solo se lee: esta página no guarda nada en el navegador. -->
+<script>(function(){try{var t=localStorage.getItem('salas9-tema');if(t==='claro'||t==='oscuro'){document.documentElement.setAttribute('data-tema',t);}}catch(e){}})();</script>
+<style>
+  /* ==========================================================================
+     Dirección anterior de Salas Piso 9 CAM (GitHub Pages)
+     Solo muestra un botón hacia la dirección nueva (Firebase Hosting). La
+     misma página sale como 404.html: un enlace viejo a la página, con su
+     ?consulta y su #ancla (por ejemplo #indicadores), lleva a ese mismo lugar
+     en la dirección nueva. Colores, letra y logo son los de la aplicación,
+     sin fuentes ni librerías externas: abre igual en la red institucional.
+     ========================================================================== */
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#13232B; --muted:#53656F; --line:#D5E2E8;
+    /* Azul de la Alcaldía: con letra oscura encima (con blanca no llega al contraste mínimo) */
+    --marca:#14B8CE; --marca-ink:#052A33; --accent:#0A7C8E;
+    --resplandor:#C4ECF4; --sombra:rgba(10,124,142,.22); --logo-mezcla:multiply;
+    --f:"Segoe UI",system-ui,-apple-system,Roboto,sans-serif;
+    --m:ui-monospace,"Cascadia Mono",Consolas,monospace;
+    color-scheme:light;
+  }
+  :root[data-tema="oscuro"]{
+    --bg:#0C1518; --surface:#132026; --ink:#E2EDF0; --muted:#97AEB6; --line:#253840;
+    --accent:#5ED0E2; --resplandor:#0F2F37; --sombra:rgba(0,0,0,.55); --logo-mezcla:normal;
+    color-scheme:dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-tema="claro"]){
+      --bg:#0C1518; --surface:#132026; --ink:#E2EDF0; --muted:#97AEB6; --line:#253840;
+      --accent:#5ED0E2; --resplandor:#0F2F37; --sombra:rgba(0,0,0,.55); --logo-mezcla:normal;
+      color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    min-height:100vh; min-height:100dvh; display:flex; align-items:center; justify-content:center;
+    padding:28px 16px; font-family:var(--f); font-size:16px; line-height:1.55; color:var(--ink);
+    background:radial-gradient(60rem 26rem at 50% -6rem,var(--resplandor),transparent 70%) no-repeat,var(--bg);
+    -webkit-font-smoothing:antialiased;
+  }
+  .tarjeta{
+    position:relative; overflow:hidden; width:100%; max-width:430px; padding:38px 30px 28px;
+    text-align:center; background:var(--surface); border:1px solid var(--line); border-radius:24px;
+    box-shadow:0 28px 60px -28px var(--sombra); animation:aparecer .45s ease-out both;
+  }
+  /* Franja de color arriba de la tarjeta, del azul de la marca al de los enlaces */
+  .tarjeta::before{content:""; position:absolute; inset:0 0 auto; height:6px; background:linear-gradient(90deg,var(--marca),var(--accent))}
+  /* El PNG del logo mide 246×193 y trae espacio vacío arriba: se recorta como en la
+     aplicación. Su fondo es blanco: en el tema claro se funde con la tarjeta y en el
+     oscuro queda como placa blanca, sin alterar los colores del escudo. */
+  .logo{display:block; height:64px; width:auto; aspect-ratio:246/156; object-fit:cover; object-position:50% 100%;
+    margin:0 auto 22px; padding:4px 10px; box-sizing:content-box; background:#FFFFFF; border-radius:12px; mix-blend-mode:var(--logo-mezcla)}
+  .ey{margin:0 0 8px; font-family:var(--m); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:var(--accent)}
+  h1{margin:0; font-size:32px; font-weight:800; line-height:1.05; letter-spacing:-.03em}
+  .sub{margin:10px 0 0; font-size:14.5px; line-height:1.45; color:var(--muted)}
+  .aviso{margin:24px 0 18px; padding-top:22px; border-top:1px solid var(--line); font-size:17.5px; font-weight:600; line-height:1.4}
+  .boton{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%; padding:16px 24px;
+    border-radius:999px; text-decoration:none; font-size:17px; font-weight:700;
+    background:var(--marca); color:var(--marca-ink); box-shadow:0 16px 30px -14px var(--sombra);
+    transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .boton:hover{transform:translateY(-2px); box-shadow:0 20px 34px -14px var(--sombra); filter:brightness(1.05)}
+  .boton:active{transform:none}
+  .boton:focus-visible{outline:3px solid var(--accent); outline-offset:3px}
+  .boton svg{width:18px; height:18px; flex:none; transition:transform .15s ease}
+  .boton:hover svg{transform:translateX(4px)}
+  /* Que los renglones cortados queden parejos (sin una palabra sola al final) */
+  h1,.sub,.aviso,.nota{text-wrap:balance}
+  .direccion{margin:14px 0 0; font-family:var(--m); font-size:13.5px; color:var(--ink); overflow-wrap:anywhere}
+  .nota{margin:6px 0 0; font-size:13px; color:var(--muted)}
+  @keyframes aparecer{from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none}}
+  @media (max-width:420px){ .tarjeta{padding:34px 22px 24px} h1{font-size:28px} }
+  @media (prefers-reduced-motion: reduce){ .tarjeta{animation:none} .boton,.boton svg{transition:none} }
+</style>
+</head>
+<body>
+  <main class="tarjeta">
+    <img class="logo" src="https://medellin015.github.io/Reserva_Salones_Infra/logo-alcaldia-medellin.png" width="246" height="193" alt="Alcaldía de Medellín, Distrito de Ciencia, Tecnología e Innovación" onerror="this.remove()">
+    <p class="ey">CAM La Alpujarra · Piso 9</p>
+    <h1>Salas Piso 9 CAM</h1>
+    <p class="sub">Disponibilidad y reserva de las salas de reunión<br>Unidad Administrativa</p>
+    <p class="aviso">El aplicativo tiene una nueva dirección.</p>
+    <a class="boton" id="ir" href="https://salas-piso9-med.web.app/">Ir a la nueva dirección <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5"/></svg></a>
+    <p class="direccion">salas-piso9-med.web.app</p>
+    <p class="nota">Si tenía esta página en favoritos, guarde la nueva.</p>
+  </main>
+  <script>
+    (function () {
+      /* Un enlace viejo lleva al mismo lugar en la dirección nueva, con su
+         ?consulta y su #ancla. La aplicación es una sola página: la portada
+         (o index.html). Cualquier otra ruta va a la portada nueva. */
+      var NUEVA = 'https://salas-piso9-med.web.app/';
+      var PAGINAS = ['', 'index.html'];
+      var resto = location.pathname.replace(/^\/Reserva_Salones_Infra(\/|$)/, '');
+      if (PAGINAS.indexOf(resto) >= 0) document.getElementById('ir').href = NUEVA + resto + location.search + location.hash;
+    })();
+  </script>
+</body>
+</html>
