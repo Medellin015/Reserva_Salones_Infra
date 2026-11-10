@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T11:49:36-05:00",
+ "actualizado": "2026-11-10T13:54:59-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -1055,7 +1055,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-25": [],
+   "2026-11-25": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Mesa Lavado PGIRS · Maria Fernanda Uribe",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-26": [
     [
      "08:00",
