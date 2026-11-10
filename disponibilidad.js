@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T10:14:11-05:00",
+ "actualizado": "2026-11-10T10:54:44-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -103,6 +103,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Curso Politicas Públicas · Mónica Sánchez García",
       "l": "Salas 1 y 2"
+     }
+    ],
+    [
+     "11:00",
+     "12:00",
+     {
+      "t": "Seguimiento Cable Picacho  · Luisa Fernanda Bedoya Rojas",
+      "l": "Sala 1"
      }
     ],
     [
