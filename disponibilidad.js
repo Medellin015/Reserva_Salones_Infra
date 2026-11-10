@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T11:38:53-05:00",
+ "actualizado": "2026-11-10T11:47:24-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -1015,16 +1015,7 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-18": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Mesa de trabajo - sequimiento y avance diseños · MARIA ELENA MORALES HERNANDEZ",
-      "l": "Sala 5"
-     }
-    ]
-   ],
+   "2026-11-18": [],
    "2026-11-19": [
     [
      "08:00",
