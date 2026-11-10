@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T10:54:44-05:00",
+ "actualizado": "2026-11-10T11:02:27-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -448,6 +448,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Sandra Usuga",
       "l": "Sala 2"
      }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Reunión comité · Gabriel Jaime Cardona Londoño",
+      "l": "Sala 2"
+     }
     ]
    ],
    "2026-11-12": [
@@ -766,7 +774,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-13": [],
+   "2026-11-13": [
+    [
+     "09:00",
+     "11:00",
+     {
+      "t": "Entrega de Proyectos  · Anyi Higuera",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-17": [
     [
      "08:30",
@@ -788,6 +805,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-19": [
+    [
+     "09:00",
+     "11:00",
+     {
+      "t": "Seguimiento Contrato  · Anyi Higuera",
+      "l": "Sala 3"
+     }
+    ],
     [
      "13:00",
      "16:00",
