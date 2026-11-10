@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T06:00:18-05:00",
+ "actualizado": "2026-11-10T09:18:57-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -468,7 +468,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-13": [],
+   "2026-11-13": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comite seguimiento contrato 4600108860 de 2026 · DORIS VALENCIA JARAMILLO",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-11-17": [
     [
      "10:00",
