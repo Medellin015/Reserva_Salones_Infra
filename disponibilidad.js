@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T15:41:00-05:00",
+ "actualizado": "2026-11-10T17:30:12-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -309,6 +309,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-01": [
+    [
+     "09:00",
+     "11:30",
+     {
+      "t": "Taller SOMOS · Sandra Judith Usuga Echeverri",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "18:00",
@@ -609,6 +617,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-01": [
+    [
+     "09:00",
+     "11:30",
+     {
+      "t": "Taller SOMOS · Sandra Judith Usuga Echeverri",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "18:00",
