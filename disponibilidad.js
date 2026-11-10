@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T15:38:49-05:00",
+ "actualizado": "2026-11-10T15:41:00-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -778,6 +778,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Presentación monitoreo estructural de puentes · Alejandro Ospina Trujillo",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "13:00",
+     "13:30",
+     {
+      "t": "Reunión Equipo Apoyo Al Despacho (EAD); Evaluación de metas. · Victor Ganzalo Rendón Santamaría",
       "l": "Sala 3"
      }
     ],
