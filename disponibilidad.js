@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-10",
- "actualizado": "2026-11-10T11:26:33-05:00",
+ "actualizado": "2026-11-10T11:38:53-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -866,7 +866,16 @@ window.DISPONIBILIDAD = {
    "2026-11-30": [],
    "2026-12-01": [],
    "2026-12-02": [],
-   "2026-12-03": [],
+   "2026-12-03": [
+    [
+     "13:00",
+     "16:00",
+     {
+      "t": "Reunión Equipo Apoyo Al despacho; Evaluación de metas, objetivos, tareas cumplidas · Victor Ganzalo Rendón Santamaría",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-12-04": [],
    "2026-12-07": [],
    "2026-12-09": [],
