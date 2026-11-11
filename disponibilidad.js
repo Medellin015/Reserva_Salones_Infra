@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T09:27:48-05:00",
+ "actualizado": "2026-11-11T09:34:19-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -181,14 +181,6 @@ window.DISPONIBILIDAD = {
      {
       "t": "Seguimiento Proyectos Tranvía y San Luis · Luisa Fernanda Bedoya Rojas",
       "l": "Sala 1"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "REUNION GRAL VINCULADOS SECRETARÍA DE TURISMO · Cruz Elena Diaz Mosquera",
-      "l": "Salas 1 y 2"
      }
     ]
    ],
@@ -515,14 +507,6 @@ window.DISPONIBILIDAD = {
      {
       "t": "Comite seguimiento contrato 4600108860 de 2026 · DORIS VALENCIA JARAMILLO",
       "l": "Sala 2"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "REUNION GRAL VINCULADOS SECRETARÍA DE TURISMO · Cruz Elena Diaz Mosquera",
-      "l": "Salas 1 y 2"
      }
     ]
    ],
