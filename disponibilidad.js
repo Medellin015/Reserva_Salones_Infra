@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T14:50:13-05:00",
+ "actualizado": "2026-11-11T14:58:44-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -385,7 +385,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-14": [],
-   "2026-12-15": [],
+   "2026-12-15": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Mesa de gobernanza y gestión de recurso hídrico  · Maribel Duque",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-12-16": [],
    "2026-12-17": [],
    "2026-12-18": [],
@@ -700,7 +709,16 @@ window.DISPONIBILIDAD = {
    "2026-12-10": [],
    "2026-12-11": [],
    "2026-12-14": [],
-   "2026-12-15": [],
+   "2026-12-15": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Mesa de gobernanza y gestión de recurso hídrico  · Maribel Duque",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-12-16": [],
    "2026-12-17": [],
    "2026-12-18": [],
