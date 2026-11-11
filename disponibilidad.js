@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T09:38:37-05:00",
+ "actualizado": "2026-11-11T11:22:18-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -539,6 +539,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-19": [
+    [
+     "07:30",
+     "09:30",
+     {
+      "t": "Reunión · Luis Augusto Hurtado Carvajal",
+      "l": "Sala 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
