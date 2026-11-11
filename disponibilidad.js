@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T09:34:19-05:00",
+ "actualizado": "2026-11-11T09:38:37-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -862,7 +862,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-20": [],
+   "2026-11-20": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-23": [],
    "2026-11-24": [
     [
@@ -1069,6 +1078,14 @@ window.DISPONIBILIDAD = {
      "10:00",
      {
       "t": "Comité de obra · Juan Camilo Patiño Amortegui",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "10:00",
+     "15:00",
+     {
+      "t": "Reunion de supervision contrato 4600105294 DE 2025 · Edwin Neira",
       "l": "Sala 5"
      }
     ]
