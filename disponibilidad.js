@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T13:49:49-05:00",
+ "actualizado": "2026-11-11T14:44:15-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -247,6 +247,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "n/a · Jorge Iván Jaramillo López",
       "l": "Sala 1"
+     }
+    ],
+    [
+     "10:00",
+     "14:00",
+     {
+      "t": "Capacitación  · Selene Perez",
+      "l": "Salas 1 y 2"
      }
     ],
     [
@@ -572,6 +580,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Sala 2"
+     }
+    ],
+    [
+     "10:00",
+     "14:00",
+     {
+      "t": "Capacitación  · Selene Perez",
+      "l": "Salas 1 y 2"
      }
     ],
     [
