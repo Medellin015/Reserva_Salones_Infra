@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-11",
- "actualizado": "2026-11-11T14:44:15-05:00",
+ "actualizado": "2026-11-11T14:50:13-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -301,6 +301,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "CTI de Cambio Climático · Marisol Suárez Roldán",
       "l": "Sala 1"
+     }
+    ],
+    [
+     "15:00",
+     "16:30",
+     {
+      "t": "Clausura estrategia de convivencia  · Maria Adelaida Carbajal",
+      "l": "Salas 1 y 2"
      }
     ]
    ],
@@ -627,7 +635,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-26": [],
+   "2026-11-26": [
+    [
+     "15:00",
+     "16:30",
+     {
+      "t": "Clausura estrategia de convivencia  · Maria Adelaida Carbajal",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-11-27": [
     [
      "10:00",
@@ -1080,6 +1097,14 @@ window.DISPONIBILIDAD = {
      "11:00",
      {
       "t": "capacitación  ·  manuela Ossorio naranjo",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "11:00",
+     "12:00",
+     {
+      "t": "Intervenciones prioritarias  · Kateryne Molina Patiño",
       "l": "Sala 5"
      }
     ],
