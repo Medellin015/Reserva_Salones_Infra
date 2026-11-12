@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-12",
- "actualizado": "2026-11-12T10:17:25-05:00",
+ "actualizado": "2026-11-12T11:04:33-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -661,6 +661,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Mesa Técnica de Convivencia y Formas de Violencia · Tatiana María Valencia Cano",
+      "l": "Sala 2"
+     }
+    ],
     [
      "15:00",
      "16:30",
