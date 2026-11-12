@@ -130,7 +130,8 @@ La pestaña "Indicadores" (al lado de "Calendario"; también se abre con
 https://salas-piso9-med.web.app/#indicadores) resume cuánto se usa
 cada sala en el mes elegido y mes a mes:
 
-- Cifras del mes: horas reservadas sobre las disponibles, ocupación, número de reservas (y
+- Cifras del mes: horas reservadas sobre las disponibles, ocupación, lo que quedó disponible
+  (100 % menos la ocupación, con las horas libres de todas las salas), número de reservas (y
   qué parte se pidió por la página; los usos registrados después cuentan como reservas, pero
   no como pedidas por la página) y la sala más usada.
 - Una barra por sala con las horas usadas (días que ya pasaron), las programadas (de hoy en
@@ -140,8 +141,12 @@ cada sala en el mes elegido y mes a mes:
 - "Uso por mes": las horas y la ocupación de cada sala en cada mes que se puede elegir (desde
   el primero del historial hasta dos meses después del actual), con una barra corta de lo usado
   y lo programado. Al pasar el ratón por una cifra se ven las horas usadas, las programadas y el
-  número de reservas. El mes elegido arriba va resaltado y, en el celular, la columna del mes
-  queda fija al deslizar la tabla.
+  número de reservas. La última columna, "Disponible", es la parte del horario de reservas de
+  todas las salas que quedó libre ese mes, con sus horas. El mes elegido arriba va resaltado y,
+  en el celular, la columna del mes queda fija al deslizar la tabla.
+- "Internas y externas por mes": las horas reservadas por la Secretaría de Infraestructura
+  Física (internas), por otras dependencias (externas) y sin clasificar, con su parte de las
+  horas reservadas del mes y una barra repartida (ver "Internas y externas").
 
 Las horas se cuentan dentro del horario de reservas (07:30 a 17:30, 10 horas por sala y por
 día), también en los meses de antes de ese horario, y la ocupación es sobre los días hábiles
@@ -165,8 +170,19 @@ Outlook publica por defecto tres meses hacia atrás (`PublishDateRangeFrom`), m�
 días en que se puede registrar; el registro de cada lectura dice de qué fecha es la cita
 suelta más antigua de cada sala.
 
-Los calendarios publican el asunto y el lugar de cada reserva, pero no la dependencia ni el
-número de personas, así que los indicadores son por sala y no por dependencia.
+### Internas y externas
+
+Los calendarios publican el asunto y el lugar de cada reserva, pero no la descripción, que es
+donde va la dependencia. Por eso el flujo de reservas pone al final del lugar si la reserva es
+interna o externa, según la dependencia que se marcó en el formulario: "Sala 3 · Interna" si
+es la Secretaría de Infraestructura Física y "Sala 3 · Externa" si es otra ("Salas 1 y 2 ·
+Interna" en las dos salas, "Sala 3 · Externa (registro)" en un uso registrado después). La
+página no muestra la marca como parte del lugar: el detalle de la reserva tiene la fila "Tipo".
+
+La tarea guarda el tipo en `uso.js` como cuarto elemento de cada franja ("i" interna, "e"
+externa). Las reservas sin la marca, las de la planilla y las que se pidieron antes de que el
+flujo empezara a ponerla, cuentan como "sin clasificar". El número de personas no se publica,
+así que los indicadores no lo usan.
 
 ## Horario de reservas
 
@@ -236,7 +252,7 @@ que el calendario de esa sala tenga publicado:
 | Nivel de publicación en Outlook | Qué se ve en el detalle |
 | --- | --- |
 | Puede ver cuando estoy ocupado | Solo la hora. El cuadro dice que los detalles no están publicados. |
-| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"). En un uso registrado después, el lugar va sin la marca "(registro)" y el detalle agrega la fila "Registro". |
+| Puede ver títulos y ubicaciones (el actual, desde el 07/10/2026) | El asunto y el lugar de la reserva. El flujo arma el asunto como "Motivo · Responsable", y la página lo separa en motivo y responsable. El lugar solo se muestra si la reserva es de dos salas juntas ("Salas 1 y 2"), sin las marcas que pone el flujo: el tipo va en la fila "Tipo" (interna o externa) y, en un uso registrado después, el detalle agrega la fila "Registro". |
 | Puede ver todos los detalles | Además, la descripción: teléfono, dependencia (y unidad o equipo, si es de la Secretaría de Infraestructura Física), correo de quien pidió y número de personas. |
 
 El nivel se cambia en Outlook web, como sal9: ⚙ Configuración → Calendario →
@@ -332,8 +348,8 @@ su perfil. Cuando ella envía una solicitud:
 - Si la hora de inicio ya pasó (también si la reunión está en curso) y la fecha es de los
   últimos 60 días, el flujo la registra sin pedir aprobación. Revisa el horario de reservas
   (07:30 a 17:30) y los cruces con lo que ya hay en el calendario de la sala, crea el evento
-  con "(registro)" al final del lugar ("Sala 3 (registro)"; en "Salas 1 y 2", en las dos
-  salas), le envía el correo "Uso registrado" y avisa a la tarea de GitHub.
+  con "(registro)" al final del lugar ("Sala 3 · Externa (registro)"; en "Salas 1 y 2", en las
+  dos salas), le envía el correo "Uso registrado" y avisa a la tarea de GitHub.
 - Si la sala ya tenía algo a esa hora, no registra nada y responde "NO REGISTRADO": puede ser
   que la reunión ya estuviera en el calendario.
 - Si la fecha es de hace más de 60 días, responde que el horario no es válido y le recuerda

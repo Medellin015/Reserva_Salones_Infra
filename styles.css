@@ -323,9 +323,21 @@ button.mes-dia:focus-visible{outline:2px solid var(--accent);outline-offset:-3px
 .ind-mini i.prog{background:color-mix(in srgb,var(--c) 45%,var(--surface))}
 .ind-meses tr.ind-sel th,.ind-meses tr.ind-sel td{background:var(--accent-soft)}
 .ind-meses tbody tr:last-child th,.ind-meses tbody tr:last-child td{border-bottom:0}
+/* Disponible: la barra es lo que quedó libre, en verde */
+.ind-libre{--c:var(--s5)}
+/* Internas y externas: una barra repartida sobre las horas reservadas del mes */
+.ind-tipos td:last-child{min-width:8rem;vertical-align:middle}
+.ind-reparto{--c:var(--muted);margin-top:0;height:10px;border-radius:5px}
+.ind-reparto i.int,.ind-leyenda i.int{background:var(--accent)}
+.ind-reparto i.ext,.ind-leyenda i.ext{background:var(--s2)}
+.ind-reparto i.sin,.ind-leyenda i.sin{background:color-mix(in srgb,var(--muted) 35%,var(--surface))}
 @media (max-width:560px){
   .ind-salas li{grid-template-columns:5.5rem minmax(0,1fr) auto;gap:8px;font-size:13px}
   .kpi-v{font-size:24px}
+}
+/* En el celular las cifras van de a dos: si queda una sola al final, ocupa la fila entera */
+@media (max-width:440px){
+  .ind-kpis .kpi:last-child:nth-child(odd){grid-column:1/-1}
 }
 
 /* ===== 4. Pasos, reglas y contacto ===== */

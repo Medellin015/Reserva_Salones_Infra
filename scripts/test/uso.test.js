@@ -9,7 +9,7 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { actualizarUso, origenDe, ventanaHabil } = require('../actualizar-disponibilidad');
+const { actualizarUso, origenDe, tipoDe, franjasCompactas, ventanaHabil } = require('../actualizar-disponibilidad');
 
 // Lunes 09/11/2026 a las 12:00 de Bogotá: la semana en curso empieza hoy.
 const AHORA = Date.UTC(2026, 10, 9, 17, 0, 0);
@@ -39,6 +39,34 @@ test('origen de cada franja: registro, formulario, planilla u otra', () => {
   assert.strictEqual(origenDe(null), 'o');
   // Solo cuenta la marca al final del lugar.
   assert.strictEqual(origenDe({ t: 'Comité técnico · Ana Pérez', l: 'Sala de registro civil' }), 'f');
+});
+
+test('tipo de cada franja: interna, externa o sin marca', () => {
+  assert.strictEqual(tipoDe({ t: 'Comité · Ana Pérez', l: 'Sala 3 · Interna' }), 'i');
+  assert.strictEqual(tipoDe({ t: 'Comité · Ana Pérez', l: 'Salas 1 y 2 · Externa' }), 'e');
+  assert.strictEqual(tipoDe({ t: 'Comité · Ana Pérez', l: 'Sala 5 · Externa (registro)' }), 'e');
+  assert.strictEqual(tipoDe({ l: 'Sala 3 ·interna ' }), 'i');
+  assert.strictEqual(tipoDe({ t: 'Comité · Ana Pérez', l: 'Sala 3' }), '');
+  assert.strictEqual(tipoDe({ t: 'Reserva · Secretaría', l: 'Sala 3 (registro)' }), '');
+  assert.strictEqual(tipoDe({ t: 'Reunión con la Externa' }), '', 'solo cuenta la marca al final del lugar');
+  assert.strictEqual(tipoDe(null), '');
+  // El origen no cambia con la marca.
+  assert.strictEqual(origenDe({ t: 'Comité · Ana Pérez', l: 'Sala 3 · Interna' }), 'f');
+  assert.strictEqual(origenDe({ t: 'Comité · Ana Pérez', l: 'Sala 3 · Externa (registro)' }), 'r');
+  // En uso.js el tipo va como cuarto elemento, solo si la reserva lo tiene.
+  assert.deepStrictEqual(franjasCompactas([
+    ['08:00', '09:00', { t: 'Comité · Ana Pérez', l: 'Sala 3 · Interna' }],
+    ['10:00', '11:00', { t: 'Comité · Ana Pérez', l: 'Sala 3 · Externa (registro)' }],
+    ['12:00', '13:00', { t: 'Reserva · Secretaría', l: 'Sala 3' }],
+  ]), [[480, 540, 'f', 'i'], [600, 660, 'r', 'e'], [720, 780, 'p']]);
+});
+
+test('el historial guarda el tipo de las reservas marcadas', () => {
+  const anterior = historial({});
+  const lectura = ics(ANTIGUA, cita('2026-11-09', '08:00', '09:00', { lugar: 'Sala 3 · Interna' }),
+    cita('2026-11-09', '10:00', '11:00', { lugar: 'Sala 3 · Externa' }), cita('2026-11-09', '13:00', '14:00'));
+  const nuevo = actualizarUso(anterior, { 'Sala 3': lectura }, AHORA, VENTANA);
+  assert.deepStrictEqual(nuevo.dias['2026-11-09']['Sala 3'], [[480, 540, 'f', 'i'], [600, 660, 'f', 'e'], [780, 840, 'f']]);
 });
 
 test('un uso registrado se suma a un día anterior que ya tenía reservas', () => {

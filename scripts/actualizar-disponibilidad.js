@@ -523,14 +523,26 @@ const ocupacionPorDia = (intervalos, dias) => {
 // está en el historial, se agrega. Así el historial sobrevive a lo que Outlook deja de publicar.
 // La excepción son los usos registrados: en un día anterior que ya tiene reservas, los nuevos
 // se suman, y los que se borraron en Outlook salen mientras Outlook todavía publique ese día.
+// Un cuarto elemento dice si la reserva es interna ("i": la pidió la Secretaría de
+// Infraestructura Física) o externa ("e"): el flujo lo pone en el lugar ("Sala 3 · Interna").
+// Las reservas sin esa marca (la planilla y las pedidas antes de que el flujo la pusiera) no
+// lo llevan.
 const minutosDe = (texto) => { const [h, m] = texto.split(':').map(Number); return h * 60 + m; };
 const MARCA_REGISTRO = /\(registro\)\s*$/i;
+const MARCA_TIPO = /·\s*(interna|externa)\s*(\(registro\)\s*)?$/i;
 const origenDe = (info) => {
   if (info && info.l && MARCA_REGISTRO.test(info.l)) return 'r';
   if (!info || !info.t) return 'o';
   return /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o';
 };
-const franjasCompactas = (franjas) => franjas.map(([a, b, info]) => [minutosDe(a), minutosDe(b), origenDe(info)]);
+const tipoDe = (info) => {
+  const m = info && info.l ? MARCA_TIPO.exec(info.l) : null;
+  return m ? (m[1].toLowerCase() === 'interna' ? 'i' : 'e') : '';
+};
+const franjasCompactas = (franjas) => franjas.map(([a, b, info]) => {
+  const tipo = tipoDe(info);
+  return tipo ? [minutosDe(a), minutosDe(b), origenDe(info), tipo] : [minutosDe(a), minutosDe(b), origenDe(info)];
+});
 // Todos los días (también fines de semana) entre dos instantes, en AAAA-MM-DD.
 const diasEntre = (inicio, fin) => {
   const salida = [];
@@ -598,9 +610,10 @@ const escribirUso = (uso) => {
    actualizado: última vez que cambió algo de este archivo. desde: primer día con datos.
    festivos: los de Colombia en los años del historial, para contar los días hábiles.
    dias: por día (AAAA-MM-DD) y por sala, las franjas reservadas en minutos del día
-   [inicio, fin, origen]; origen "f" es una reserva pedida por el formulario, "p" una cargada
-   de la planilla, "r" un uso que la Unidad Administrativa registró después y "o" otra. Los
-   días sin reservas no aparecen. */
+   [inicio, fin, origen] o [inicio, fin, origen, tipo]; origen "f" es una reserva pedida por
+   el formulario, "p" una cargada de la planilla, "r" un uso que la Unidad Administrativa
+   registró después y "o" otra; tipo "i" es interna (Secretaría de Infraestructura Física) y
+   "e" externa, y falta en las reservas sin esa marca. Los días sin reservas no aparecen. */
 window.USO = {
  "actualizado": ${JSON.stringify(uso.actualizado)},
  "desde": ${JSON.stringify(uso.desde)},
@@ -750,4 +763,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes, actualizarUso, franjasCompactas, origenDe, usoVacio, escribirUso, leerUso };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes, actualizarUso, franjasCompactas, origenDe, tipoDe, usoVacio, escribirUso, leerUso };
