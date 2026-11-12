@@ -233,11 +233,16 @@ let cancelar = null;
 let claveRender = null;
 
 // --- Detalle de una reserva ---
-// Un uso que la Unidad Administrativa registró después de que pasó: el flujo termina el lugar en
-// "(registro)". La marca no se muestra como parte del lugar.
+// Marcas que el flujo pone al final del lugar y que no se muestran como parte de él: si la
+// reserva es interna (la pidió la Secretaría de Infraestructura Física) o externa ("Sala 3 ·
+// Interna") y, en un uso que la Unidad Administrativa registró después, "(registro)".
 const MARCA_REGISTRO = /\s*\(registro\)\s*$/i;
+const MARCA_TIPO = /·\s*(interna|externa)\s*(\(registro\)\s*)?$/i;
+const MARCAS_LUGAR = /\s*(·\s*(interna|externa)\s*)?(\(registro\)\s*)?$/i;
 const esRegistro = (info) => Boolean(info && info.l && MARCA_REGISTRO.test(info.l));
-const lugarDe = (info) => (info && info.l ? info.l.replace(MARCA_REGISTRO, '').trim() : '');
+// 'i' interna, 'e' externa, '' sin marca (la planilla y lo pedido antes de que el flujo la pusiera).
+const tipoDe = (info) => { const m = info && info.l ? MARCA_TIPO.exec(info.l) : null; return m ? (m[1].toLowerCase() === 'interna' ? 'i' : 'e') : ''; };
+const lugarDe = (info) => (info && info.l ? info.l.replace(MARCAS_LUGAR, '').trim() : '');
 
 // El flujo pone en el asunto "Motivo · Responsable"; si viene así, se separan.
 const resumenReserva = (info) => {
@@ -293,6 +298,8 @@ const abrirDetalle = (sala, dia, k) => {
   // El flujo pone como lugar la sala pedida: solo dice algo nuevo si son dos salas juntas.
   const lugar = lugarDe(info);
   if (lugar && lugar !== sala.nombre) filas.push(['Lugar', lugar]);
+  const tipo = tipoDe(info);
+  if (tipo) filas.push(['Tipo', tipo === 'i' ? 'Interna (Secretaría de Infraestructura Física)' : 'Externa (otra dependencia)']);
   if (esRegistro(info)) filas.push(['Registro', 'Uso registrado después por la Unidad Administrativa']);
   if (info && info.d) {
     // Cada línea "Etiqueta: valor" de la descripción va como fila; el resto, como texto.
@@ -792,12 +799,12 @@ const sumarMeses = (mes, n) => { const [a, m] = mes.split('-').map(Number); cons
 // "Reserva · Nombre" viene de la planilla y "Motivo · Responsable" del formulario; lo demás no se
 // sabe. Solo lo del formulario cuenta como "pedidas por la página".
 const origenDe = (info) => (esRegistro(info) ? 'r' : !info || !info.t ? 'o' : /^Reserva · /.test(info.t) ? 'p' : / · /.test(info.t) ? 'f' : 'o');
-// Franjas [inicio, fin, origen] (minutos del día) de una sala en un día: del historial si el día
-// ya pasó y de los datos del calendario si es hoy o después.
+// Franjas [inicio, fin, origen, tipo] (minutos del día) de una sala en un día: del historial si el
+// día ya pasó y de los datos del calendario si es hoy o después. tipo: 'i', 'e' o vacío.
 const franjasDeDia = (datos, sala, dia, hoyIso) => {
   if (dia < hoyIso) { const d = uso && uso.dias && uso.dias[dia]; return d && Array.isArray(d[sala]) ? d[sala] : []; }
   const oc = datos && datos.ocupado && datos.ocupado[sala];
-  return oc && Array.isArray(oc[dia]) ? oc[dia].map(([a, b, info]) => [aMinutos(a), aMinutos(b), origenDe(info)]) : [];
+  return oc && Array.isArray(oc[dia]) ? oc[dia].map(([a, b, info]) => [aMinutos(a), aMinutos(b), origenDe(info), tipoDe(info)]) : [];
 };
 const horasDe = (franjas) => franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, FIN_RESERVAS) - Math.max(a, INICIO_RESERVAS)), 0) / 60;
 
@@ -818,7 +825,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
   const festivos = new Set([...((uso && uso.festivos) || []), ...((datos && datos.festivos) || [])]);
   // Un mes anterior al historial cuenta solo desde el primer día con datos.
   const desde = uso && uso.desde ? uso.desde : hoyIso;
-  const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0 }));
+  const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0, internas: 0, externas: 0, sinClase: 0 }));
   const porDiaSemana = [0, 0, 0, 0, 0];
   const bloques = (FIN_RESERVAS - INICIO_RESERVAS) / BLOQUE;
   const porBloque = new Array(bloques).fill(0);
@@ -840,6 +847,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
       if (dia < hoyIso) r.usadas += h; else r.programadas += h;
       r.reservas += fr.length;
       r.formulario += fr.filter((x) => x[2] === 'f').length;
+      for (const f of fr) { const hf = horasDe([f]); if (f[3] === 'i') r.internas += hf; else if (f[3] === 'e') r.externas += hf; else r.sinClase += hf; }
       r.dias += 1;
       if (!habil) return;
       porDiaSemana[ds - 1] += h;
@@ -851,11 +859,21 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
     if (conReserva) diasConReserva += 1;
   }
   const disponiblesSala = habiles * HORAS_HABILES;
-  porSala.forEach((r) => { r.horas = r.usadas + r.programadas; r.ocupacion = disponiblesSala ? r.horas / disponiblesSala : 0; });
-  const total = porSala.reduce((t, r) => ({ usadas: t.usadas + r.usadas, programadas: t.programadas + r.programadas, reservas: t.reservas + r.reservas, formulario: t.formulario + r.formulario }), { usadas: 0, programadas: 0, reservas: 0, formulario: 0 });
+  // Lo disponible es lo que queda libre del horario de reservas en los días hábiles: 100 % menos
+  // la ocupación (nunca menos de cero, aunque dos reservas se crucen).
+  porSala.forEach((r) => {
+    r.horas = r.usadas + r.programadas;
+    r.ocupacion = disponiblesSala ? r.horas / disponiblesSala : 0;
+    r.libres = Math.max(0, disponiblesSala - r.horas);
+    r.disponible = disponiblesSala ? r.libres / disponiblesSala : 0;
+  });
+  const sumas = ['usadas', 'programadas', 'reservas', 'formulario', 'internas', 'externas', 'sinClase'];
+  const total = Object.fromEntries(sumas.map((k) => [k, porSala.reduce((t, r) => t + r[k], 0)]));
   total.horas = total.usadas + total.programadas;
   total.disponibles = disponiblesSala * salas.length;
   total.ocupacion = total.disponibles ? total.horas / total.disponibles : 0;
+  total.libres = Math.max(0, total.disponibles - total.horas);
+  total.disponible = total.disponibles ? total.libres / total.disponibles : 0;
   total.dias = diasConReserva;
   const masUsada = porSala.reduce((mejor, r) => (r.horas > (mejor ? mejor.horas : 0) ? r : mejor), null);
   return { mes, salas, porSala, total, masUsada, habiles, sinDatos, porDiaSemana, porBloque: porBloque.map((n) => (habiles && salas.length ? n / (habiles * salas.length) : 0)) };
@@ -881,6 +899,7 @@ const renderIndicadores = () => {
   const kpis = [
     kpi('Horas reservadas', horasTexto(r.total.horas), `de ${horasTexto(r.total.disponibles)} disponibles`),
     kpi('Ocupación', pctTexto(r.total.ocupacion), `${r.habiles} ${r.habiles === 1 ? 'día hábil' : 'días hábiles'}, de ${horario.inicio} a ${horario.fin}`),
+    kpi('Disponible', pctTexto(r.total.disponible), `${horasTexto(r.total.libres)} libres de todas las salas`),
     kpi('Reservas', String(r.total.reservas), r.total.reservas ? `${pctTexto(r.total.formulario / r.total.reservas)} pedidas por la página` : 'ninguna'),
     kpi('Sala más usada', r.masUsada && r.masUsada.horas ? escapar(r.masUsada.sala.nombre) : '—', r.masUsada && r.masUsada.horas ? `${horasTexto(r.masUsada.horas)} · ${pctTexto(r.masUsada.ocupacion)} de ocupación` : 'sin reservas'),
   ].join('');
@@ -915,16 +934,34 @@ const renderIndicadores = () => {
     const w = (h) => (disponibles ? Math.min(100, (h / disponibles) * 100) : 0).toFixed(2);
     return `<td title="${escapar(detalle)}"><span class="ind-mv">${horasTexto(x.horas)}</span> <span class="ind-mp">${pctTexto(x.ocupacion)}</span><span class="ind-mini" style="--c:${color}" aria-hidden="true"><i class="usada" style="width:${w(x.usadas)}%"></i><i class="prog" style="left:${w(x.usadas)}%;width:${w(x.programadas)}%"></i></span></td>`;
   };
-  const detalleMes = (nombre, mes, x) => `${nombre} en ${mesLargo(mes)}: ${horasTexto(x.usadas)} usadas y ${horasTexto(x.programadas)} programadas, ${pctTexto(x.ocupacion)} de ocupación, ${x.reservas} ${x.reservas === 1 ? 'reserva' : 'reservas'}`;
-  const filasMeses = porMes.map((x) => {
-    const estado = x.mes > mesActual ? 'programado' : x.mes === mesActual ? 'en curso'
-      : x.sinDatos && uso && uso.desde ? `desde el ${fechaLocal(uso.desde).toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })}` : '';
-    const celdas = x.porSala.map((s) => celdaMes(s, x.habiles * HORAS_HABILES, s.sala.color, detalleMes(s.sala.nombre, x.mes, s))).join('')
-      + celdaMes(x.total, x.total.disponibles, 'var(--accent)', detalleMes('Todas las salas', x.mes, x.total));
+  const detalleMes = (nombre, mes, x) => `${nombre} en ${mesLargo(mes)}: ${horasTexto(x.usadas)} usadas y ${horasTexto(x.programadas)} programadas, ${pctTexto(x.ocupacion)} de ocupación y ${pctTexto(x.disponible)} disponible, ${x.reservas} ${x.reservas === 1 ? 'reserva' : 'reservas'}`;
+  // Lo que quedó libre de todas las salas en el mes: el porcentaje, las horas y una barra.
+  const celdaDisponible = (x) => `<td title="${escapar(`En ${mesLargo(x.mes)} quedó disponible el ${pctTexto(x.total.disponible)} del horario de reservas de todas las salas: ${horasTexto(x.total.libres)} de ${horasTexto(x.total.disponibles)}`)}"><span class="ind-mv">${pctTexto(x.total.disponible)}</span> <span class="ind-mp">${horasTexto(x.total.libres)}</span><span class="ind-mini ind-libre" aria-hidden="true"><i style="width:${(x.total.disponible * 100).toFixed(2)}%"></i></span></td>`;
+  const estadoMes = (x) => (x.mes > mesActual ? 'programado' : x.mes === mesActual ? 'en curso'
+    : x.sinDatos && uso && uso.desde ? `desde el ${fechaLocal(uso.desde).toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })}` : '');
+  const cabezaMes = (x) => {
     const elegido = x.mes === mesIndicadores;
-    return `<tr${elegido ? ' class="ind-sel"' : ''}><th scope="row">${nombreMes(x.mes)}${elegido ? '<span class="sr"> (mes elegido)</span>' : ''}${estado ? `<small>${estado}</small>` : ''}</th>${celdas}</tr>`;
+    const estado = estadoMes(x);
+    return `<th scope="row">${nombreMes(x.mes)}${elegido ? '<span class="sr"> (mes elegido)</span>' : ''}${estado ? `<small>${estado}</small>` : ''}</th>`;
+  };
+  const filasMeses = porMes.map((x) => {
+    const celdas = x.porSala.map((s) => celdaMes(s, x.habiles * HORAS_HABILES, s.sala.color, detalleMes(s.sala.nombre, x.mes, s))).join('')
+      + celdaMes(x.total, x.total.disponibles, 'var(--accent)', detalleMes('Todas las salas', x.mes, x.total))
+      + celdaDisponible(x);
+    return `<tr${x.mes === mesIndicadores ? ' class="ind-sel"' : ''}>${cabezaMes(x)}${celdas}</tr>`;
   }).join('');
-  const tablaMeses = `<table class="ind-tabla ind-meses"><caption class="sr">Uso de cada sala por mes</caption><thead><tr><th scope="col">Mes</th>${r.salas.map((s) => `<th scope="col">${escapar(s.nombre)}</th>`).join('')}<th scope="col">Todas</th></tr></thead><tbody>${filasMeses}</tbody></table>`;
+  const tablaMeses = `<table class="ind-tabla ind-meses"><caption class="sr">Uso de cada sala por mes y lo que quedó disponible</caption><thead><tr><th scope="col">Mes</th>${r.salas.map((s) => `<th scope="col">${escapar(s.nombre)}</th>`).join('')}<th scope="col">Todas</th><th scope="col">Disponible</th></tr></thead><tbody>${filasMeses}</tbody></table>`;
+
+  // Internas y externas por mes: horas de cada tipo y su parte de las horas reservadas, con una
+  // barra repartida. Sin clasificar: las reservas sin la marca del flujo.
+  const celdaTipo = (h, x, nombre) => `<td title="${escapar(`${nombre} en ${mesLargo(x.mes)}: ${horasTexto(h)}${x.total.horas ? `, ${pctTexto(h / x.total.horas)} de las horas reservadas` : ''}`)}"><span class="ind-mv">${horasTexto(h)}</span> <span class="ind-mp">${x.total.horas ? pctTexto(h / x.total.horas) : '—'}</span></td>`;
+  const filasTipos = porMes.map((x) => {
+    const parte = (h) => (x.total.horas ? (h / x.total.horas) * 100 : 0);
+    const [pi, pe] = [parte(x.total.internas), parte(x.total.externas)];
+    const barra = `<td aria-hidden="true"><span class="ind-mini ind-reparto"><i class="int" style="width:${pi.toFixed(2)}%"></i><i class="ext" style="left:${pi.toFixed(2)}%;width:${pe.toFixed(2)}%"></i><i class="sin" style="left:${(pi + pe).toFixed(2)}%;width:${parte(x.total.sinClase).toFixed(2)}%"></i></span></td>`;
+    return `<tr${x.mes === mesIndicadores ? ' class="ind-sel"' : ''}>${cabezaMes(x)}${celdaTipo(x.total.internas, x, 'Internas')}${celdaTipo(x.total.externas, x, 'Externas')}${celdaTipo(x.total.sinClase, x, 'Sin clasificar')}${barra}</tr>`;
+  }).join('');
+  const tablaTipos = `<table class="ind-tabla ind-meses ind-tipos"><caption class="sr">Horas reservadas internas y externas por mes</caption><thead><tr><th scope="col">Mes</th><th scope="col">Internas</th><th scope="col">Externas</th><th scope="col">Sin clasificar</th><th scope="col">Reparto</th></tr></thead><tbody>${filasTipos}</tbody></table>`;
 
   cont.innerHTML = `<div class="ind">
     <div class="ind-filtros"><label for="ind-mes">Mes</label><select id="ind-mes">${opciones}</select><span class="ind-nota">Usadas: días que ya pasaron. Programadas: de hoy en adelante.${uso && uso.desde ? ` Historial desde el ${fechaConAno(uso.desde)}.` : ''}</span></div>
@@ -940,8 +977,12 @@ const renderIndicadores = () => {
     <h3>Detalle por sala</h3>
     <div class="ind-tabla-wrap">${tabla}</div>
     <h3>Uso por mes</h3>
-    <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; el mes elegido arriba va resaltado.</p>
+    <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; "Disponible" es la parte del horario de reservas de todas las salas que quedó libre. El mes elegido arriba va resaltado.</p>
     <div class="ind-tabla-wrap">${tablaMeses}</div>
+    <h3>Internas y externas por mes</h3>
+    <p class="ind-nota ind-nota-meses">Horas reservadas por la Secretaría de Infraestructura Física (internas) y por otras dependencias (externas), según la dependencia que se marcó en el formulario, y su parte de las horas reservadas del mes. "Sin clasificar" son las de la planilla y las que se pidieron antes de que el flujo empezara a marcarlas.</p>
+    <div class="ind-tabla-wrap">${tablaTipos}</div>
+    <p class="ind-leyenda"><span><i class="int"></i>Internas</span><span><i class="ext"></i>Externas</span><span><i class="sin"></i>Sin clasificar</span></p>
   </div>`;
 };
 
