@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-12",
- "actualizado": "2026-11-12T09:55:04-05:00",
+ "actualizado": "2026-11-12T10:03:55-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -913,14 +913,6 @@ window.DISPONIBILIDAD = {
      "10:30",
      {
       "t": "comité de liquidaciones · Daniela Arbeláez Duque",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Reunión Equipo Apoyo Al Despacho (EAD); Manuela Informatica. · Victor Ganzalo Rendón Santamaría",
       "l": "Sala 3"
      }
     ]
