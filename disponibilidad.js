@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-12",
- "actualizado": "2026-11-12T06:00:46-05:00",
+ "actualizado": "2026-11-12T09:36:17-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -1201,7 +1201,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-23": [],
+   "2026-11-23": [
+    [
+     "08:00",
+     "17:00",
+     {
+      "t": "Inducción  · Deiby Valencia",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-11-24": [
     [
      "10:00",
