@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-12",
- "actualizado": "2026-11-12T11:31:53-05:00",
+ "actualizado": "2026-11-12T12:41:03-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -1318,5 +1318,7 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   }
  },
- "errores": {}
+ "errores": {
+  "Sala 5": "The operation was aborted due to timeout"
+ }
 };
