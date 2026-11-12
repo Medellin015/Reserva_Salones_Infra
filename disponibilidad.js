@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-12",
- "actualizado": "2026-11-12T16:31:03-05:00",
+ "actualizado": "2026-11-12T16:41:00-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -1319,7 +1319,7 @@ window.DISPONIBILIDAD = {
   }
  },
  "errores": {
-  "Sala 1": "The operation was aborted due to timeout",
+  "Sala 1": "fetch failed",
   "Sala 2": "fetch failed",
   "Sala 3": "fetch failed",
   "Sala 5": "fetch failed"
