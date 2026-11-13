@@ -9,7 +9,9 @@
 
 const test = require('node:test');
 const assert = require('node:assert');
-const { actualizarUso, origenDe, tipoDe, franjasCompactas, ventanaHabil } = require('../actualizar-disponibilidad');
+const fs = require('fs');
+const path = require('path');
+const { actualizarUso, origenDe, tipoDe, franjasCompactas, cargarClasificacion, clasificarOcupado, ventanaHabil } = require('../actualizar-disponibilidad');
 
 // Lunes 09/11/2026 a las 12:00 de Bogotá: la semana en curso empieza hoy.
 const AHORA = Date.UTC(2026, 10, 9, 17, 0, 0);
@@ -67,6 +69,36 @@ test('el historial guarda el tipo de las reservas marcadas', () => {
     cita('2026-11-09', '10:00', '11:00', { lugar: 'Sala 3 · Externa' }), cita('2026-11-09', '13:00', '14:00'));
   const nuevo = actualizarUso(anterior, { 'Sala 3': lectura }, AHORA, VENTANA);
   assert.deepStrictEqual(nuevo.dias['2026-11-09']['Sala 3'], [[480, 540, 'f', 'i'], [600, 660, 'f', 'e'], [780, 840, 'f']]);
+});
+
+test('las reservas sin marca toman el tipo de la clasificación anterior, en el historial y en lo programado', () => {
+  const clasificacion = { 'Sala 3|2026-10-15|08:00|10:00': 'i', 'Sala 3|2026-11-09|13:00|14:00': 'e', 'Sala 3|2026-11-09|08:00|09:00': 'e' };
+  // Un día anterior que ya estaba en el historial sin tipo lo toma; el que no está en la lista queda igual.
+  const anterior = historial({ '2026-10-15': { 'Sala 3': [[480, 600, 'f'], [660, 720, 'p']] } });
+  const lectura = ics(ANTIGUA, cita('2026-11-09', '08:00', '09:00', { lugar: 'Sala 3 · Interna' }), cita('2026-11-09', '13:00', '14:00'));
+  const nuevo = actualizarUso(anterior, { 'Sala 3': lectura }, AHORA, VENTANA, clasificacion);
+  assert.deepStrictEqual(nuevo.dias['2026-10-15']['Sala 3'], [[480, 600, 'f', 'i'], [660, 720, 'p']]);
+  // En los días de esta semana también; la marca del flujo manda sobre la lista.
+  assert.deepStrictEqual(nuevo.dias['2026-11-09']['Sala 3'], [[480, 540, 'f', 'i'], [780, 840, 'f', 'e']]);
+  // Otra lectura igual no cambia nada.
+  assert.deepStrictEqual(actualizarUso(nuevo, { 'Sala 3': lectura }, AHORA, VENTANA, clasificacion).dias, nuevo.dias);
+  // En disponibilidad.js el tipo va en el detalle como "k", solo en las reservas sin marca.
+  const ocupado = { '2026-11-09': [['08:00', '09:00', { t: 'A · B', l: 'Sala 3 · Interna' }], ['13:00', '14:00', { t: 'C · D', l: 'Sala 3' }], ['15:00', '16:00']] };
+  assert.deepStrictEqual(clasificarOcupado(ocupado, 'Sala 3', { ...clasificacion, 'Sala 3|2026-11-09|15:00|16:00': 'i' }), { '2026-11-09': [
+    ['08:00', '09:00', { t: 'A · B', l: 'Sala 3 · Interna' }], ['13:00', '14:00', { t: 'C · D', l: 'Sala 3', k: 'e' }], ['15:00', '16:00', { k: 'i' }]] });
+  assert.deepStrictEqual(ocupado['2026-11-09'][1][2], { t: 'C · D', l: 'Sala 3' }, 'no cambia los datos de entrada');
+});
+
+test('la clasificación anterior solo trae sala, fecha, horas y tipo', () => {
+  const ruta = path.join(__dirname, '..', 'clasificacion-anterior.json');
+  const franjas = cargarClasificacion(ruta);
+  assert.ok(Object.keys(franjas).length > 0);
+  for (const [k, v] of Object.entries(franjas)) {
+    assert.match(k, /^Sala [1-9]\|\d{4}-\d{2}-\d{2}\|\d{2}:\d{2}\|\d{2}:\d{2}$/);
+    assert.ok(v === 'i' || v === 'e', k);
+  }
+  assert.ok(!/@|\d{7,}/.test(fs.readFileSync(ruta, 'utf8')), 'sin correos ni números de documento');
+  assert.deepStrictEqual(cargarClasificacion(path.join(__dirname, 'no-existe.json')), {}, 'sin archivo no falla');
 });
 
 test('un uso registrado se suma a un día anterior que ya tenía reservas', () => {

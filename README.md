@@ -180,9 +180,23 @@ Interna" en las dos salas, "Sala 3 · Externa (registro)" en un uso registrado d
 página no muestra la marca como parte del lugar: el detalle de la reserva tiene la fila "Tipo".
 
 La tarea guarda el tipo en `uso.js` como cuarto elemento de cada franja ("i" interna, "e"
-externa). Las reservas sin la marca, las de la planilla y las que se pidieron antes de que el
-flujo empezara a ponerla, cuentan como "sin clasificar". El número de personas no se publica,
-así que los indicadores no lo usan.
+externa). El número de personas no se publica, así que los indicadores no lo usan.
+
+Las reservas hechas antes de la marca (del 14/10 al 13/11/2026) se clasificaron una sola vez
+con el Excel de respuestas del formulario, con la misma regla: la dependencia elegida en cada
+solicitud. Las primeras 13 respuestas, de antes de que el formulario preguntara la dependencia,
+tomaron la de las demás solicitudes de la misma cuenta. Las de la planilla tomaron la
+dependencia de la persona cuando también pidió sala por el formulario. El resultado está en
+`scripts/clasificacion-anterior.json`, con solo sala, fecha, horas y tipo, sin datos
+personales:
+
+```
+"Sala 3|2026-10-20|08:00|10:00": "i"
+```
+
+La tarea lo aplica al historial y, en lo programado, pone el tipo en el detalle de la reserva
+("k"), que la página lee cuando el lugar no trae la marca. Lo que no está en esa lista ni tiene
+la marca cuenta como "sin clasificar".
 
 ## Horario de reservas
 
