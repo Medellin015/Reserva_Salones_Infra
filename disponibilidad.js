@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-13",
- "actualizado": "2026-11-13T06:51:12-05:00",
+ "actualizado": "2026-11-13T09:46:06-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -211,7 +211,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-18": [],
-   "2026-11-19": [],
+   "2026-11-19": [
+    [
+     "08:30",
+     "16:00",
+     {
+      "t": "Reunion de supervision contrato 4600105294 DE 2025 · Edwin Neira",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-20": [
     [
      "08:15",
