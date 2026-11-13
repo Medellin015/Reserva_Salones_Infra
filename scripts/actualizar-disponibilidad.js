@@ -30,6 +30,10 @@ const RAIZ = path.join(__dirname, '..');
 const ARCHIVO_CONFIG = path.join(RAIZ, 'config.js');
 const ARCHIVO_SALIDA = path.join(RAIZ, 'disponibilidad.js');
 const ARCHIVO_USO = path.join(RAIZ, 'uso.js');
+// Tipo (interna o externa) de las reservas que se hicieron antes de que el flujo lo marcara en el
+// lugar: sale de la dependencia elegida en el formulario y, en las de la planilla, de la persona.
+// Solo trae sala, fecha y horas ("Sala 3|2026-10-20|08:00|10:00": "i"), sin datos personales.
+const ARCHIVO_CLASIFICACION = path.join(__dirname, 'clasificacion-anterior.json');
 // Hasta cuántos días atrás se leen las citas del ICS para el historial de uso. Outlook solo
 // publica cierto rango hacia atrás; lo que ya no publica se conserva en uso.js.
 const DIAS_HISTORIAL = 400;
@@ -543,6 +547,23 @@ const franjasCompactas = (franjas) => franjas.map(([a, b, info]) => {
   const tipo = tipoDe(info);
   return tipo ? [minutosDe(a), minutosDe(b), origenDe(info), tipo] : [minutosDe(a), minutosDe(b), origenDe(info)];
 });
+
+// Las reservas sin la marca del flujo toman el tipo de la clasificación anterior, si está.
+const cargarClasificacion = (ruta = ARCHIVO_CLASIFICACION) => {
+  try { return JSON.parse(fs.readFileSync(ruta, 'utf8')).franjas || {}; } catch (e) { return {}; }
+};
+const claveFranja = (sala, dia, a, b) => `${sala}|${dia}|${a}|${b}`;
+// En uso.js: [inicio, fin, origen] → [inicio, fin, origen, tipo].
+const conClasificacion = (sala, dia, f, clasificacion) => {
+  if (f[3]) return f;
+  const tipo = clasificacion[claveFranja(sala, dia, hhmm(f[0]), hhmm(f[1]))];
+  return tipo ? [f[0], f[1], f[2], tipo] : f;
+};
+// En disponibilidad.js: el tipo va en el detalle de la reserva como "k" ("i" o "e").
+const clasificarOcupado = (ocupadoSala, sala, clasificacion) => Object.fromEntries(Object.entries(ocupadoSala).map(([dia, franjas]) => [dia, franjas.map((f) => {
+  const tipo = !tipoDe(f[2]) && clasificacion[claveFranja(sala, dia, f[0], f[1])];
+  return tipo ? [f[0], f[1], { ...(f[2] || {}), k: tipo }] : f;
+})]));
 // Todos los días (también fines de semana) entre dos instantes, en AAAA-MM-DD.
 const diasEntre = (inicio, fin) => {
   const salida = [];
@@ -559,7 +580,8 @@ const leerUso = () => {
 const usoVacio = () => ({ actualizado: null, desde: null, festivos: [], dias: {} });
 
 // lecturas: { 'Sala 1': textoIcs, ... } de las salas que se pudieron leer en esta ejecución.
-const actualizarUso = (anterior, lecturas, ahora, ventana) => {
+const actualizarUso = (anterior, lecturas, ahora, ventana, clasificacion = {}) => {
+  const compactas = (sala, dia, franjas) => franjasCompactas(franjas).map((f) => conClasificacion(sala, dia, f, clasificacion));
   const hoy = camposBogota(ahora);
   const finHoy = epochBogota(hoy.a, hoy.m, hoy.d) + MS_DIA;
   const inicio = finHoy - DIAS_HISTORIAL * MS_DIA;
@@ -573,13 +595,13 @@ const actualizarUso = (anterior, lecturas, ahora, ventana) => {
     for (const [dia, franjas] of Object.entries(porDia)) {
       const entrada = nuevo.dias[dia] || {};
       if (refrescar.has(dia)) {
-        if (franjas.length) entrada[sala] = franjasCompactas(franjas); else delete entrada[sala];
+        if (franjas.length) entrada[sala] = compactas(sala, dia, franjas); else delete entrada[sala];
       } else if (!(sala in entrada)) {
-        if (franjas.length) entrada[sala] = franjasCompactas(franjas);
+        if (franjas.length) entrada[sala] = compactas(sala, dia, franjas);
       } else {
         // Día anterior que ya está en el historial: solo cambian los usos registrados.
         const antes = entrada[sala];
-        const registros = franjasCompactas(franjas).filter((f) => f[2] === 'r');
+        const registros = compactas(sala, dia, franjas).filter((f) => f[2] === 'r');
         const igual = (x) => (y) => x[0] === y[0] && x[1] === y[1] && x[2] === y[2];
         const sumar = registros.filter((r) => !antes.some(igual(r)));
         const publicado = publicadoDesde !== null && dia >= publicadoDesde;
@@ -592,6 +614,10 @@ const actualizarUso = (anterior, lecturas, ahora, ventana) => {
       }
       if (Object.keys(entrada).length) nuevo.dias[dia] = entrada; else delete nuevo.dias[dia];
     }
+  }
+  // Lo que ya estaba en el historial sin tipo también lo toma de la clasificación anterior.
+  for (const [dia, salas] of Object.entries(nuevo.dias)) {
+    for (const [sala, franjas] of Object.entries(salas)) salas[sala] = franjas.map((f) => conClasificacion(sala, dia, f, clasificacion));
   }
   const fechas = Object.keys(nuevo.dias).sort();
   nuevo.desde = fechas[0] || null;
@@ -613,7 +639,7 @@ const escribirUso = (uso) => {
    [inicio, fin, origen] o [inicio, fin, origen, tipo]; origen "f" es una reserva pedida por
    el formulario, "p" una cargada de la planilla, "r" un uso que la Unidad Administrativa
    registró después y "o" otra; tipo "i" es interna (Secretaría de Infraestructura Física) y
-   "e" externa, y falta en las reservas sin esa marca. Los días sin reservas no aparecen. */
+   "e" externa, y falta en las reservas sin clasificar. Los días sin reservas no aparecen. */
 window.USO = {
  "actualizado": ${JSON.stringify(uso.actualizado)},
  "desde": ${JSON.stringify(uso.desde)},
@@ -693,6 +719,7 @@ const principal = async () => {
   const anterior = leerAnterior() || {};
   const mismaVentana = JSON.stringify(anterior.dias) === JSON.stringify(dias);
 
+  const clasificacion = cargarClasificacion();
   const ocupado = {};
   const errores = {};
   const lecturas = {};
@@ -705,7 +732,7 @@ const principal = async () => {
     try {
       const texto = await descargar(urlIcs(sala.calendario));
       const intervalos = intervalosOcupados(texto, inicioVentana, finVentana);
-      ocupado[sala.nombre] = ocupacionPorDia(intervalos, dias);
+      ocupado[sala.nombre] = clasificarOcupado(ocupacionPorDia(intervalos, dias), sala.nombre, clasificacion);
       lecturas[sala.nombre] = texto;
       leidas += 1;
       const total = Object.values(ocupado[sala.nombre]).reduce((acc, f) => acc + f.length, 0);
@@ -747,7 +774,7 @@ const principal = async () => {
   }
   // Historial de uso: solo con las salas que se leyeron; una sala que falló conserva lo que tenía.
   const usoAnterior = leerUso() || usoVacio();
-  const usoNuevo = actualizarUso(usoAnterior, lecturas, ahora, ventana);
+  const usoNuevo = actualizarUso(usoAnterior, lecturas, ahora, ventana, clasificacion);
   if (sinFecha(usoNuevo) === sinFecha(usoAnterior)) {
     console.log('Sin cambios en uso.js');
   } else {
@@ -763,4 +790,4 @@ if (require.main === module) {
   principal().catch((e) => { console.error(e); process.exit(1); });
 }
 
-module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes, actualizarUso, franjasCompactas, origenDe, tipoDe, usoVacio, escribirUso, leerUso };
+module.exports = { desplegar, leerPropiedad, leerComponentes, leerZonas, leerFechaHora, leerDuracion, leerEvento, expandir, intervalosOcupados, ocupacionPorDia, limpiarTexto, titulo, urlIcs, ventanaHabil, epochBogota, camposBogota, pascua, festivosColombia, esFestivo, diasDelMes, actualizarUso, franjasCompactas, origenDe, tipoDe, cargarClasificacion, conClasificacion, clasificarOcupado, usoVacio, escribirUso, leerUso };

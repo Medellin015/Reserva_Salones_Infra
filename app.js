@@ -240,8 +240,13 @@ const MARCA_REGISTRO = /\s*\(registro\)\s*$/i;
 const MARCA_TIPO = /·\s*(interna|externa)\s*(\(registro\)\s*)?$/i;
 const MARCAS_LUGAR = /\s*(·\s*(interna|externa)\s*)?(\(registro\)\s*)?$/i;
 const esRegistro = (info) => Boolean(info && info.l && MARCA_REGISTRO.test(info.l));
-// 'i' interna, 'e' externa, '' sin marca (la planilla y lo pedido antes de que el flujo la pusiera).
-const tipoDe = (info) => { const m = info && info.l ? MARCA_TIPO.exec(info.l) : null; return m ? (m[1].toLowerCase() === 'interna' ? 'i' : 'e') : ''; };
+// 'i' interna, 'e' externa, '' sin clasificar. Las reservas de antes de la marca traen el tipo en
+// "k" (lo pone el script con la clasificación anterior: scripts/clasificacion-anterior.json).
+const tipoDe = (info) => {
+  const m = info && info.l ? MARCA_TIPO.exec(info.l) : null;
+  if (m) return m[1].toLowerCase() === 'interna' ? 'i' : 'e';
+  return info && (info.k === 'i' || info.k === 'e') ? info.k : '';
+};
 const lugarDe = (info) => (info && info.l ? info.l.replace(MARCAS_LUGAR, '').trim() : '');
 
 // El flujo pone en el asunto "Motivo · Responsable"; si viene así, se separan.
@@ -980,7 +985,7 @@ const renderIndicadores = () => {
     <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; "Disponible" es la parte del horario de reservas de todas las salas que quedó libre. El mes elegido arriba va resaltado.</p>
     <div class="ind-tabla-wrap">${tablaMeses}</div>
     <h3>Internas y externas por mes</h3>
-    <p class="ind-nota ind-nota-meses">Horas reservadas por la Secretaría de Infraestructura Física (internas) y por otras dependencias (externas), según la dependencia que se marcó en el formulario, y su parte de las horas reservadas del mes. "Sin clasificar" son las de la planilla y las que se pidieron antes de que el flujo empezara a marcarlas.</p>
+    <p class="ind-nota ind-nota-meses">Horas reservadas por la Secretaría de Infraestructura Física (internas) y por otras dependencias (externas), según la dependencia que se marcó en el formulario, y su parte de las horas reservadas del mes. Las de la planilla toman la dependencia de la persona cuando también pidió sala por el formulario; las demás van como "Sin clasificar".</p>
     <div class="ind-tabla-wrap">${tablaTipos}</div>
     <p class="ind-leyenda"><span><i class="int"></i>Internas</span><span><i class="ext"></i>Externas</span><span><i class="sin"></i>Sin clasificar</span></p>
   </div>`;
