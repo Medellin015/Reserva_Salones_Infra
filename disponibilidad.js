@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-13",
- "actualizado": "2026-11-13T15:20:20-05:00",
+ "actualizado": "2026-11-13T17:40:21-05:00",
  "avisado": null,
  "dias": [
   "2026-11-09",
@@ -180,7 +180,8 @@ window.DISPONIBILIDAD = {
      "16:00",
      {
       "t": "Reserva · Nora Inés Cano Muñoz",
-      "l": "Salas 1 y 2"
+      "l": "Salas 1 y 2",
+      "k": "i"
      }
     ]
    ],
@@ -534,7 +535,8 @@ window.DISPONIBILIDAD = {
      "11:30",
      {
       "t": "Reserva · Sandra Usuga",
-      "l": "Sala 2"
+      "l": "Sala 2",
+      "k": "i"
      }
     ],
     [
@@ -571,7 +573,8 @@ window.DISPONIBILIDAD = {
      "16:00",
      {
       "t": "Reserva · Nora Inés Cano Muñoz",
-      "l": "Salas 1 y 2"
+      "l": "Salas 1 y 2",
+      "k": "i"
      }
     ]
    ],
@@ -612,7 +615,8 @@ window.DISPONIBILIDAD = {
      "11:30",
      {
       "t": "Reserva · Sandra Usuga",
-      "l": "Sala 2"
+      "l": "Sala 2",
+      "k": "i"
      }
     ]
    ],
@@ -692,7 +696,8 @@ window.DISPONIBILIDAD = {
      "11:30",
      {
       "t": "Reserva · Sandra Usuga",
-      "l": "Sala 2"
+      "l": "Sala 2",
+      "k": "i"
      }
     ],
     [
@@ -1289,7 +1294,8 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5"
+      "l": "Sala 5",
+      "k": "i"
      }
     ],
     [
@@ -1376,7 +1382,8 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5"
+      "l": "Sala 5",
+      "k": "i"
      }
     ]
    ],
@@ -1404,7 +1411,8 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5"
+      "l": "Sala 5",
+      "k": "i"
      }
     ]
    ],
