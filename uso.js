@@ -4,11 +4,12 @@
    actualizado: última vez que cambió algo de este archivo. desde: primer día con datos.
    festivos: los de Colombia en los años del historial, para contar los días hábiles.
    dias: por día (AAAA-MM-DD) y por sala, las franjas reservadas en minutos del día
-   [inicio, fin, origen]; origen "f" es una reserva pedida por el formulario, "p" una cargada
-   de la planilla, "r" un uso que la Unidad Administrativa registró después y "o" otra. Los
-   días sin reservas no aparecen. */
+   [inicio, fin, origen] o [inicio, fin, origen, tipo]; origen "f" es una reserva pedida por
+   el formulario, "p" una cargada de la planilla, "r" un uso que la Unidad Administrativa
+   registró después y "o" otra; tipo "i" es interna (Secretaría de Infraestructura Física) y
+   "e" externa, y falta en las reservas sin esa marca. Los días sin reservas no aparecen. */
 window.USO = {
- "actualizado": "2026-11-12T06:00:46-05:00",
+ "actualizado": "2026-11-13T06:51:12-05:00",
  "desde": "2026-10-14",
  "festivos": ["2026-01-01","2026-01-12","2026-03-23","2026-04-02","2026-04-03","2026-05-01","2026-05-18","2026-06-08","2026-06-15","2026-06-29","2026-07-20","2026-08-07","2026-08-17","2026-10-12","2026-11-02","2026-11-16","2026-12-08","2026-12-25","2027-01-01","2027-01-11","2027-03-22","2027-03-25","2027-03-26","2027-05-01","2027-05-10","2027-05-31","2027-06-07","2027-07-05","2027-07-20","2027-08-07","2027-08-16","2027-10-18","2027-11-01","2027-11-15","2027-12-08","2027-12-25"],
  "dias": {
@@ -32,6 +33,7 @@ window.USO = {
   "2026-11-09": {"Sala 1":[[495,600,"p"],[900,960,"f"]],"Sala 2":[[495,600,"p"],[840,960,"f"]],"Sala 3":[[480,600,"f"],[840,1020,"f"]],"Sala 5":[[510,600,"f"],[840,1020,"f"]]},
   "2026-11-10": {"Sala 1":[[480,660,"f"],[660,720,"f"],[840,1080,"p"]],"Sala 2":[[480,660,"f"],[660,750,"f"],[840,1080,"p"]],"Sala 3":[[480,600,"f"],[600,690,"f"],[780,840,"f"],[840,960,"p"]],"Sala 5":[[480,600,"f"],[600,720,"f"],[840,960,"f"]]},
   "2026-11-11": {"Sala 1":[[480,600,"f"],[600,720,"f"],[840,930,"f"]],"Sala 2":[[540,690,"p"],[840,960,"f"]],"Sala 3":[[510,600,"f"],[600,720,"p"]],"Sala 5":[[480,600,"f"],[600,720,"f"]]},
-  "2026-11-12": {"Sala 1":[[540,600,"f"],[600,720,"f"],[840,960,"p"]],"Sala 2":[[540,600,"f"],[600,720,"f"],[840,960,"p"]],"Sala 3":[[480,600,"f"],[600,660,"f"],[660,720,"f"],[780,810,"f"],[810,990,"f"]],"Sala 5":[[540,660,"f"],[660,720,"f"],[840,1020,"f"]]}
+  "2026-11-12": {"Sala 1":[[540,600,"f"],[600,720,"f"],[840,960,"p"]],"Sala 2":[[540,600,"f"],[600,720,"f"],[840,960,"p"]],"Sala 3":[[480,600,"f"],[600,660,"f"],[660,720,"f"],[780,810,"f"],[810,990,"f"]],"Sala 5":[[540,660,"f"],[660,720,"f"],[840,1020,"f"]]},
+  "2026-11-13": {"Sala 1":[[510,630,"f"]],"Sala 2":[[480,600,"f"]],"Sala 3":[[540,660,"f"]],"Sala 5":[[480,600,"f"]]}
  }
 };
