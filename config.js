@@ -22,6 +22,12 @@ const FORM_URL = 'https://forms.cloud.microsoft/r/xmAtdmU7sg';
 // 18:00): lo que queda por fuera se ve rayado y no se ofrece para pedir.
 const HORARIO = { inicio: '07:30', fin: '17:30' };
 
+// Almuerzo (HH:MM, en :00 o :30, dentro del horario): esas horas se pueden reservar como
+// cualquier otra, pero en los indicadores no cuentan como disponibles; solo cuentan, como
+// usadas o programadas, cuando alguien las reservó (ver README, "Indicadores de uso").
+// Con null, cuentan como cualquier otra hora.
+const ALMUERZO = { inicio: '12:00', fin: '14:00' };
+
 /* ===== 2. Contacto ===== */
 
 // Correo al que se escribe para dudas o para liberar una sala; la página lo muestra con el

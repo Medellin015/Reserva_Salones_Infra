@@ -1,7 +1,7 @@
 'use strict';
 /* ============================================================================
    Salas Piso 9 CAM — página de disponibilidad y acceso al formulario
-   Lee FORM_URL, HORARIO, CONTACTO, SALAS, SALAS_JUNTAS, FORM_PREFILL y CANCELAR_PREFILL de config.js, y
+   Lee FORM_URL, HORARIO, ALMUERZO, CONTACTO, SALAS, SALAS_JUNTAS, FORM_PREFILL y CANCELAR_PREFILL de config.js, y
    las horas ocupadas de disponibilidad.js; los dos se cargan antes que este archivo.
    Estructura del archivo:
      1. Utilidades
@@ -788,11 +788,27 @@ const iniciarDisponibilidad = () => {
 // pestaña); las de hoy en adelante, de los datos del calendario (disponibilidad.js). Horas y
 // ocupación se cuentan dentro del horario de reservas (07:30 a 17:30), también en los meses de
 // antes de ese horario, y la ocupación es sobre los días hábiles (lunes a viernes sin festivos)
-// del mes.
+// del mes. El almuerzo (12:00 a 14:00) se puede reservar, pero no cuenta como disponible: de esas
+// horas entra en la cuenta solo lo que alguien reservó.
 let uso = null; // window.USO, ya cargado
 let estadoUso = 'sin-cargar'; // 'sin-cargar', 'cargando', 'ok' o 'error'
 let mesIndicadores = null;
 const HORAS_HABILES = (FIN_RESERVAS - INICIO_RESERVAS) / 60;
+// Almuerzo (ALMUERZO en config.js), recortado al horario de reservas. Si ALMUERZO falta (un
+// config.js viejo guardado en el navegador), va de 12:00 a 14:00; con null no hay almuerzo, y si no
+// sirve tampoco, pero además avisa en la consola.
+const almuerzo = (() => {
+  const a = typeof ALMUERZO === 'undefined' ? { inicio: '12:00', fin: '14:00' } : ALMUERZO;
+  if (a === null) return null;
+  const valido = Boolean(a && typeof a === 'object' && esMediaHora(a.inicio) && esMediaHora(a.fin));
+  const ini = valido ? Math.max(aMinutos(a.inicio.trim()), INICIO_RESERVAS) : 0;
+  const fin = valido ? Math.min(aMinutos(a.fin.trim()), FIN_RESERVAS) : 0;
+  if (ini < fin) return { ini, fin };
+  console.warn('ALMUERZO de config.js no es válido (use { inicio: \'12:00\', fin: \'14:00\' }, en medias horas y dentro de HORARIO, o null); los indicadores cuentan esas horas como cualquier otra.');
+  return null;
+})();
+const HORAS_ALMUERZO = almuerzo ? (almuerzo.fin - almuerzo.ini) / 60 : 0;
+const textoAlmuerzo = almuerzo ? `de ${hhmm(almuerzo.ini)} a ${hhmm(almuerzo.fin)}` : '';
 const DIAS_SEMANA = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'];
 const fechaConAno = (iso) => fechaLocal(iso).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
 const horasTexto = (h) => `${h.toLocaleString('es-CO', { maximumFractionDigits: 1 })} h`;
@@ -812,6 +828,8 @@ const franjasDeDia = (datos, sala, dia, hoyIso) => {
   return oc && Array.isArray(oc[dia]) ? oc[dia].map(([a, b, info]) => [aMinutos(a), aMinutos(b), origenDe(info), tipoDe(info)]) : [];
 };
 const horasDe = (franjas) => franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, FIN_RESERVAS) - Math.max(a, INICIO_RESERVAS)), 0) / 60;
+// Horas reservadas dentro del almuerzo, con el mismo criterio de horasDe.
+const almuerzoDe = (franjas) => (almuerzo ? franjas.reduce((t, [a, b]) => t + Math.max(0, Math.min(b, almuerzo.fin) - Math.max(a, almuerzo.ini)), 0) / 60 : 0);
 
 // Meses que se pueden elegir: del primero con historial (o el actual) al último con datos del calendario.
 const mesesIndicadores = (datos, hoyIso) => {
@@ -830,7 +848,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
   const festivos = new Set([...((uso && uso.festivos) || []), ...((datos && datos.festivos) || [])]);
   // Un mes anterior al historial cuenta solo desde el primer día con datos.
   const desde = uso && uso.desde ? uso.desde : hoyIso;
-  const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0, internas: 0, externas: 0, sinClase: 0 }));
+  const porSala = salas.map((s) => ({ sala: s, usadas: 0, programadas: 0, reservas: 0, formulario: 0, dias: 0, internas: 0, externas: 0, sinClase: 0, almuerzo: 0 }));
   const porDiaSemana = [0, 0, 0, 0, 0];
   const bloques = (FIN_RESERVAS - INICIO_RESERVAS) / BLOQUE;
   const porBloque = new Array(bloques).fill(0);
@@ -855,6 +873,7 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
       for (const f of fr) { const hf = horasDe([f]); if (f[3] === 'i') r.internas += hf; else if (f[3] === 'e') r.externas += hf; else r.sinClase += hf; }
       r.dias += 1;
       if (!habil) return;
+      r.almuerzo += almuerzoDe(fr);
       porDiaSemana[ds - 1] += h;
       for (let k = 0; k < bloques; k += 1) {
         const m0 = INICIO_RESERVAS + k * BLOQUE;
@@ -863,19 +882,21 @@ const calcularIndicadores = (datos, mes, hoyIso) => {
     });
     if (conReserva) diasConReserva += 1;
   }
-  const disponiblesSala = habiles * HORAS_HABILES;
-  // Lo disponible es lo que queda libre del horario de reservas en los días hábiles: 100 % menos
-  // la ocupación (nunca menos de cero, aunque dos reservas se crucen).
+  // Las horas disponibles de cada sala son las del horario de reservas en los días hábiles sin el
+  // almuerzo, más lo que se reservó en el almuerzo: esas horas cuentan cuando alguien las reservó,
+  // pero libres no. Lo disponible es lo que queda libre: 100 % menos la ocupación (nunca menos de
+  // cero, aunque dos reservas se crucen).
+  const utilesSala = habiles * (HORAS_HABILES - HORAS_ALMUERZO);
   porSala.forEach((r) => {
     r.horas = r.usadas + r.programadas;
-    r.ocupacion = disponiblesSala ? r.horas / disponiblesSala : 0;
-    r.libres = Math.max(0, disponiblesSala - r.horas);
-    r.disponible = disponiblesSala ? r.libres / disponiblesSala : 0;
+    r.disponibles = utilesSala + r.almuerzo;
+    r.ocupacion = r.disponibles ? r.horas / r.disponibles : 0;
+    r.libres = Math.max(0, r.disponibles - r.horas);
+    r.disponible = r.disponibles ? r.libres / r.disponibles : 0;
   });
-  const sumas = ['usadas', 'programadas', 'reservas', 'formulario', 'internas', 'externas', 'sinClase'];
+  const sumas = ['usadas', 'programadas', 'reservas', 'formulario', 'internas', 'externas', 'sinClase', 'almuerzo', 'disponibles'];
   const total = Object.fromEntries(sumas.map((k) => [k, porSala.reduce((t, r) => t + r[k], 0)]));
   total.horas = total.usadas + total.programadas;
-  total.disponibles = disponiblesSala * salas.length;
   total.ocupacion = total.disponibles ? total.horas / total.disponibles : 0;
   total.libres = Math.max(0, total.disponibles - total.horas);
   total.disponible = total.disponibles ? total.libres / total.disponibles : 0;
@@ -904,16 +925,16 @@ const renderIndicadores = () => {
   const kpis = [
     kpi('Horas reservadas', horasTexto(r.total.horas), `de ${horasTexto(r.total.disponibles)} disponibles`),
     kpi('Ocupación', pctTexto(r.total.ocupacion), `${r.habiles} ${r.habiles === 1 ? 'día hábil' : 'días hábiles'}, de ${horario.inicio} a ${horario.fin}`),
-    kpi('Disponible', pctTexto(r.total.disponible), `${horasTexto(r.total.libres)} libres de todas las salas`),
+    kpi('Disponible', pctTexto(r.total.disponible), `${horasTexto(r.total.libres)} libres${almuerzo ? `, sin contar ${textoAlmuerzo}` : ' de todas las salas'}`),
     kpi('Reservas', String(r.total.reservas), r.total.reservas ? `${pctTexto(r.total.formulario / r.total.reservas)} pedidas por la página` : 'ninguna'),
     kpi('Sala más usada', r.masUsada && r.masUsada.horas ? escapar(r.masUsada.sala.nombre) : '—', r.masUsada && r.masUsada.horas ? `${horasTexto(r.masUsada.horas)} · ${pctTexto(r.masUsada.ocupacion)} de ocupación` : 'sin reservas'),
   ].join('');
 
-  // Una barra por sala sobre las horas disponibles del mes: lo usado, lo programado y lo libre.
-  const ancho = (h) => (r.habiles ? Math.min(100, (h / (r.habiles * HORAS_HABILES)) * 100) : 0).toFixed(2);
-  const barras = r.porSala.map(({ sala, usadas, programadas, horas, ocupacion }) => {
+  // Una barra por sala sobre sus horas disponibles del mes: lo usado, lo programado y lo libre.
+  const ancho = (h, disponibles) => (disponibles ? Math.min(100, (h / disponibles) * 100) : 0).toFixed(2);
+  const barras = r.porSala.map(({ sala, usadas, programadas, horas, ocupacion, disponibles }) => {
     const etiqueta = `${sala.nombre}: ${horasTexto(usadas)} usadas y ${horasTexto(programadas)} programadas, ${pctTexto(ocupacion)} de ocupación`;
-    return `<li style="--c:${sala.color}"><span class="ind-sala"><i aria-hidden="true">${escapar(codigoSala(sala))}</i>${escapar(sala.nombre)}</span><span class="ind-barra" role="img" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"><i class="usada" style="width:${ancho(usadas)}%"></i><i class="prog" style="left:${ancho(usadas)}%;width:${ancho(programadas)}%"></i></span><span class="ind-val">${horasTexto(horas)} <small>· ${pctTexto(ocupacion)}</small></span></li>`;
+    return `<li style="--c:${sala.color}"><span class="ind-sala"><i aria-hidden="true">${escapar(codigoSala(sala))}</i>${escapar(sala.nombre)}</span><span class="ind-barra" role="img" aria-label="${escapar(etiqueta)}" title="${escapar(etiqueta)}"><i class="usada" style="width:${ancho(usadas, disponibles)}%"></i><i class="prog" style="left:${ancho(usadas, disponibles)}%;width:${ancho(programadas, disponibles)}%"></i></span><span class="ind-val">${horasTexto(horas)} <small>· ${pctTexto(ocupacion)}</small></span></li>`;
   }).join('');
 
   const maxDia = Math.max(0, ...r.porDiaSemana);
@@ -941,7 +962,7 @@ const renderIndicadores = () => {
   };
   const detalleMes = (nombre, mes, x) => `${nombre} en ${mesLargo(mes)}: ${horasTexto(x.usadas)} usadas y ${horasTexto(x.programadas)} programadas, ${pctTexto(x.ocupacion)} de ocupación y ${pctTexto(x.disponible)} disponible, ${x.reservas} ${x.reservas === 1 ? 'reserva' : 'reservas'}`;
   // Lo que quedó libre de todas las salas en el mes: el porcentaje, las horas y una barra.
-  const celdaDisponible = (x) => `<td title="${escapar(`En ${mesLargo(x.mes)} quedó disponible el ${pctTexto(x.total.disponible)} del horario de reservas de todas las salas: ${horasTexto(x.total.libres)} de ${horasTexto(x.total.disponibles)}`)}"><span class="ind-mv">${pctTexto(x.total.disponible)}</span> <span class="ind-mp">${horasTexto(x.total.libres)}</span><span class="ind-mini ind-libre" aria-hidden="true"><i style="width:${(x.total.disponible * 100).toFixed(2)}%"></i></span></td>`;
+  const celdaDisponible = (x) => `<td title="${escapar(`En ${mesLargo(x.mes)} quedó disponible el ${pctTexto(x.total.disponible)} del horario de reservas de todas las salas${almuerzo ? `, sin contar ${textoAlmuerzo}` : ''}: ${horasTexto(x.total.libres)} de ${horasTexto(x.total.disponibles)}`)}"><span class="ind-mv">${pctTexto(x.total.disponible)}</span> <span class="ind-mp">${horasTexto(x.total.libres)}</span><span class="ind-mini ind-libre" aria-hidden="true"><i style="width:${(x.total.disponible * 100).toFixed(2)}%"></i></span></td>`;
   const estadoMes = (x) => (x.mes > mesActual ? 'programado' : x.mes === mesActual ? 'en curso'
     : x.sinDatos && uso && uso.desde ? `desde el ${fechaLocal(uso.desde).toLocaleDateString('es-CO', { day: 'numeric', month: 'long' })}` : '');
   const cabezaMes = (x) => {
@@ -950,7 +971,7 @@ const renderIndicadores = () => {
     return `<th scope="row">${nombreMes(x.mes)}${elegido ? '<span class="sr"> (mes elegido)</span>' : ''}${estado ? `<small>${estado}</small>` : ''}</th>`;
   };
   const filasMeses = porMes.map((x) => {
-    const celdas = x.porSala.map((s) => celdaMes(s, x.habiles * HORAS_HABILES, s.sala.color, detalleMes(s.sala.nombre, x.mes, s))).join('')
+    const celdas = x.porSala.map((s) => celdaMes(s, s.disponibles, s.sala.color, detalleMes(s.sala.nombre, x.mes, s))).join('')
       + celdaMes(x.total, x.total.disponibles, 'var(--accent)', detalleMes('Todas las salas', x.mes, x.total))
       + celdaDisponible(x);
     return `<tr${x.mes === mesIndicadores ? ' class="ind-sel"' : ''}>${cabezaMes(x)}${celdas}</tr>`;
@@ -982,10 +1003,10 @@ const renderIndicadores = () => {
     <h3>Detalle por sala</h3>
     <div class="ind-tabla-wrap">${tabla}</div>
     <h3>Uso por mes</h3>
-    <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; "Disponible" es la parte del horario de reservas de todas las salas que quedó libre. El mes elegido arriba va resaltado.</p>
+    <p class="ind-nota ind-nota-meses">Horas reservadas y ocupación de cada sala en cada mes. La barra muestra lo usado y lo programado sobre las horas disponibles del mes; "Disponible" es la parte del horario de reservas de todas las salas que quedó libre.${almuerzo ? ` ${textoAlmuerzo.charAt(0).toUpperCase()}${textoAlmuerzo.slice(1)} se puede reservar, pero esas horas solo cuentan cuando alguien las reservó: libres no cuentan como disponibles.` : ''} El mes elegido arriba va resaltado.</p>
     <div class="ind-tabla-wrap">${tablaMeses}</div>
     <h3>Internas y externas por mes</h3>
-    <p class="ind-nota ind-nota-meses">Horas reservadas por la Secretaría de Infraestructura Física (internas) y por otras dependencias (externas), según la dependencia que se marcó en el formulario, y su parte de las horas reservadas del mes. Las de la planilla toman la dependencia de la persona cuando también pidió sala por el formulario; las demás van como "Sin clasificar".</p>
+    <p class="ind-nota ind-nota-meses">Horas reservadas por la Secretaría de Infraestructura Física (internas) y por otras dependencias (externas), según la dependencia que se marcó en el formulario, y su parte de las horas reservadas del mes. Las de la planilla toman la dependencia de la persona cuando también pidió sala por el formulario y, si no, van como internas. Las demás reservas sin dependencia van como "Sin clasificar".</p>
     <div class="ind-tabla-wrap">${tablaTipos}</div>
     <p class="ind-leyenda"><span><i class="int"></i>Internas</span><span><i class="ext"></i>Externas</span><span><i class="sin"></i>Sin clasificar</span></p>
   </div>`;
