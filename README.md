@@ -19,7 +19,7 @@ un botón hacia la nueva (ver "Dirección anterior").
 | `index.html` | Contenido de la página: encabezado, calendario, pasos, reglas y contacto. |
 | `styles.css` | Estilos, variables del tema claro y oscuro y diseño responsive. |
 | `logo-alcaldia-medellin.png` | Logo de la Alcaldía del encabezado. Si no carga, el encabezado queda solo con el nombre de la página. |
-| `config.js` | **Lo único que hay que editar**: enlace del formulario, horario de reservas, contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
+| `config.js` | **Lo único que hay que editar**: enlace del formulario, horario de reservas, almuerzo (para los indicadores), contacto, salas (aforo, si está activa y enlace de su calendario), salas que se piden juntas y los enlaces rellenados de Forms (pedir y cancelar). |
 | `app.js` | Pinta el calendario (la semana o el mes completo, con el botón de meses) y la pestaña de indicadores, maneja el tema claro/oscuro y el botón Copiar correo. |
 | `disponibilidad.js` | Horas ocupadas de cada sala. **Lo genera la tarea programada; no se edita a mano.** |
 | `uso.js` | Historial de lo reservado cada día en cada sala, para la pestaña de indicadores. **Lo genera la tarea programada; no se edita a mano.** |
@@ -148,10 +148,18 @@ cada sala en el mes elegido y mes a mes:
   Física (internas), por otras dependencias (externas) y sin clasificar, con su parte de las
   horas reservadas del mes y una barra repartida (ver "Internas y externas").
 
-Las horas se cuentan dentro del horario de reservas (07:30 a 17:30, 10 horas por sala y por
-día), también en los meses de antes de ese horario, y la ocupación es sobre los días hábiles
-del mes (lunes a viernes sin festivos) por el número de salas. En el mes en curso y los
-siguientes se incluye lo programado hasta ahora.
+Las horas se cuentan dentro del horario de reservas (07:30 a 17:30), también en los meses de
+antes de ese horario, y la ocupación es sobre los días hábiles del mes (lunes a viernes sin
+festivos) por el número de salas. En el mes en curso y los siguientes se incluye lo programado
+hasta ahora.
+
+El almuerzo, de 12:00 a 14:00 (`ALMUERZO` en `config.js`), se puede reservar como cualquier
+otra hora, pero no cuenta como disponible: de esas dos horas solo entra en la cuenta lo que
+alguien reservó. Cada sala tiene 8 horas por día hábil más lo que se haya reservado de 12:00 a
+14:00, y la ocupación y lo disponible siguen sumando 100 %. Por ejemplo, un día en que una sala
+solo se reservó de 12:00 a 14:00 cuenta 10 horas, 2 ocupadas y 8 disponibles; un día sin
+reservas cuenta 8 horas, todas disponibles. Con `ALMUERZO = null`, esas horas cuentan como
+cualquier otra.
 
 Los datos salen de dos partes. Lo de hoy en adelante viene de `disponibilidad.js`. Lo de los
 días que ya pasaron viene de `uso.js`, que la misma tarea programada lleva al día: en cada
@@ -186,7 +194,8 @@ Las reservas hechas antes de la marca (del 14/10 al 13/11/2026) se clasificaron 
 con el Excel de respuestas del formulario, con la misma regla: la dependencia elegida en cada
 solicitud. Las primeras 13 respuestas, de antes de que el formulario preguntara la dependencia,
 tomaron la de las demás solicitudes de la misma cuenta. Las de la planilla tomaron la
-dependencia de la persona cuando también pidió sala por el formulario. El resultado está en
+dependencia de la persona cuando también pidió sala por el formulario; las de quienes no lo usaron
+quedaron como internas. El resultado está en
 `scripts/clasificacion-anterior.json`, con solo sala, fecha, horas y tipo, sin datos
 personales:
 
@@ -212,7 +221,8 @@ era de 07:00 a 18:00). El horario se controla en tres partes, que tienen que coi
    listas del formulario o arme una respuesta a mano.
 3. **La página**: `HORARIO` en `config.js`. No ofrece horas fuera del horario, raya en el
    calendario lo que queda por fuera, la regla de la página dice el horario y los indicadores
-   cuentan las horas dentro de él.
+   cuentan las horas dentro de él (el almuerzo libre no cuenta como disponible: ver
+   "Indicadores de uso").
 
 El formulario de cancelación conserva la lista de 07:00 a 17:30, para poder cancelar las
 reservas que se hicieron con el horario anterior. Las de la planilla que terminan a las 18:00
