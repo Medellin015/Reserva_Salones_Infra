@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T14:20:22-05:00",
+ "actualizado": "2026-11-17T15:49:55-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -421,6 +421,14 @@ window.DISPONIBILIDAD = {
       "t": "Quinta reunión del Grupo Líder del SIGAM · Sebastian Medina Quezada",
       "l": "Sala 2",
       "k": "e"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Claudiap.cano@medellin.gov.co · Claudia Patricia Cano",
+      "l": "Sala 2"
      }
     ]
    ],
