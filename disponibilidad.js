@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T15:49:55-05:00",
+ "actualizado": "2026-11-17T16:23:23-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -102,7 +102,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-18": [],
+   "2026-11-18": [
+    [
+     "14:30",
+     "16:30",
+     {
+      "t": "Comité Contrato 4600108920 · David Alberto Hernández Parra",
+      "l": "Sala 1"
+     }
+    ]
+   ],
    "2026-11-19": [
     [
      "08:30",
