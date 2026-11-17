@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T09:52:12-05:00",
+ "actualizado": "2026-11-17T10:39:58-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -122,6 +122,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Sala 1",
       "k": "i"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Capacitación Tecnología Sin Zanja · Jorge Ivan Jaramillo Perez",
+      "l": "Salas 1 y 2"
      }
     ]
    ],
@@ -415,6 +423,14 @@ window.DISPONIBILIDAD = {
      {
       "t": "Comité Navidad · Sandra Judith Usuga Echeverri",
       "l": "Sala 2"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Capacitación Tecnología Sin Zanja · Jorge Ivan Jaramillo Perez",
+      "l": "Salas 1 y 2"
      }
     ]
    ],
