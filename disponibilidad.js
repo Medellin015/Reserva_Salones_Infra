@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T10:39:58-05:00",
+ "actualizado": "2026-11-17T14:02:50-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -580,7 +580,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-12-10": [],
+   "2026-12-10": [
+    [
+     "07:30",
+     "17:30",
+     {
+      "t": "Feria de emprendimiento  · Paula Andrea Bedoya",
+      "l": "Sala 2"
+     }
+    ]
+   ],
    "2026-12-11": [],
    "2026-12-14": [],
    "2026-12-15": [
