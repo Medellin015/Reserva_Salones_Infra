@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T14:02:50-05:00",
+ "actualizado": "2026-11-17T14:20:22-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -199,6 +199,14 @@ window.DISPONIBILIDAD = {
       "t": "Comité Técnico 90098 · Manuela Ciro Palacio",
       "l": "Sala 1",
       "k": "i"
+     }
+    ],
+    [
+     "14:00",
+     "17:30",
+     {
+      "t": "Comité técnico de movilidad   · Maribel Duque",
+      "l": "Sala 1"
      }
     ]
    ],
