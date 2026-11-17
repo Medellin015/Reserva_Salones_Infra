@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-17",
- "actualizado": "2026-11-17T16:23:23-05:00",
+ "actualizado": "2026-11-17T16:38:30-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -699,6 +699,14 @@ window.DISPONIBILIDAD = {
       "t": "infraestructura@enfoquejuridico.com · María José Mosquera Martínez",
       "l": "Sala 3",
       "k": "i"
+     }
+    ],
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comite Primario Equipo AIE · Sebastian Molina",
+      "l": "Sala 3"
      }
     ]
    ],
