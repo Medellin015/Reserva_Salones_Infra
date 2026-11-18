@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-18",
- "actualizado": "2026-11-18T13:43:05-05:00",
+ "actualizado": "2026-11-18T14:47:22-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -187,6 +187,14 @@ window.DISPONIBILIDAD = {
       "t": "Conocer en Medellín  los avances y las experiencias territoriales del programa Generaciones Saludables para Colombia  · Tatiana Valencia Cano",
       "l": "Sala 1",
       "k": "e"
+     }
+    ],
+    [
+     "10:00",
+     "11:00",
+     {
+      "t": "Espacio de articulación – Campaña “Te Reconozco” PQRSD Espacio Público · Ana Cristina Alzate Serna",
+      "l": "Sala 1"
      }
     ],
     [
@@ -807,6 +815,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
+    [
+     "08:30",
+     "12:00",
+     {
+      "t": "Residuos en atención en salud · Noelba María Flórez García",
+      "l": "Sala 3"
+     }
+    ],
     [
      "13:00",
      "16:00",
