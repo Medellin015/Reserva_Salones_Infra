@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-18",
- "actualizado": "2026-11-18T14:47:22-05:00",
+ "actualizado": "2026-11-18T16:32:06-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -466,6 +466,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-20": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Revisión factor prestacional SST · Natalia Iral Sanchez",
+      "l": "Sala 2"
+     }
+    ],
     [
      "10:00",
      "11:00",
