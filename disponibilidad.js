@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-18",
- "actualizado": "2026-11-18T09:38:31-05:00",
+ "actualizado": "2026-11-18T13:43:05-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -722,6 +722,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Comite Primario Equipo AIE · Sebastian Molina",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "Reunion Equipo Apoyo al Despacho : Evaluación de Expedientes  · Jaime Esteban Jaramillo Jimenez",
       "l": "Sala 3"
      }
     ]
