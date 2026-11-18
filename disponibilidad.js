@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-18",
- "actualizado": "2026-11-18T06:00:51-05:00",
+ "actualizado": "2026-11-18T09:34:57-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -258,6 +258,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Salas 1 y 2",
       "k": "i"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Mesa técnica de trastornos, problemas mentales y epilepsia. · NELSON ENRIQUE TOBÓN ACEVEDO",
+      "l": "Sala 1"
      }
     ]
    ],
