@@ -9,8 +9,8 @@
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
- "verificado": "2026-11-17",
- "actualizado": "2026-11-17T16:38:30-05:00",
+ "verificado": "2026-11-18",
+ "actualizado": "2026-11-18T06:00:51-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
