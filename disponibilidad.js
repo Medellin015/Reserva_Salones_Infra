@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-18",
- "actualizado": "2026-11-18T16:32:06-05:00",
+ "actualizado": "2026-11-18T21:17:53-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -932,15 +932,6 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ],
-    [
-     "14:00",
-     "17:00",
-     {
-      "t": "Seguimiemto GMSA · Maria Fernanda Uribe Perez",
       "l": "Sala 5",
       "k": "i"
      }
