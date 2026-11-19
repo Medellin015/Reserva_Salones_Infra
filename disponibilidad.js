@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-19",
- "actualizado": "2026-11-19T10:56:54-05:00",
+ "actualizado": "2026-11-19T14:10:52-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -959,6 +959,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Hiller Correa - Laura Aguila",
       "l": "Sala 5",
       "k": "i"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Revisión metodológica   ·   Monica  Espinosa",
+      "l": "Sala 5 (registro)"
      }
     ]
    ],
