@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-19",
- "actualizado": "2026-11-19T10:49:53-05:00",
+ "actualizado": "2026-11-19T10:56:54-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -795,14 +795,6 @@ window.DISPONIBILIDAD = {
      "10:00",
      {
       "t": "Comité de seguimiento · Juan Camilo Patiño Amortegui",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "10:00",
-     "11:30",
-     {
-      "t": "Seguimiento de liquidación de contratos  · Daniela Arbeláez Duque",
       "l": "Sala 3"
      }
     ]
