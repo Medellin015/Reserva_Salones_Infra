@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-19",
- "actualizado": "2026-11-19T09:58:16-05:00",
+ "actualizado": "2026-11-19T10:49:53-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -845,6 +845,14 @@ window.DISPONIBILIDAD = {
       "l": "Sala 3",
       "k": "i"
      }
+    ],
+    [
+     "14:00",
+     "15:30",
+     {
+      "t": "Comité de seguimiento a los contratos que estan en liquidación  · Daniela Arbeláez Duque",
+      "l": "Sala 3"
+     }
     ]
    ],
    "2026-11-26": [
@@ -985,6 +993,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-24": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comité Urgencia Manifiesta 2025 · Gabriel Jaime Cardona Londoño",
+      "l": "Sala 5"
+     }
+    ],
     [
      "10:00",
      "12:00",
