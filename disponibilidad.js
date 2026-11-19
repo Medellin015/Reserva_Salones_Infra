@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-19",
- "actualizado": "2026-11-19T06:01:02-05:00",
+ "actualizado": "2026-11-19T09:21:32-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -243,6 +243,14 @@ window.DISPONIBILIDAD = {
       "t": "CTI de Cambio Climático · Marisol Suárez Roldán",
       "l": "Sala 1",
       "k": "e"
+     }
+    ],
+    [
+     "13:30",
+     "15:00",
+     {
+      "t": "Comite seguimiento contrato 460010860 de 2026 · DORIS VALENCIA JARAMILLO",
+      "l": "Sala 1"
      }
     ],
     [
