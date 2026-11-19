@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-19",
- "actualizado": "2026-11-19T09:21:32-05:00",
+ "actualizado": "2026-11-19T09:33:20-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -789,7 +789,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-23": [],
+   "2026-11-23": [
+    [
+     "10:00",
+     "11:30",
+     {
+      "t": "Seguimiento de liquidación de contratos  · Daniela Arbeláez Duque",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-24": [
     [
      "08:00",
