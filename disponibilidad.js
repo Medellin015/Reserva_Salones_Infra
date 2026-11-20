@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-20",
- "actualizado": "2026-11-20T10:47:09-05:00",
+ "actualizado": "2026-11-20T13:37:10-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -1060,7 +1060,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-27": [],
    "2026-11-30": [],
-   "2026-12-01": [],
+   "2026-12-01": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Mesa de trabajo · MARIA ELENA MORALES HERNANDEZ",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-12-02": [],
    "2026-12-03": [],
    "2026-12-04": [],
