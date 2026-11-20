@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-20",
- "actualizado": "2026-11-20T06:00:43-05:00",
+ "actualizado": "2026-11-20T10:04:05-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -139,6 +139,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Sala 1",
       "k": "i"
+     }
+    ],
+    [
+     "10:00",
+     "13:00",
+     {
+      "t": "Reunión Equipo apoyo al despacho: Manual de procedimiento   · Victor Gonzalo Rendon",
+      "l": "Sala 1 (registro)"
      }
     ],
     [
