@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-20",
- "actualizado": "2026-11-20T13:41:08-05:00",
+ "actualizado": "2026-11-20T14:25:21-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -872,6 +872,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
+    [
+     "08:30",
+     "10:30",
+     {
+      "t": "Seguimiento contrato cicloparqueaderos. · WILFRIDO JOSE ASCENDRA AROACHAN",
+      "l": "Sala 3"
+     }
+    ],
     [
      "13:00",
      "16:00",
