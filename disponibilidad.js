@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-20",
- "actualizado": "2026-11-20T10:32:52-05:00",
+ "actualizado": "2026-11-20T10:47:09-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -864,14 +864,6 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
-    [
-     "08:30",
-     "12:00",
-     {
-      "t": "Residuos en atención en salud · Noelba María Flórez García",
-      "l": "Sala 3"
-     }
-    ],
     [
      "13:00",
      "16:00",
