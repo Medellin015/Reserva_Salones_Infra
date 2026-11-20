@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-20",
- "actualizado": "2026-11-20T10:30:41-05:00",
+ "actualizado": "2026-11-20T10:32:52-05:00",
  "avisado": null,
  "dias": [
   "2026-11-17",
@@ -1089,17 +1089,7 @@ window.DISPONIBILIDAD = {
    "2026-12-14": [],
    "2026-12-15": [],
    "2026-12-16": [],
-   "2026-12-17": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ]
-   ],
+   "2026-12-17": [],
    "2026-12-18": [],
    "2026-12-21": [],
    "2026-12-22": [],
