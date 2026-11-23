@@ -9,14 +9,10 @@
    errores: salas cuyo calendario no se pudo leer en la última ejecución; si conservan
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
- "verificado": "2026-11-20",
- "actualizado": "2026-11-20T14:25:21-05:00",
+ "verificado": "2026-11-23",
+ "actualizado": "2026-11-23T06:01:07-05:00",
  "avisado": null,
  "dias": [
-  "2026-11-17",
-  "2026-11-18",
-  "2026-11-19",
-  "2026-11-20",
   "2026-11-23",
   "2026-11-24",
   "2026-11-25",
@@ -65,7 +61,6 @@ window.DISPONIBILIDAD = {
   "2027-01-29"
  ],
  "festivos": [
-  "2026-11-16",
   "2026-12-08",
   "2026-12-25",
   "2027-01-01",
@@ -73,91 +68,6 @@ window.DISPONIBILIDAD = {
  ],
  "ocupado": {
   "Sala 1": {
-   "2026-11-17": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
-      "l": "Sala 1",
-      "k": "i"
-     }
-    ],
-    [
-     "10:00",
-     "11:30",
-     {
-      "t": "Seguimiento y gestión Equipo de Transformación de Procesos · Monica Alejandra Espinosa",
-      "l": "Sala 1",
-      "k": "e"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-18": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "reunión  · Luisa Fernanda  Bedoya",
-      "l": "Sala 1 (registro)"
-     }
-    ],
-    [
-     "14:30",
-     "16:30",
-     {
-      "t": "Comité Contrato 4600108920 · David Alberto Hernández Parra",
-      "l": "Sala 1"
-     }
-    ]
-   ],
-   "2026-11-19": [
-    [
-     "08:30",
-     "16:00",
-     {
-      "t": "Reunion de supervision contrato 4600105294 DE 2025 · Edwin Neira",
-      "l": "Sala 1",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-20": [
-    [
-     "08:15",
-     "10:00",
-     {
-      "t": "Reserva · Jorge Iván Jaramillo López",
-      "l": "Sala 1",
-      "k": "i"
-     }
-    ],
-    [
-     "10:00",
-     "13:00",
-     {
-      "t": "Reunión Equipo apoyo al despacho: Manual de procedimiento   · Victor Gonzalo Rendon",
-      "l": "Sala 1 (registro)"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Capacitación Tecnología Sin Zanja · Jorge Ivan Jaramillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
    "2026-11-23": [
     [
      "08:00",
@@ -422,91 +332,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 2": {
-   "2026-11-17": [
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Contrato 4600108930 · Maria Fernanda Uribe Perez",
-      "l": "Sala 2",
-      "k": "i"
-     }
-    ],
-    [
-     "14:00",
-     "18:00",
-     {
-      "t": "Reserva · Luisa Fernanda Bedoya Rojas",
-      "l": "Salas 1 y 2",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-18": [
-    [
-     "09:00",
-     "11:30",
-     {
-      "t": "Reserva · Sandra Usuga",
-      "l": "Sala 2",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-19": [
-    [
-     "07:30",
-     "09:30",
-     {
-      "t": "Reunión · Luis Augusto Hurtado Carvajal",
-      "l": "Sala 2",
-      "k": "e"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Quinta reunión del Grupo Líder del SIGAM · Sebastian Medina Quezada",
-      "l": "Sala 2",
-      "k": "e"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Claudiap.cano@medellin.gov.co · Claudia Patricia Cano",
-      "l": "Sala 2"
-     }
-    ]
-   ],
-   "2026-11-20": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Revisión factor prestacional SST · Natalia Iral Sanchez",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "10:00",
-     "11:00",
-     {
-      "t": "Comité Navidad · Sandra Judith Usuga Echeverri",
-      "l": "Sala 2"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Capacitación Tecnología Sin Zanja · Jorge Ivan Jaramillo Perez",
-      "l": "Salas 1 y 2"
-     }
-    ]
-   ],
    "2026-11-23": [
     [
      "08:15",
@@ -728,83 +553,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 3": {
-   "2026-11-17": [
-    [
-     "08:30",
-     "10:30",
-     {
-      "t": "comité de liquidaciones · Daniela Arbeláez Duque",
-      "l": "Sala 3",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-18": [
-    [
-     "08:30",
-     "10:00",
-     {
-      "t": "infraestructura@enfoquejuridico.com · María José Mosquera Martínez",
-      "l": "Sala 3",
-      "k": "i"
-     }
-    ],
-    [
-     "10:00",
-     "12:00",
-     {
-      "t": "Comite Primario Equipo AIE · Sebastian Molina",
-      "l": "Sala 3"
-     }
-    ],
-    [
-     "14:00",
-     "17:00",
-     {
-      "t": "Reunion Equipo Apoyo al Despacho : Evaluación de Expedientes  · Jaime Esteban Jaramillo Jimenez",
-      "l": "Sala 3"
-     }
-    ]
-   ],
-   "2026-11-19": [
-    [
-     "09:00",
-     "11:00",
-     {
-      "t": "Seguimiento Contrato  · Anyi Higuera",
-      "l": "Sala 3",
-      "k": "i"
-     }
-    ],
-    [
-     "13:00",
-     "16:00",
-     {
-      "t": "Reunión Equipo Apoyo Al Despacho: Verificar cumplimiento de metas, tareas, objetivos. · Victor Gonzalo Rendón Santamaría",
-      "l": "Sala 3",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-20": [
-    [
-     "08:00",
-     "10:00",
-     {
-      "t": "Comité de obra · Juan Camilo Patiño Amortegui",
-      "l": "Sala 3",
-      "k": "i"
-     }
-    ],
-    [
-     "14:00",
-     "14:30",
-     {
-      "t": "Equipo Apoyo de despacho   · Monica Montoya",
-      "l": "Sala 3"
-     }
-    ]
-   ],
    "2026-11-23": [
     [
      "08:00",
@@ -944,67 +692,6 @@ window.DISPONIBILIDAD = {
    "2027-01-29": []
   },
   "Sala 5": {
-   "2026-11-17": [
-    [
-     "08:00",
-     "17:00",
-     {
-      "t": "Reserva · Deiby Valencia Salgado",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-18": [
-    [
-     "10:00",
-     "15:00",
-     {
-      "t": "Reunion de supervision contrato 4600105294 DE 2025 · Edwin Neira",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ],
-    [
-     "15:00",
-     "16:30",
-     {
-      "t": "mesa tetánica  ·    Alberto Perea",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ]
-   ],
-   "2026-11-19": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Reserva · Hiller Correa - Laura Aguila",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Revisión metodológica   ·   Monica  Espinosa",
-      "l": "Sala 5 (registro)"
-     }
-    ]
-   ],
-   "2026-11-20": [
-    [
-     "08:00",
-     "12:00",
-     {
-      "t": "Mesa de trabajo contrato  4600107714 de 2026 · MARIA ELENA MORALES HERNANDEZ",
-      "l": "Sala 5",
-      "k": "i"
-     }
-    ]
-   ],
    "2026-11-23": [
     [
      "08:00",
