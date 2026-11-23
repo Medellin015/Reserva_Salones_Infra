@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T10:07:48-05:00",
+ "actualizado": "2026-11-23T10:20:29-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -112,6 +112,14 @@ window.DISPONIBILIDAD = {
      "11:00",
      {
       "t": "Espacio de articulación – Campaña “Te Reconozco” PQRSD Espacio Público · Ana Cristina Alzate Serna",
+      "l": "Sala 1"
+     }
+    ],
+    [
+     "11:00",
+     "12:00",
+     {
+      "t": "Revisión Contrato interadministrativo Intercambios Viales · Juan Fernando Vargas Velez",
       "l": "Sala 1"
      }
     ],
