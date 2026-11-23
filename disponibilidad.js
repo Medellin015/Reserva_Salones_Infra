@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T17:57:47-05:00",
+ "actualizado": "2026-11-23T18:06:28-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -819,6 +819,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Mesa de trabajo · MARIA ELENA MORALES HERNANDEZ",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "14:00",
+     "16:30",
+     {
+      "t": "Mesa de trabajo SIF- APP · Luisa Fernanda Suarez Marulanda",
       "l": "Sala 5"
      }
     ]
