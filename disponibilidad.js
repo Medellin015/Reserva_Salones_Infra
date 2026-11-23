@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T10:25:33-05:00",
+ "actualizado": "2026-11-23T10:51:59-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -641,6 +641,14 @@ window.DISPONIBILIDAD = {
      "10:30",
      {
       "t": "Seguimiento contrato cicloparqueaderos. · WILFRIDO JOSE ASCENDRA AROACHAN",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "10:30",
+     "12:00",
+     {
+      "t": "Módulo de proyectos SIRO · Laura Román Santiana",
       "l": "Sala 3"
      }
     ],
