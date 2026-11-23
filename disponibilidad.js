@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T18:06:28-05:00",
+ "actualizado": "2026-11-23T18:10:19-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -162,6 +162,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "N/A · Claudia Caro Gonzales",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
@@ -410,6 +418,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-26": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "N/A · Claudia Caro Gonzales",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
