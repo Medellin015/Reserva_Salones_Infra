@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T10:51:59-05:00",
+ "actualizado": "2026-11-23T10:59:40-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -782,6 +782,14 @@ window.DISPONIBILIDAD = {
       "t": "Seguimiento Gerencial Proyecto Metro 80  · Luisa Fernanda Bedoya Rojas",
       "l": "Sala 5",
       "k": "i"
+     }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Módulo proyectos SIRO · Laura Román Santiana",
+      "l": "Sala 5"
      }
     ]
    ],
