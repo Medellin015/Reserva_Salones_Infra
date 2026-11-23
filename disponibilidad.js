@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-23",
- "actualizado": "2026-11-23T10:59:40-05:00",
+ "actualizado": "2026-11-23T17:57:47-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -803,7 +803,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-30": [],
+   "2026-11-30": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Taller de educación ambiental · Erika María Zea Díaz",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-12-01": [
     [
      "08:00",
@@ -816,7 +825,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-12-02": [],
    "2026-12-03": [],
-   "2026-12-04": [],
+   "2026-12-04": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Taller de educación ambiental · Erika María Zea Díaz",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-12-07": [],
    "2026-12-09": [
     [
