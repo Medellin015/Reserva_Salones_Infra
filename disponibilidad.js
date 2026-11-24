@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T01:10:41-05:00",
+ "actualizado": "2026-11-24T08:29:30-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -248,7 +248,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-02": [],
-   "2026-12-03": [],
+   "2026-12-03": [
+    [
+     "14:00",
+     "15:30",
+     {
+      "t": "Reunión de seguimiento · Claudia caro gonzales",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-12-04": [],
    "2026-12-07": [],
    "2026-12-09": [
@@ -465,6 +474,14 @@ window.DISPONIBILIDAD = {
       "l": "Salas 1 y 2",
       "k": "i"
      }
+    ],
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Capacitación de liderazgo · Natalia Muñoz",
+      "l": "Sala 2"
+     }
     ]
    ],
    "2026-12-01": [
@@ -488,7 +505,16 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-02": [],
-   "2026-12-03": [],
+   "2026-12-03": [
+    [
+     "14:00",
+     "15:30",
+     {
+      "t": "Reunión de seguimiento · Claudia caro gonzales",
+      "l": "Salas 1 y 2"
+     }
+    ]
+   ],
    "2026-12-04": [],
    "2026-12-07": [],
    "2026-12-09": [
@@ -678,7 +704,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-27": [],
+   "2026-11-27": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Comité de seguimiento  · Assiel Perez Romo",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-11-30": [],
    "2026-12-01": [],
    "2026-12-02": [],
