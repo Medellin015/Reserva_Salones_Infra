@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T16:38:24-05:00",
+ "actualizado": "2026-11-24T16:47:23-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -189,6 +189,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-11-27": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Revisión de tablero SST  · Juliana Marin  Mesa",
+      "l": "Sala 1"
+     }
+    ],
     [
      "10:00",
      "12:00",
