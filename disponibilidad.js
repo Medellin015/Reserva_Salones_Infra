@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T16:24:38-05:00",
+ "actualizado": "2026-11-24T16:38:24-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -694,14 +694,6 @@ window.DISPONIBILIDAD = {
      }
     ],
     [
-     "10:30",
-     "12:00",
-     {
-      "t": "Módulo de proyectos SIRO · Laura Román Santiana",
-      "l": "Sala 3"
-     }
-    ],
-    [
      "13:00",
      "16:00",
      {
@@ -840,14 +832,6 @@ window.DISPONIBILIDAD = {
       "t": "Seguimiento Gerencial Proyecto Metro 80  · Luisa Fernanda Bedoya Rojas",
       "l": "Sala 5",
       "k": "i"
-     }
-    ],
-    [
-     "14:00",
-     "16:00",
-     {
-      "t": "Módulo proyectos SIRO · Laura Román Santiana",
-      "l": "Sala 5"
      }
     ]
    ],
