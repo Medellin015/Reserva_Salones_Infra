@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T08:29:30-05:00",
+ "actualizado": "2026-11-24T08:56:29-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -216,6 +216,14 @@ window.DISPONIBILIDAD = {
       "t": "Reserva · Jorge Iván Jaramillo López",
       "l": "Salas 1 y 2",
       "k": "i"
+     }
+    ],
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Grupo Primario  · Pamela Ospina",
+      "l": "Sala 1"
      }
     ],
     [
