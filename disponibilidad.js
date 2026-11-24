@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T15:53:13-05:00",
+ "actualizado": "2026-11-24T16:24:38-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -899,7 +899,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-12-03": [],
+   "2026-12-03": [
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Seguimiento Riesgos proyecto metro 80 · Alejandra Catalina Metaute Lujan",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-12-04": [
     [
      "08:00",
