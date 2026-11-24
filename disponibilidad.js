@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-24",
- "actualizado": "2026-11-24T08:56:29-05:00",
+ "actualizado": "2026-11-24T09:07:11-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -185,15 +185,6 @@ window.DISPONIBILIDAD = {
      {
       "t": "Comite seguimiento contrato 460010860 de 2026 · DORIS VALENCIA JARAMILLO",
       "l": "Sala 1"
-     }
-    ],
-    [
-     "15:00",
-     "16:30",
-     {
-      "t": "Clausura estrategia de convivencia  · Maria Adelaida Carbajal",
-      "l": "Salas 1 y 2",
-      "k": "e"
      }
     ]
    ],
@@ -449,15 +440,6 @@ window.DISPONIBILIDAD = {
      {
       "t": "Mesa Técnica de Convivencia y Formas de Violencia · Tatiana María Valencia Cano",
       "l": "Sala 2",
-      "k": "e"
-     }
-    ],
-    [
-     "15:00",
-     "16:30",
-     {
-      "t": "Clausura estrategia de convivencia  · Maria Adelaida Carbajal",
-      "l": "Salas 1 y 2",
       "k": "e"
      }
     ]
