@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-25",
- "actualizado": "2026-11-25T10:41:36-05:00",
+ "actualizado": "2026-11-25T13:48:44-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -236,6 +236,14 @@ window.DISPONIBILIDAD = {
    ],
    "2026-12-01": [
     [
+     "08:00",
+     "09:00",
+     {
+      "t": "REUNIÓN DE SEGUIMIENTO · CLAUDIA CARO GONZALES",
+      "l": "Salas 1 y 2"
+     }
+    ],
+    [
      "09:00",
      "11:30",
      {
@@ -439,6 +447,14 @@ window.DISPONIBILIDAD = {
       "l": "Sala 2",
       "k": "i"
      }
+    ],
+    [
+     "14:00",
+     "17:00",
+     {
+      "t": "comité de movilidad  ·  Maribel Duque",
+      "l": "Sala 2"
+     }
     ]
    ],
    "2026-11-26": [
@@ -491,6 +507,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-01": [
+    [
+     "08:00",
+     "09:00",
+     {
+      "t": "REUNIÓN DE SEGUIMIENTO · CLAUDIA CARO GONZALES",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "09:00",
      "11:30",
@@ -736,6 +760,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Comité de Investigaciones  · Luis Augusto Hurtado Carvajal",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "13:00",
+     "16:00",
+     {
+      "t": "EAD; Estructuración Procedimento Expediente. · Víctor Gonzalo Rendón Santamaría",
       "l": "Sala 3"
      }
     ]
