@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-25",
- "actualizado": "2026-11-25T14:24:44-05:00",
+ "actualizado": "2026-11-25T14:59:43-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -730,6 +730,14 @@ window.DISPONIBILIDAD = {
      "10:30",
      {
       "t": "Seguimiento contrato cicloparqueaderos. · WILFRIDO JOSE ASCENDRA AROACHAN",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "10:30",
+     "12:00",
+     {
+      "t": "Comité Estratégico DAP · Mateo Rincon Morales",
       "l": "Sala 3"
      }
     ],
