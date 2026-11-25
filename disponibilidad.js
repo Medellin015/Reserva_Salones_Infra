@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-25",
- "actualizado": "2026-11-25T06:00:20-05:00",
+ "actualizado": "2026-11-25T09:52:51-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -326,6 +326,14 @@ window.DISPONIBILIDAD = {
    "2026-12-18": [],
    "2026-12-21": [],
    "2026-12-22": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "comite de seguimiento 4600108590 y 4600108611 · LAURA LOPEZ",
+      "l": "Sala 1"
+     }
+    ],
     [
      "14:00",
      "18:00",
@@ -737,7 +745,16 @@ window.DISPONIBILIDAD = {
    ],
    "2026-12-04": [],
    "2026-12-07": [],
-   "2026-12-09": [],
+   "2026-12-09": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "comité de seguimiento cto 4600103253 · LAURA LOPEZ",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-12-10": [],
    "2026-12-11": [],
    "2026-12-14": [],
@@ -747,7 +764,16 @@ window.DISPONIBILIDAD = {
    "2026-12-18": [],
    "2026-12-21": [],
    "2026-12-22": [],
-   "2026-12-23": [],
+   "2026-12-23": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comité de seguimiento 4600103253 · LAURA LOPEZ",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-12-24": [],
    "2026-12-28": [],
    "2026-12-29": [],
@@ -861,6 +887,14 @@ window.DISPONIBILIDAD = {
       "t": "Taller de educación ambiental · Erika María Zea Díaz",
       "l": "Sala 5"
      }
+    ],
+    [
+     "14:00",
+     "16:00",
+     {
+      "t": "Grupo Primario · Natalia Iral Sanchez",
+      "l": "Sala 5"
+     }
     ]
    ],
    "2026-12-01": [
@@ -892,6 +926,15 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-03": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Seguimiento Gerencial Proyecto Metro 80  · LUISA FERNANDA BEDOYA ROJAS",
+      "l": "Sala 5",
+      "k": "i"
+     }
+    ],
     [
      "14:00",
      "16:00",
