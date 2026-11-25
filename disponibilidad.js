@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-25",
- "actualizado": "2026-11-25T16:24:27-05:00",
+ "actualizado": "2026-11-25T16:26:38-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -755,6 +755,14 @@ window.DISPONIBILIDAD = {
    ],
    "2026-11-30": [],
    "2026-12-01": [
+    [
+     "09:00",
+     "10:00",
+     {
+      "t": "Comité Financiero Comunicaciones DAP · Mateo Rincón Morales",
+      "l": "Sala 3"
+     }
+    ],
     [
      "10:00",
      "12:00",
