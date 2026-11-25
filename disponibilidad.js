@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-25",
- "actualizado": "2026-11-25T13:48:44-05:00",
+ "actualizado": "2026-11-25T14:24:44-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -1007,7 +1007,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-12-10": [],
+   "2026-12-10": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "Comité de seguimiento cto 4600108611 · LAURA LOPEZ",
+      "l": "Sala 5"
+     }
+    ]
+   ],
    "2026-12-11": [],
    "2026-12-14": [],
    "2026-12-15": [],
