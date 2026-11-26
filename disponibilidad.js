@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-26",
- "actualizado": "2026-11-26T09:56:40-05:00",
+ "actualizado": "2026-11-26T10:01:19-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -265,6 +265,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-03": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "CAPACITACIÓN AGENTES DE RETENCIÓN · CLAUDIA CARO GONZALES",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "15:30",
@@ -545,6 +553,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-03": [
+    [
+     "10:00",
+     "12:00",
+     {
+      "t": "CAPACITACIÓN AGENTES DE RETENCIÓN · CLAUDIA CARO GONZALES",
+      "l": "Salas 1 y 2"
+     }
+    ],
     [
      "14:00",
      "15:30",
