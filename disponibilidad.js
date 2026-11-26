@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-26",
- "actualizado": "2026-11-26T06:00:23-05:00",
+ "actualizado": "2026-11-26T09:56:40-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -753,7 +753,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-11-30": [],
+   "2026-11-30": [
+    [
+     "08:00",
+     "12:00",
+     {
+      "t": "Comite mejoramientos viales · Julian Valencia",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-12-01": [
     [
      "09:00",
