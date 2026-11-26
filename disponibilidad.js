@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-26",
- "actualizado": "2026-11-26T11:10:29-05:00",
+ "actualizado": "2026-11-26T11:14:21-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -177,6 +177,14 @@ window.DISPONIBILIDAD = {
       "t": "CTI de Cambio Climático · Marisol Suárez Roldán",
       "l": "Sala 1",
       "k": "e"
+     }
+    ],
+    [
+     "13:30",
+     "17:00",
+     {
+      "t": "Comité de seguimiento contrato 108 856 2026   · Doris Valencia",
+      "l": "Sala 1"
      }
     ]
    ],
@@ -486,6 +494,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Capacitación de liderazgo · Natalia Muñoz",
+      "l": "Sala 2"
+     }
+    ],
+    [
+     "15:00",
+     "17:00",
+     {
+      "t": "Mesa técnica de trastornos, problemas mentales y epilepsia · Nelson Enrique Tobón Acevedo",
       "l": "Sala 2"
      }
     ]
