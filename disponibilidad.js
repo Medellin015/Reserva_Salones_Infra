@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-27",
- "actualizado": "2026-11-27T09:26:19-05:00",
+ "actualizado": "2026-11-27T10:09:21-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -561,6 +561,14 @@ window.DISPONIBILIDAD = {
     ]
    ],
    "2026-12-03": [
+    [
+     "08:00",
+     "10:00",
+     {
+      "t": "Comite preliminar contrato 4600109089 (16 parques) · Juan Pablo Torres Rodriguez",
+      "l": "Sala 2"
+     }
+    ],
     [
      "10:00",
      "12:00",
