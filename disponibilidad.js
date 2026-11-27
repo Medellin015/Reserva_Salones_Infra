@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-27",
- "actualizado": "2026-11-27T10:42:16-05:00",
+ "actualizado": "2026-11-27T10:50:54-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -829,7 +829,16 @@ window.DISPONIBILIDAD = {
      }
     ]
    ],
-   "2026-12-02": [],
+   "2026-12-02": [
+    [
+     "14:00",
+     "17:30",
+     {
+      "t": "Reunión del Equipo de Acompañamiento y Orientación a la Ciudadanía-ASOC- (2° laboratorio de Innovación) · Beatriz Elena García",
+      "l": "Sala 3"
+     }
+    ]
+   ],
    "2026-12-03": [
     [
      "08:30",
