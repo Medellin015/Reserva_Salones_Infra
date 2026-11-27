@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-27",
- "actualizado": "2026-11-27T14:27:54-05:00",
+ "actualizado": "2026-11-27T16:07:18-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -825,6 +825,14 @@ window.DISPONIBILIDAD = {
      "12:00",
      {
       "t": "Comite mejoramientos viales · Julian Valencia",
+      "l": "Sala 3"
+     }
+    ],
+    [
+     "14:30",
+     "16:00",
+     {
+      "t": "unificación de criterios técnicos – Sección vial y antejardines · Carolina Carvajal Agustin",
       "l": "Sala 3"
      }
     ]
