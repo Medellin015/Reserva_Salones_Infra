@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-27",
- "actualizado": "2026-11-27T06:00:27-05:00",
+ "actualizado": "2026-11-27T09:13:23-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -807,6 +807,14 @@ window.DISPONIBILIDAD = {
    ],
    "2026-12-02": [],
    "2026-12-03": [
+    [
+     "08:30",
+     "12:00",
+     {
+      "t": "comité de supervisión de contrato 4600108640 de 2026 · LILIANA PATRICIA GARCIA GOMEZ",
+      "l": "Sala 3"
+     }
+    ],
     [
      "13:00",
      "16:00",
