@@ -10,7 +10,7 @@
    datos en "ocupado", son los de la última lectura buena del mismo día. */
 window.DISPONIBILIDAD = {
  "verificado": "2026-11-27",
- "actualizado": "2026-11-27T11:29:22-05:00",
+ "actualizado": "2026-11-27T14:27:54-05:00",
  "avisado": null,
  "dias": [
   "2026-11-23",
@@ -1079,6 +1079,14 @@ window.DISPONIBILIDAD = {
      "10:00",
      {
       "t": "REUNION DE SEGUIMIENTO CONTRATO 4600103271 DE 2024 · Kenny Juliet Sánchez Jaller",
+      "l": "Sala 5"
+     }
+    ],
+    [
+     "14:00",
+     "16:30",
+     {
+      "t": "Capacitación unidad gestión contractual    · Ana Cristina  Alzate Serna",
       "l": "Sala 5"
      }
     ]
